@@ -1,8 +1,2 @@
-
-import 'splash_master_platform_interface.dart';
-
-class SplashMaster {
-  Future<String?> getPlatformVersion() {
-    return SplashMasterPlatform.instance.getPlatformVersion();
-  }
-}
+export 'package:splash_master/core/splash_master.dart';
+export 'package:splash_master/core/source.dart';
