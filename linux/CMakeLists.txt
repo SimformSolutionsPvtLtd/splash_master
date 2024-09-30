@@ -4,16 +4,16 @@
 cmake_minimum_required(VERSION 3.10)
 
 # Project-level configuration.
-set(PROJECT_NAME "splash_screen")
+set(PROJECT_NAME "splash_master")
 project(${PROJECT_NAME} LANGUAGES CXX)
 
 # This value is used when generating builds using this plugin, so it must
 # not be changed.
-set(PLUGIN_NAME "splash_screen_plugin")
+set(PLUGIN_NAME "splash_master_plugin")
 
 # Any new source files that you add to the plugin should be added here.
 list(APPEND PLUGIN_SOURCES
-  "splash_screen_plugin.cc"
+  "splash_master_plugin.cc"
 )
 
 # Define the plugin library target. Its name must not be changed (see comment
@@ -44,7 +44,7 @@ target_link_libraries(${PLUGIN_NAME} PRIVATE PkgConfig::GTK)
 # List of absolute paths to libraries that should be bundled with the plugin.
 # This list could contain prebuilt libraries, or libraries created by an
 # external build triggered from this build file.
-set(splash_screen_bundled_libraries
+set(splash_master_bundled_libraries
   ""
   PARENT_SCOPE
 )
@@ -77,7 +77,7 @@ FetchContent_MakeAvailable(googletest)
 # The plugin's exported API is not very useful for unit testing, so build the
 # sources directly into the test binary rather than using the shared library.
 add_executable(${TEST_RUNNER}
-  test/splash_screen_plugin_test.cc
+  test/splash_master_plugin_test.cc
   ${PLUGIN_SOURCES}
 )
 apply_standard_settings(${TEST_RUNNER})

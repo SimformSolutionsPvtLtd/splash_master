@@ -1,4 +1,4 @@
-# splash_screen
+# splash_master
 
 A new Flutter project.
 

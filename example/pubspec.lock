@@ -204,7 +204,7 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.10.0"
-  splash_screen:
+  splash_master:
     dependency: "direct main"
     description:
       path: ".."

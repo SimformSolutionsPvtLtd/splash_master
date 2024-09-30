@@ -2,7 +2,7 @@ import Cocoa
 import FlutterMacOS
 import XCTest
 
-@testable import splash_screen
+@testable import splash_master
 
 // This demonstrates a simple unit test of the Swift portion of this plugin's implementation.
 //
@@ -11,7 +11,7 @@ import XCTest
 class RunnerTests: XCTestCase {
 
   func testGetPlatformVersion() {
-    let plugin = SplashScreenPlugin()
+    let plugin = SplashMasterPlugin()
 
     let call = FlutterMethodCall(methodName: "getPlatformVersion", arguments: [])
 

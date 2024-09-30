@@ -1,10 +1,10 @@
 # Project-level configuration.
 cmake_minimum_required(VERSION 3.14)
-project(splash_screen_example LANGUAGES CXX)
+project(splash_master_example LANGUAGES CXX)
 
 # The name of the executable created for the application. Change this to change
 # the on-disk name of your application.
-set(BINARY_NAME "splash_screen_example")
+set(BINARY_NAME "splash_master_example")
 
 # Explicitly opt in to modern CMake behaviors to avoid warnings with recent
 # versions of CMake.
@@ -53,7 +53,7 @@ add_subdirectory(${FLUTTER_MANAGED_DIR})
 add_subdirectory("runner")
 
 # Enable the test target.
-set(include_splash_screen_tests TRUE)
+set(include_splash_master_tests TRUE)
 
 # Generated plugin build rules, which manage building the plugins and adding
 # them to the application.
