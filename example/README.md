@@ -1,6 +1,6 @@
-# splash_screen_example
+# splash_master_example
 
-Demonstrates how to use the splash_screen plugin.
+Demonstrates how to use the splash_master plugin.
 
 ## Getting Started
 

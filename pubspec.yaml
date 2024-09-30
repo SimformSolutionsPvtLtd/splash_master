@@ -1,7 +1,7 @@
-name: splash_screen
-description: "A new Flutter project."
+name: splash_master
+description: "Highly customizable splash screen"
 version: 0.0.1
-homepage:
+homepage: https://github.com/SimformSolutionsPvtLtd/splash_screen
 
 environment:
   sdk: '>=3.4.3 <4.0.0'
@@ -38,19 +38,19 @@ flutter:
   plugin:
     platforms:
       android:
-        package: com.example.splash_screen
-        pluginClass: SplashScreenPlugin
+        package: com.example.splash_master
+        pluginClass: SplashMasterPlugin
       ios:
-        pluginClass: SplashScreenPlugin
+        pluginClass: SplashMasterPlugin
       linux:
-        pluginClass: SplashScreenPlugin
+        pluginClass: SplashMasterPlugin
       macos:
-        pluginClass: SplashScreenPlugin
+        pluginClass: SplashMasterPlugin
       windows:
-        pluginClass: SplashScreenPluginCApi
+        pluginClass: SplashMasterPluginCApi
       web:
-        pluginClass: SplashScreenWeb
-        fileName: splash_screen_web.dart
+        pluginClass: SplashMasterWeb
+        fileName: splash_master_web.dart
 
   # To add assets to your plugin package, add an assets section, like this:
   # assets:

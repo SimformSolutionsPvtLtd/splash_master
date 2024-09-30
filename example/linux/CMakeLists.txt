@@ -4,10 +4,10 @@ project(runner LANGUAGES CXX)
 
 # The name of the executable created for the application. Change this to change
 # the on-disk name of your application.
-set(BINARY_NAME "splash_screen_example")
+set(BINARY_NAME "splash_master_example")
 # The unique GTK application identifier for this application. See:
 # https://wiki.gnome.org/HowDoI/ChooseApplicationID
-set(APPLICATION_ID "com.example.splash_screen")
+set(APPLICATION_ID "com.example.splash_master")
 
 # Explicitly opt in to modern CMake behaviors to avoid warnings with recent
 # versions of CMake.
@@ -87,7 +87,7 @@ set_target_properties(${BINARY_NAME}
 )
 
 # Enable the test target.
-set(include_splash_screen_tests TRUE)
+set(include_splash_master_tests TRUE)
 
 # Generated plugin build rules, which manage building the plugins and adding
 # them to the application.
