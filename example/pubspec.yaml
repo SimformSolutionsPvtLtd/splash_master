@@ -22,3 +22,4 @@ flutter:
   assets:
     - assets/flutter_dash.png
     - assets/sample_lottie.json
+    - assets/sample_video.mp4

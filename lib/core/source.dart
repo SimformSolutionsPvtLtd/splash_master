@@ -34,7 +34,9 @@ class DeviceFileSource extends Source {
 }
 
 class NetworkFileSource extends Source {
-  NetworkFileSource(this.path);
+  NetworkFileSource(this.path){
+    setSource();
+  }
 
   final String path;
 
