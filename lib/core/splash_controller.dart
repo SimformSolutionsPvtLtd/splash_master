@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:splash_master/core/source.dart';
-import 'package:splash_master/core/utils.dart';
+import 'package:splash_master/enums/splash_master_enums.dart';
 
 class SplashController {
   SplashController({required this.splashMediaType, required this.source});

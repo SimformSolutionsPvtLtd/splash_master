@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-enum SplashMediaType { image, video, lottie, rive, custom }
-
 class SplashMasterException implements Exception {
   final String message;
 
@@ -16,3 +14,5 @@ class SplashMasterException implements Exception {
 void skipFrame(VoidCallback fn) {
   WidgetsBinding.instance.addPostFrameCallback((_) => fn.call());
 }
+
+typedef WarningCallback = void Function(String);
