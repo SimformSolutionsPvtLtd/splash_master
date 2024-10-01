@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:splash_master/splash_master.dart';
 import 'package:splash_master_example/assets.dart';
+import 'package:splash_master_example/home.dart';
 
 void main() {
-  runApp(const SplashScreen());
+  runApp(
+    const MaterialApp(
+      home: SplashScreen(),
+    ),
+  );
 }
 
 class SplashScreen extends StatelessWidget {
@@ -11,9 +16,12 @@ class SplashScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SplashMaster(
-      nextScreen: Container(),
-      source: AssetSource(Assets.flutterDash),
+    return SplashMaster.lottie(
+      nextScreen: const Home(
+        title: 'Home',
+      ),
+      splashDuration: const Duration(seconds: 2),
+      source: AssetSource(Assets.sampleLottie),
     );
   }
 }

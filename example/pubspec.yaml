@@ -11,7 +11,7 @@ dependencies:
 
   splash_master:
     path: ../
-  cupertino_icons: ^1.0.6
+  cupertino_icons: ^1.0.8
 
 dev_dependencies:
   flutter_lints: ^3.0.0
@@ -21,3 +21,4 @@ flutter:
 
   assets:
     - assets/flutter_dash.png
+    - assets/sample_lottie.json

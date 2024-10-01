@@ -1,20 +1,35 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:splash_master/config/lottie_config.dart';
 import 'package:splash_master/core/source.dart';
 import 'package:splash_master/core/splash_controller.dart';
-import 'package:splash_master/core/utils.dart';
+import 'package:splash_master/enums/splash_master_enums.dart';
+import 'package:splash_master/splashs/lottie_splash.dart';
 
 class SplashMaster extends StatefulWidget {
-  const SplashMaster({
+  const SplashMaster.image({
     super.key,
-    required this.nextScreen,
+    this.nextScreen,
     this.source,
     this.splashDuration = const Duration(seconds: 1),
     this.customNavigation,
-    this.splashMediaType = SplashMediaType.image,
+  })  : splashMediaType = SplashMediaType.image,
+        lottieConfig = null,
+        assert(source != null, "Source can't be null");
+
+  const SplashMaster.lottie({
+    super.key,
+    this.nextScreen,
+    this.source,
+    this.splashDuration = const Duration(seconds: 1),
+    this.customNavigation,
+    this.splashMediaType = SplashMediaType.lottie,
+    this.lottieConfig,
   }) : assert(source != null, "Source can't be null");
 
   /// The screen which needs to be navigated after the splash screen.
-  final Widget nextScreen;
+  final Widget? nextScreen;
 
   /// If an app has custom navigation or page transition then use this callback
   /// to navigate to [nextScreen].
@@ -29,6 +44,8 @@ class SplashMaster extends StatefulWidget {
 
   /// Source for the media which needs to be shown as splash screen.
   final Source? source;
+
+  final LottieConfig? lottieConfig;
 
   @override
   State<SplashMaster> createState() => _SplashScreenState();
@@ -46,6 +63,24 @@ class _SplashScreenState extends State<SplashMaster> {
       splashMediaType: splashMediaType,
       source: widget.source!,
     );
+    Timer(widget.splashDuration, onSplashComplete);
+  }
+
+  void onSplashComplete() {
+    if (widget.customNavigation != null) {
+      widget.customNavigation!.call();
+    } else {
+      if (widget.nextScreen == null) {
+        return;
+      }
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (_) {
+            return widget.nextScreen!;
+          },
+        ),
+      );
+    }
   }
 
   @override
@@ -57,6 +92,11 @@ class _SplashScreenState extends State<SplashMaster> {
     switch (splashMediaType) {
       case SplashMediaType.image:
         return splashController.getImageFromSource();
+      case SplashMediaType.lottie:
+        return LottieSplash(
+          source: widget.source!,
+          lottieConfig: widget.lottieConfig ?? const LottieConfig(),
+        );
       default:
         return const SizedBox.shrink();
     }

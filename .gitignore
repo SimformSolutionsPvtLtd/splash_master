@@ -26,4 +26,5 @@ migrate_working_dir/
 /pubspec.lock
 **/doc/api/
 .dart_tool/
+.packages
 build/
