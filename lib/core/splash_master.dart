@@ -1,12 +1,14 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:splash_master/configs/rive_configs.dart';
 import 'package:splash_master/configs/video_config.dart';
 import 'package:splash_master/configs/lottie_config.dart';
 import 'package:splash_master/core/source.dart';
 import 'package:splash_master/core/splash_controller.dart';
 import 'package:splash_master/enums/splash_master_enums.dart';
 import 'package:splash_master/splashes/lottie_splash.dart';
+import 'package:splash_master/splashes/rive_splash.dart';
 import 'package:splash_master/splashes/video_splash.dart';
 
 class SplashMaster extends StatefulWidget {
@@ -19,6 +21,7 @@ class SplashMaster extends StatefulWidget {
   })  : splashMediaType = SplashMediaType.image,
         lottieConfig = null,
         videoConfig = null,
+        riveConfig = null,
         assert(source != null, "Source can't be null");
 
   const SplashMaster.lottie({
@@ -30,6 +33,7 @@ class SplashMaster extends StatefulWidget {
     this.lottieConfig,
   })  : splashMediaType = SplashMediaType.lottie,
         videoConfig = null,
+        riveConfig = null,
         assert(source != null, "Source can't be null");
 
   const SplashMaster.video({
@@ -41,6 +45,19 @@ class SplashMaster extends StatefulWidget {
     this.videoConfig,
   })  : splashMediaType = SplashMediaType.video,
         lottieConfig = null,
+        riveConfig = null,
+        assert(source != null, "Source can't be null");
+
+  const SplashMaster.rive({
+    super.key,
+    required this.nextScreen,
+    this.source,
+    this.splashDuration = const Duration(seconds: 1),
+    this.customNavigation,
+    this.riveConfig,
+  })  : splashMediaType = SplashMediaType.rive,
+        lottieConfig = null,
+        videoConfig = null,
         assert(source != null, "Source can't be null");
 
   /// The screen which needs to be navigated after the splash screen.
@@ -60,9 +77,14 @@ class SplashMaster extends StatefulWidget {
   /// Source for the media which needs to be shown as splash screen.
   final Source? source;
 
+  /// Configs for Lottie splash.
   final LottieConfig? lottieConfig;
 
+  /// Configs for Video splash.
   final VideoConfig? videoConfig;
+
+  /// Configs for Rive splash.
+  final RiveConfig? riveConfig;
 
   @override
   State<SplashMaster> createState() => _SplashScreenState();
@@ -118,6 +140,11 @@ class _SplashScreenState extends State<SplashMaster> {
         return VideoSplash(
           source: widget.source!,
           videoConfig: widget.videoConfig ?? const VideoConfig(),
+        );
+      case SplashMediaType.rive:
+        return RiveSplash(
+          source: widget.source!,
+          riveConfigs: widget.riveConfig ?? const RiveConfig(),
         );
       default:
         return const SizedBox.shrink();

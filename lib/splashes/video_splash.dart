@@ -79,13 +79,7 @@ class _VideoSplashState extends State<VideoSplash> {
         break;
       case NetworkFileSource networkFileSource:
         final url = networkFileSource.url;
-        if (url != null) {
-          controller = VideoPlayerController.networkUrl(url);
-        } else {
-          throw SplashMasterException(
-            message: "Url can't be null when playing a remote video",
-          );
-        }
+        controller = VideoPlayerController.networkUrl(url);
         break;
       case BytesSource bytesSource:
         final file = File.fromRawPath(bytesSource.bytes);

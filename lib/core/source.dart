@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/services.dart';
+import 'package:rive/rive.dart';
 import 'package:splash_master/core/utils.dart';
 
 abstract class Source {
@@ -8,9 +9,7 @@ abstract class Source {
 }
 
 class AssetSource extends Source {
-  AssetSource(this.path) {
-    setSource();
-  }
+  AssetSource(this.path);
 
   final String path;
 
@@ -34,7 +33,7 @@ class DeviceFileSource extends Source {
 }
 
 class NetworkFileSource extends Source {
-  NetworkFileSource(this.path){
+  NetworkFileSource(this.path) {
     setSource();
   }
 
@@ -42,7 +41,7 @@ class NetworkFileSource extends Source {
 
   Uri? _url;
 
-  Uri? get url => _url;
+  Uri get url => _url!;
 
   @override
   void setSource() {
@@ -57,6 +56,15 @@ class BytesSource extends Source {
   BytesSource(this.bytes);
 
   final Uint8List bytes;
+
+  @override
+  void setSource() {}
+}
+
+class RiveWidgetSource extends Source {
+  RiveWidgetSource(this.rive);
+
+  final Rive rive;
 
   @override
   void setSource() {}
