@@ -1,7 +1,8 @@
 class Assets {
   Assets._();
 
-  static const imagePath = 'assets';
-  static const flutterDash = '$imagePath/flutter_dash.png';
-  static const sampleLottie = '$imagePath/sample_lottie.json';
+  static const assets = 'assets';
+  static const flutterDash = '$assets/flutter_dash.png';
+  static const sampleLottie = '$assets/sample_lottie.json';
+  static const sampleVideo = '$assets/sample_video.mp4';
 }
