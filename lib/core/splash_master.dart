@@ -73,6 +73,7 @@ class _SplashScreenState extends State<SplashMaster> {
   late final SplashController splashController;
 
   late Duration splashDuration;
+  Timer? timer;
 
   @override
   void initState() {
@@ -83,24 +84,15 @@ class _SplashScreenState extends State<SplashMaster> {
       splashMediaType: splashMediaType,
       source: widget.source!,
     );
-    Timer(splashDuration, onSplashComplete);
+    if (splashMediaType != SplashMediaType.video) {
+      timer = Timer(splashDuration, onSplashComplete);
+    }
   }
 
-  void onSplashComplete() {
-    if (widget.customNavigation != null) {
-      widget.customNavigation!.call();
-    } else {
-      if (widget.nextScreen == null) {
-        return;
-      }
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (_) {
-            return widget.nextScreen!;
-          },
-        ),
-      );
-    }
+  @override
+  void dispose() {
+    timer?.cancel();
+    super.dispose();
   }
 
   @override
@@ -121,9 +113,30 @@ class _SplashScreenState extends State<SplashMaster> {
         return VideoSplash(
           source: widget.source!,
           videoConfig: widget.videoConfig ?? const VideoConfig(),
+          onVideoInitialise: (duration) {
+            timer?.cancel();
+            timer = Timer(duration, onSplashComplete);
+          },
         );
       default:
         return const SizedBox.shrink();
+    }
+  }
+
+  void onSplashComplete() {
+    if (widget.customNavigation != null) {
+      widget.customNavigation!.call();
+    } else {
+      if (widget.nextScreen == null) {
+        return;
+      }
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (_) {
+            return widget.nextScreen!;
+          },
+        ),
+      );
     }
   }
 }

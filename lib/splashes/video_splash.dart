@@ -11,10 +11,12 @@ class VideoSplash extends StatefulWidget {
     super.key,
     required this.source,
     this.videoConfig = const VideoConfig(),
+    this.onVideoInitialise,
   });
 
   final VideoConfig videoConfig;
   final Source source;
+  final OnVideoDuration? onVideoInitialise;
 
   @override
   State<VideoSplash> createState() => _VideoSplashState();
@@ -31,6 +33,7 @@ class _VideoSplashState extends State<VideoSplash> {
     videoController = getVideoControllerFromSource();
     videoController.initialize().then(
       (_) {
+        widget.onVideoInitialise?.call(videoController.value.duration);
         videoConfig.onVideoControllerInit?.call(videoController);
         if (mounted) setState(() {});
         if (videoConfig.playImmediately) {
@@ -49,23 +52,36 @@ class _VideoSplashState extends State<VideoSplash> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: videoController.value.isInitialized
-          ? videoConfig.useSafeArea
-              ? SafeArea(child: videoWidget)
-              : videoWidget
-          : const SizedBox.shrink(),
+      body: videoConfig.useSafeArea
+          ? SafeArea(child: splashWidget)
+          : splashWidget,
     );
   }
 
-  Widget get videoWidget {
+  Widget get splashWidget {
     return Center(
       child: videoConfig.useAspectRatio
           ? AspectRatio(
               aspectRatio: videoController.value.aspectRatio,
-              child: VideoPlayer(videoController),
+              child: mediaWidget,
             )
-          : VideoPlayer(videoController),
+          : SizedBox.fromSize(
+              size:
+                  videoConfig.useFullScreen ? MediaQuery.sizeOf(context) : null,
+              child: mediaWidget,
+            ),
     );
+  }
+
+  Widget get mediaWidget {
+    return videoController.value.isInitialized
+        ? VideoPlayer(videoController)
+        : videoConfig.firstFrame != null
+            ? Image.asset(
+                videoConfig.firstFrame!,
+                fit: BoxFit.fill,
+              )
+            : const SizedBox.shrink();
   }
 
   VideoPlayerController getVideoControllerFromSource() {
