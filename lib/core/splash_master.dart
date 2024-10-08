@@ -14,7 +14,7 @@ class SplashMaster extends StatefulWidget {
     super.key,
     this.nextScreen,
     this.source,
-    this.splashDuration = const Duration(seconds: 1),
+    this.splashDuration,
     this.customNavigation,
   })  : splashMediaType = SplashMediaType.image,
         lottieConfig = null,
@@ -25,7 +25,7 @@ class SplashMaster extends StatefulWidget {
     super.key,
     this.nextScreen,
     this.source,
-    this.splashDuration = const Duration(seconds: 1),
+    this.splashDuration,
     this.customNavigation,
     this.lottieConfig,
   })  : splashMediaType = SplashMediaType.lottie,
@@ -36,7 +36,7 @@ class SplashMaster extends StatefulWidget {
     super.key,
     required this.nextScreen,
     this.source,
-    this.splashDuration = const Duration(seconds: 1),
+    this.splashDuration,
     this.customNavigation,
     this.videoConfig,
   })  : splashMediaType = SplashMediaType.video,
@@ -52,7 +52,7 @@ class SplashMaster extends StatefulWidget {
 
   /// For this duration splash screen will be shown and then it will be
   /// navigated to [nextScreen].
-  final Duration splashDuration;
+  final Duration? splashDuration;
 
   /// Type of the media which needs to be used as splash screen.
   final SplashMediaType splashMediaType;
@@ -72,15 +72,18 @@ class _SplashScreenState extends State<SplashMaster> {
   late SplashMediaType splashMediaType;
   late final SplashController splashController;
 
+  late Duration splashDuration;
+
   @override
   void initState() {
     super.initState();
     splashMediaType = widget.splashMediaType;
+    splashDuration = widget.splashDuration ?? const Duration(seconds: 1);
     splashController = SplashController(
       splashMediaType: splashMediaType,
       source: widget.source!,
     );
-    Timer(widget.splashDuration, onSplashComplete);
+    Timer(splashDuration, onSplashComplete);
   }
 
   void onSplashComplete() {
