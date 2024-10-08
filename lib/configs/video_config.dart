@@ -6,10 +6,14 @@ class VideoConfig {
     this.playImmediately = true,
     this.useAspectRatio = true,
     this.useSafeArea = false,
+    this.useFullScreen = false,
+    this.firstFrame,
   });
 
   final Function(VideoPlayerController)? onVideoControllerInit;
   final bool playImmediately;
   final bool useAspectRatio;
   final bool useSafeArea;
+  final bool useFullScreen;
+  final String? firstFrame;
 }

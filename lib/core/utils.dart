@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+typedef WarningCallback = void Function(String);
+typedef OnVideoDuration = void Function(Duration);
+
 class SplashMasterException implements Exception {
   final String message;
 
@@ -14,5 +17,3 @@ class SplashMasterException implements Exception {
 void skipFrame(VoidCallback fn) {
   WidgetsBinding.instance.addPostFrameCallback((_) => fn.call());
 }
-
-typedef WarningCallback = void Function(String);
