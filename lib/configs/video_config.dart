@@ -9,7 +9,7 @@ class VideoConfig {
     this.useSafeArea = false,
     this.useFullScreen = false,
     this.firstFrame,
-    this.firstFrameAspectRatio = 16 / 9,
+    this.firstFrameAspectRatio = 9 / 16,
     this.backgroundColor,
   }) : assert(
           !(useFullScreen && useAspectRatio),
