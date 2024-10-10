@@ -3,8 +3,11 @@ enum Command {
   build,
   none;
 
-  static Command fromString(String str) =>
-      switch (str) { 'install' => install, 'build' => build, _ => none };
+  static Command fromString(String str) => switch (str) {
+        'install' => install,
+        'build' => build,
+        _ => none,
+      };
 }
 
 enum AndroidMipMaps {
@@ -19,4 +22,17 @@ enum AndroidMipMaps {
   final String folder;
 
   const AndroidMipMaps(this.width, this.height, this.folder);
+}
+
+enum IosScale {
+  oneX(1080, 1920, '', '1x'),
+  twoX(1080, 1920, '@2x', '2x'),
+  threeX(1080, 1920, '@3x', '3x');
+
+  final String fileEndWith;
+  final String scale;
+  final double height;
+  final double width;
+
+  const IosScale(this.width, this.height, this.fileEndWith, this.scale);
 }
