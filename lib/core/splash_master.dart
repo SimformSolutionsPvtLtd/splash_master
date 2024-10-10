@@ -112,7 +112,7 @@ class _SplashScreenState extends State<SplashMaster> {
       case SplashMediaType.video:
         return VideoSplash(
           source: widget.source!,
-          videoConfig: widget.videoConfig ?? const VideoConfig(),
+          videoConfig: widget.videoConfig,
           onVideoInitialise: (duration) {
             timer?.cancel();
             timer = Timer(duration, onSplashComplete);

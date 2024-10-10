@@ -24,9 +24,10 @@ class SplashScreen extends StatelessWidget {
       ),
       source: AssetSource(Assets.sampleVideo),
       videoConfig: const VideoConfig(
-        firstFrame: 'assets/splash_image.jpg',
-        useFullScreen: true,
-        useAspectRatio: false,
+        firstFrame: 'assets/splash_image.png',
+        useFullScreen: false,
+        useAspectRatio: true,
+        backgroundColor: Color(0xFF040406),
       ),
     );
   }
