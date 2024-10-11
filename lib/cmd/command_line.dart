@@ -1,33 +1,41 @@
 import 'dart:io';
 import 'dart:convert';
 
+import 'package:splash_master/cmd/cmd_strings.dart';
+import 'package:splash_master/cmd/cmd_utils.dart';
+import 'package:xml/xml.dart';
+
 import 'logging.dart';
+
+part 'android_splash.dart';
 
 void commandEntry(List<String> arguments) {
   if (arguments.isEmpty) {
     log('Usage: ffmpeg_frame_extractor <command> [options]');
     log('Commands:');
     log('  install  Install FFmpeg');
-    log('  extract  <inputPath> <outputPath>  Extract the first frame from a video');
+    log('  build  <inputPath>  Extract the first frame from a video, sets it to native mipmap folder and updates styles.xml file accordingly.');
     return;
   }
 
-  final command = arguments[0];
+  final argument = arguments[0];
 
-  if (command == 'install') {
-    installFFmpeg();
-  } else if (command == 'extract' && arguments.length == 3) {
-    final inputPath = arguments[1];
-    final outputPath = arguments[2];
-    runFFmpegCommand(inputPath, outputPath).then((exitCode) {
-      if (exitCode == 0) {
-        log('Frame extracted successfully: $outputPath');
+  final command = Command.fromString(argument);
+  switch (command) {
+    case Command.install:
+      installFFmpeg();
+      break;
+    case Command.build:
+      if (arguments.length == 2 || arguments.length == 3) {
+        final inputPath = arguments[1];
+        final isPluginTestMode = arguments.length == 3 && arguments[2] == '-t';
+        applyAndroidSplashImage(inputPath, isPluginTestMode: isPluginTestMode);
       } else {
-        log('Failed to extract frame. Exit code: $exitCode');
+        log('Invalid arguments.');
       }
-    });
-  } else {
-    log('Invalid command or arguments. Use "install" to install FFmpeg or "extract <input> <output>" to extract a frame.');
+      break;
+    case Command.none:
+      log('Invalid command or arguments.');
   }
 }
 
@@ -47,15 +55,21 @@ Future<void> installFFmpeg() async {
     return;
   }
 
-  log('Splash master setup successful');
+  log('Splash master setup successful.');
 }
 
-Future<int> runFFmpegCommand(String inputPath, String outputPath) async {
+Future<int> runFFmpegCommand({
+  required String inputPath,
+  required String outputPath,
+  AndroidMipMaps? mipMaps,
+}) async {
+  final scale =
+      mipMaps != null ? ',scale=${mipMaps.width}:${mipMaps.height}' : '';
   final List<String> args = [
     '-i',
     inputPath,
     '-vf',
-    'select=eq(n\\,0)', // Escape backslash for the command
+    'select=eq(n\\,0)$scale',
     '-q:v',
     '3',
     outputPath
@@ -63,14 +77,6 @@ Future<int> runFFmpegCommand(String inputPath, String outputPath) async {
 
   try {
     Process process = await Process.start('ffmpeg', args);
-
-    process.stdout.transform(utf8.decoder).listen((data) {
-      log('FFmpeg Output: $data');
-    });
-
-    process.stderr.transform(utf8.decoder).listen((data) {
-      log('FFmpeg Error: $data');
-    });
 
     int exitCode = await process.exitCode;
     return exitCode;
@@ -99,4 +105,40 @@ Future<void> runCommand(String command, List<String> arguments) async {
   } catch (e) {
     log("Failed to run command: $e");
   }
+}
+
+Future<void> generateAssetImage(
+  String inputPath, {
+  bool isPluginTestMode = false,
+}) async {
+  final exampleDir = isPluginTestMode ? 'example' : '';
+  final assetsPath = '$exampleDir/assets';
+
+  final directory = Directory(assetsPath);
+
+  if (!(await directory.exists())) {
+    log("assets folder doesn't exists. Creating it...");
+    directory.create(recursive: true);
+  }
+
+  final outputPath = '$assetsPath/splash_image.png';
+  if ((await File(outputPath).exists())) {
+    log("Image already exists with same name at $outputPath");
+    return;
+  }
+  await runFFmpegCommand(
+    inputPath: inputPath,
+    outputPath: outputPath,
+  );
+  log('Splash image added to assets.');
+}
+
+Future<void> applyAndroidSplashImage(
+  String inputPath, {
+  bool isPluginTestMode = false,
+}) async {
+  await generateAssetImage(inputPath, isPluginTestMode: isPluginTestMode);
+  await generateAndroidImages(inputPath, isPluginTestMode: isPluginTestMode);
+  await createSplashImageDrawable(isPluginTestMode: isPluginTestMode);
+  await updateStylesXml(isPluginTestMode: isPluginTestMode);
 }

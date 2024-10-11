@@ -10,11 +10,11 @@ class VideoSplash extends StatefulWidget {
   const VideoSplash({
     super.key,
     required this.source,
-    this.videoConfig = const VideoConfig(),
+    this.videoConfig,
     this.onVideoInitialise,
   });
 
-  final VideoConfig videoConfig;
+  final VideoConfig? videoConfig;
   final Source source;
   final OnVideoDuration? onVideoInitialise;
 
@@ -25,7 +25,7 @@ class VideoSplash extends StatefulWidget {
 class _VideoSplashState extends State<VideoSplash> {
   late final VideoPlayerController videoController;
 
-  VideoConfig get videoConfig => widget.videoConfig;
+  VideoConfig get videoConfig => widget.videoConfig ?? const VideoConfig();
 
   @override
   void initState() {
@@ -52,36 +52,49 @@ class _VideoSplashState extends State<VideoSplash> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: videoConfig.useSafeArea
-          ? SafeArea(child: splashWidget)
-          : splashWidget,
-    );
-  }
-
-  Widget get splashWidget {
-    return Center(
-      child: videoConfig.useAspectRatio
-          ? AspectRatio(
-              aspectRatio: videoController.value.aspectRatio,
-              child: mediaWidget,
-            )
-          : SizedBox.fromSize(
-              size:
-                  videoConfig.useFullScreen ? MediaQuery.sizeOf(context) : null,
-              child: mediaWidget,
-            ),
+      backgroundColor: videoConfig.backgroundColor,
+      body:
+          videoConfig.useSafeArea ? SafeArea(child: mediaWidget) : mediaWidget,
     );
   }
 
   Widget get mediaWidget {
-    return videoController.value.isInitialized
-        ? VideoPlayer(videoController)
-        : videoConfig.firstFrame != null
-            ? Image.asset(
-                videoConfig.firstFrame!,
-                fit: BoxFit.fill,
+    return Center(
+      child: Stack(
+        children: [
+          if (videoConfig.firstFrame != null) ...{
+            if (videoConfig.useFullScreen) ...{
+              SizedBox.fromSize(
+                size: MediaQuery.sizeOf(context),
+                child: Image.asset(videoConfig.firstFrame!),
               )
-            : const SizedBox.shrink();
+            } else if (videoConfig.useAspectRatio) ...{
+              AspectRatio(
+                aspectRatio: videoConfig.firstFrameAspectRatio,
+                child: Image.asset(videoConfig.firstFrame!),
+              ),
+            },
+          } else ...{
+            Image.asset(videoConfig.firstFrame!),
+          },
+          if (videoController.value.isInitialized) ...{
+            if (videoConfig.useFullScreen) ...{
+              SizedBox.fromSize(
+                size: MediaQuery.sizeOf(context),
+                child: VideoPlayer(videoController),
+              ),
+            } else if (videoConfig.useAspectRatio) ...{
+              AspectRatio(
+                aspectRatio: videoController.value.aspectRatio,
+                child: VideoPlayer(videoController),
+              )
+            } else ...{
+              VideoPlayer(videoController),
+            },
+          }
+        ],
+      ),
+    );
   }
 
   VideoPlayerController getVideoControllerFromSource() {

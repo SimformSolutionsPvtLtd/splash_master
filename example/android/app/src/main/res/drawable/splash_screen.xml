@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!--TODO: Add option to change background color through command line    -->
+    <item>
+        <color android:color="@color/backgroundColor" />
+    </item>
+    <item>
+        <bitmap
+            android:gravity="center"
+            android:src="@mipmap/splash_image"
+            android:tileMode="disabled" />
+    </item>
+</layer-list>
