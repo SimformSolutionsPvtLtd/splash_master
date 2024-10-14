@@ -3,11 +3,14 @@ import 'dart:convert';
 
 import 'package:splash_master/cmd/cmd_strings.dart';
 import 'package:splash_master/cmd/cmd_utils.dart';
+import 'package:splash_master/cmd/models/ios_content_json_dm.dart';
 import 'package:xml/xml.dart';
 
 import 'logging.dart';
 
 part 'android_splash.dart';
+
+part 'ios_splash.dart';
 
 void commandEntry(List<String> arguments) {
   if (arguments.isEmpty) {
@@ -29,7 +32,7 @@ void commandEntry(List<String> arguments) {
       if (arguments.length == 2 || arguments.length == 3) {
         final inputPath = arguments[1];
         final isPluginTestMode = arguments.length == 3 && arguments[2] == '-t';
-        applyAndroidSplashImage(inputPath, isPluginTestMode: isPluginTestMode);
+        applySplash(inputPath, isPluginTestMode: isPluginTestMode);
       } else {
         log('Invalid arguments.');
       }
@@ -62,9 +65,13 @@ Future<int> runFFmpegCommand({
   required String inputPath,
   required String outputPath,
   AndroidMipMaps? mipMaps,
+  IosScale? iosScale,
 }) async {
-  final scale =
-      mipMaps != null ? ',scale=${mipMaps.width}:${mipMaps.height}' : '';
+  final scale = mipMaps != null
+      ? ',scale=${mipMaps.width}:${mipMaps.height}'
+      : iosScale != null
+          ? ',scale=${iosScale.width}:${iosScale.height}'
+          : '';
   final List<String> args = [
     '-i',
     inputPath,
@@ -137,8 +144,16 @@ Future<void> applyAndroidSplashImage(
   String inputPath, {
   bool isPluginTestMode = false,
 }) async {
-  await generateAssetImage(inputPath, isPluginTestMode: isPluginTestMode);
   await generateAndroidImages(inputPath, isPluginTestMode: isPluginTestMode);
   await createSplashImageDrawable(isPluginTestMode: isPluginTestMode);
   await updateStylesXml(isPluginTestMode: isPluginTestMode);
+}
+
+Future<void> applySplash(
+  String inputPath, {
+  bool isPluginTestMode = false,
+}) async {
+  await generateIosImages(inputPath, isPluginTestMode: isPluginTestMode);
+  await generateAndroidImages(inputPath, isPluginTestMode: isPluginTestMode);
+  await generateAssetImage(inputPath, isPluginTestMode: isPluginTestMode);
 }
