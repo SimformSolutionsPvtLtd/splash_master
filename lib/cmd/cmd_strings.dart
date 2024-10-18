@@ -6,4 +6,5 @@ class CmdStrings {
   static const androidResFolder = 'android/app/src/main/res';
   static const iosAssetsFolder =
       'ios/Runner/Assets.xcassets/LaunchImage.imageset';
+  static const lottieJsScript = 'lib/cmd/js/generate_image.js';
 }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:splash_master/configs/video_config.dart';
+import 'package:splash_master/configs/lottie_config.dart';
 import 'package:splash_master/splash_master.dart';
 import 'package:splash_master_example/assets.dart';
 import 'package:splash_master_example/home.dart';
@@ -18,17 +18,14 @@ class SplashScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SplashMaster.video(
+    return SplashMaster.lottie(
       nextScreen: const Home(
         title: 'Home',
       ),
-      source: AssetSource(Assets.sampleVideo),
-      videoConfig: const VideoConfig(
-        firstFrame: 'assets/splash_image.png',
-        useFullScreen: false,
-        useAspectRatio: true,
+      lottieConfig: const LottieConfig(
         backgroundColor: Color(0xFF040406),
       ),
+      source: AssetSource(Assets.sampleLottie),
     );
   }
 }

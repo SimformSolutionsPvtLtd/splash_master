@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 typedef WarningCallback = void Function(String);
-typedef OnVideoDuration = void Function(Duration);
+typedef OnSplashDuration = void Function(Duration);
 
 class SplashMasterException implements Exception {
   final String message;
