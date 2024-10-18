@@ -135,12 +135,23 @@ class LottieConfig {
   /// to maximum 50MB. After that, animations are not cached anymore.
   final RenderCache? renderCache;
 
+  /// Sets BoxFit to fill which removes padding around the lottie file. Defaults to true.
+  final bool overrideBoxFit;
+
+  final Color? backgroundColor;
+
+  final bool useFullScreen;
+
+  final bool useAspectRatio;
+
+  final double aspectRatio;
+
   const LottieConfig({
     this.onLoaded,
     this.controller,
     this.frameRate,
     this.animate,
-    this.repeat,
+    this.repeat = false,
     this.reverse,
     this.delegates,
     this.options,
@@ -153,5 +164,10 @@ class LottieConfig {
     this.onWarning,
     this.errorBuilder,
     this.renderCache,
+    this.overrideBoxFit = true,
+    this.backgroundColor,
+    this.useFullScreen = true,
+    this.useAspectRatio = false,
+    this.aspectRatio = 9 / 16,
   });
 }

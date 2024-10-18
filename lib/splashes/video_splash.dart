@@ -11,12 +11,12 @@ class VideoSplash extends StatefulWidget {
     super.key,
     required this.source,
     this.videoConfig,
-    this.onVideoInitialise,
+    this.onSplashDuration,
   });
 
   final VideoConfig? videoConfig;
   final Source source;
-  final OnVideoDuration? onVideoInitialise;
+  final OnSplashDuration? onSplashDuration;
 
   @override
   State<VideoSplash> createState() => _VideoSplashState();
@@ -33,7 +33,7 @@ class _VideoSplashState extends State<VideoSplash> {
     videoController = getVideoControllerFromSource();
     videoController.initialize().then(
       (_) {
-        widget.onVideoInitialise?.call(videoController.value.duration);
+        widget.onSplashDuration?.call(videoController.value.duration);
         videoConfig.onVideoControllerInit?.call(videoController);
         if (mounted) setState(() {});
         if (videoConfig.playImmediately) {

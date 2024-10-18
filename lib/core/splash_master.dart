@@ -108,19 +108,22 @@ class _SplashScreenState extends State<SplashMaster> {
         return LottieSplash(
           source: widget.source!,
           lottieConfig: widget.lottieConfig ?? const LottieConfig(),
+          onSplashDuration: _updateSplashDuration,
         );
       case SplashMediaType.video:
         return VideoSplash(
           source: widget.source!,
           videoConfig: widget.videoConfig,
-          onVideoInitialise: (duration) {
-            timer?.cancel();
-            timer = Timer(duration, onSplashComplete);
-          },
+          onSplashDuration: _updateSplashDuration,
         );
       default:
         return const SizedBox.shrink();
     }
+  }
+
+  void _updateSplashDuration(Duration duration) {
+    timer?.cancel();
+    timer = Timer(duration, onSplashComplete);
   }
 
   void onSplashComplete() {

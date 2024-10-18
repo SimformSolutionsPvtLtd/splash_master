@@ -12,12 +12,17 @@ part 'android_splash.dart';
 
 part 'ios_splash.dart';
 
+part 'lottie_to_image.dart';
+
+part 'install_commands.dart';
+
 void commandEntry(List<String> arguments) {
   if (arguments.isEmpty) {
     log('Usage: ffmpeg_frame_extractor <command> [options]');
     log('Commands:');
-    log('  install  Install FFmpeg');
-    log('  build  <inputPath>  Extract the first frame from a video, sets it to native mipmap folder and updates styles.xml file accordingly.');
+    log('  install  Install required tools to generate splash images.');
+    log('  build  <inputPath>  Extract the first frame from the video and updates native files of android & ios to set generated splash images.');
+    log('  genLottie <inputPath> Extract the first frame from the lottie file and updates native files of android & ios to set generated splash images.');
     return;
   }
 
@@ -26,7 +31,8 @@ void commandEntry(List<String> arguments) {
   final command = Command.fromString(argument);
   switch (command) {
     case Command.install:
-      installFFmpeg();
+      //TODO: Install only required tools based on selected splash type.
+      initialSetup();
       break;
     case Command.build:
       if (arguments.length == 2 || arguments.length == 3) {
@@ -37,28 +43,18 @@ void commandEntry(List<String> arguments) {
         log('Invalid arguments.');
       }
       break;
+    case Command.lottie:
+      if (arguments.length == 2 || arguments.length == 3) {
+        final inputPath = arguments[1];
+        final isPluginTestMode = arguments.length == 3 && arguments[2] == '-t';
+        lottieAsSplash(inputPath, isPluginTestMode: isPluginTestMode);
+      } else {
+        log('Invalid arguments.');
+      }
+      break;
     case Command.none:
       log('Invalid command or arguments.');
   }
-}
-
-Future<void> installFFmpeg() async {
-  log('Installing FFmpeg...');
-
-  if (Platform.isMacOS) {
-    await runCommand('brew', ['install', 'ffmpeg']);
-  } else if (Platform.isLinux) {
-    await runCommand('sudo', ['apt', 'update']);
-    await runCommand('sudo', ['apt', 'install', '-y', 'ffmpeg']);
-  } else if (Platform.isWindows) {
-    log("Please manually install FFmpeg for Windows from https://ffmpeg.org/download.html");
-    return;
-  } else {
-    log('Unsupported platform for installation.');
-    return;
-  }
-
-  log('Splash master setup successful.');
 }
 
 Future<int> runFFmpegCommand({
@@ -154,6 +150,6 @@ Future<void> applySplash(
   bool isPluginTestMode = false,
 }) async {
   await generateIosImages(inputPath, isPluginTestMode: isPluginTestMode);
-  await generateAndroidImages(inputPath, isPluginTestMode: isPluginTestMode);
+  await applyAndroidSplashImage(inputPath, isPluginTestMode: isPluginTestMode);
   await generateAssetImage(inputPath, isPluginTestMode: isPluginTestMode);
 }

@@ -1,11 +1,13 @@
 enum Command {
   install,
   build,
+  lottie,
   none;
 
   static Command fromString(String str) => switch (str) {
         'install' => install,
         'build' => build,
+        'lottie' => lottie,
         _ => none,
       };
 }

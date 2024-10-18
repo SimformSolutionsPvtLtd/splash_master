@@ -18,7 +18,7 @@ Future<void> generateAndroidImages(
     final isImageExists = await File(imagePath).exists();
     if (isImageExists) {
       log(
-        'Image already exists at $imagePath. Skipping image generation for ${mipmap.folder}.',
+        'Image already exists at $imagePath. Skipping it.',
       );
       continue;
     }
@@ -57,10 +57,10 @@ Future<void> createSplashImageDrawable({bool isPluginTestMode = false}) async {
   final exampleDir = isPluginTestMode ? 'example/' : '';
   final androidDrawableFolder =
       '$exampleDir${CmdStrings.androidDrawableFolder}';
-  final splashImagePath = '$androidDrawableFolder/splash_image.xml';
+  final splashImagePath = '$androidDrawableFolder/splash_screen.xml';
   final file = File(splashImagePath);
-  if (!await file.exists()) {
-    log("splash_image.xml already exists at $splashImagePath. Skipping generating it.");
+  if (await file.exists()) {
+    log("splash_screen.xml already exists at $splashImagePath. Skipping generating it.");
     return;
   }
 
@@ -83,5 +83,5 @@ Future<void> createSplashImageDrawable({bool isPluginTestMode = false}) async {
 
   final document = builder.buildDocument();
   await xml.writeAsString(document.toXmlString(pretty: true));
-  log("Created splash_image.xml.");
+  log("Created splash_screen.xml.");
 }
