@@ -1,11 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:splash_master/configs/image_config.dart';
 import 'package:splash_master/configs/video_config.dart';
 import 'package:splash_master/configs/lottie_config.dart';
 import 'package:splash_master/core/source.dart';
 import 'package:splash_master/core/splash_controller.dart';
 import 'package:splash_master/enums/splash_master_enums.dart';
+import 'package:splash_master/splashes/image_splash.dart';
 import 'package:splash_master/splashes/lottie_splash.dart';
 import 'package:splash_master/splashes/video_splash.dart';
 
@@ -16,6 +18,7 @@ class SplashMaster extends StatefulWidget {
     this.source,
     this.splashDuration,
     this.customNavigation,
+    this.imageConfig,
   })  : splashMediaType = SplashMediaType.image,
         lottieConfig = null,
         videoConfig = null,
@@ -30,6 +33,7 @@ class SplashMaster extends StatefulWidget {
     this.lottieConfig,
   })  : splashMediaType = SplashMediaType.lottie,
         videoConfig = null,
+        imageConfig = null,
         assert(source != null, "Source can't be null");
 
   const SplashMaster.video({
@@ -39,6 +43,7 @@ class SplashMaster extends StatefulWidget {
     this.splashDuration,
     this.customNavigation,
     this.videoConfig,
+    this.imageConfig,
   })  : splashMediaType = SplashMediaType.video,
         lottieConfig = null,
         assert(source != null, "Source can't be null");
@@ -63,6 +68,8 @@ class SplashMaster extends StatefulWidget {
   final LottieConfig? lottieConfig;
 
   final VideoConfig? videoConfig;
+
+  final ImageConfig? imageConfig;
 
   @override
   State<SplashMaster> createState() => _SplashScreenState();
@@ -102,8 +109,13 @@ class _SplashScreenState extends State<SplashMaster> {
 
   Widget get mediaWidget {
     switch (splashMediaType) {
+      // TODO: Remove image splash if user doesn't want flutter side of the splash
+      // screen.
       case SplashMediaType.image:
-        return splashController.getImageFromSource();
+        return ImageSplash(
+          source: widget.source!,
+          imageConfig: widget.imageConfig ?? const ImageConfig(),
+        );
       case SplashMediaType.lottie:
         return LottieSplash(
           source: widget.source!,
@@ -114,6 +126,8 @@ class _SplashScreenState extends State<SplashMaster> {
         return VideoSplash(
           source: widget.source!,
           videoConfig: widget.videoConfig,
+          firstFrameConfig:
+              widget.imageConfig ?? const ImageConfig(fit: BoxFit.fill),
           onSplashDuration: _updateSplashDuration,
         );
       default:

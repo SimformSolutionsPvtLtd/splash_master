@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:splash_master/configs/image_config.dart';
 import 'package:splash_master/configs/video_config.dart';
 import 'package:splash_master/core/source.dart';
 import 'package:splash_master/core/utils.dart';
@@ -10,12 +11,14 @@ class VideoSplash extends StatefulWidget {
   const VideoSplash({
     super.key,
     required this.source,
+    required this.firstFrameConfig,
     this.videoConfig,
     this.onSplashDuration,
   });
 
   final VideoConfig? videoConfig;
   final Source source;
+  final ImageConfig firstFrameConfig;
   final OnSplashDuration? onSplashDuration;
 
   @override
@@ -26,6 +29,8 @@ class _VideoSplashState extends State<VideoSplash> {
   late final VideoPlayerController videoController;
 
   VideoConfig get videoConfig => widget.videoConfig ?? const VideoConfig();
+
+  ImageConfig get firstFrameConfig => widget.firstFrameConfig;
 
   @override
   void initState() {
@@ -66,12 +71,12 @@ class _VideoSplashState extends State<VideoSplash> {
             if (videoConfig.useFullScreen) ...{
               SizedBox.fromSize(
                 size: MediaQuery.sizeOf(context),
-                child: Image.asset(videoConfig.firstFrame!),
+                child: firstFrame,
               )
             } else if (videoConfig.useAspectRatio) ...{
               AspectRatio(
                 aspectRatio: videoConfig.firstFrameAspectRatio,
-                child: Image.asset(videoConfig.firstFrame!),
+                child: firstFrame,
               ),
             },
           } else ...{
@@ -94,6 +99,35 @@ class _VideoSplashState extends State<VideoSplash> {
           }
         ],
       ),
+    );
+  }
+
+  Widget get firstFrame {
+    if (videoConfig.firstFrame == null) return const SizedBox.shrink();
+    return Image.asset(
+      videoConfig.firstFrame!,
+      fit: firstFrameConfig.fit,
+      frameBuilder: firstFrameConfig.frameBuilder,
+      alignment: firstFrameConfig.alignment,
+      height: firstFrameConfig.height,
+      width: firstFrameConfig.width,
+      scale: firstFrameConfig.scale,
+      opacity: firstFrameConfig.opacity,
+      color: firstFrameConfig.color,
+      errorBuilder: firstFrameConfig.errorBuilder,
+      filterQuality: firstFrameConfig.filterQuality,
+      gaplessPlayback: firstFrameConfig.gaplessPlayback,
+      isAntiAlias: firstFrameConfig.isAntiAlias,
+      centerSlice: firstFrameConfig.centerSlice,
+      colorBlendMode: firstFrameConfig.colorBlendMode,
+      semanticLabel: firstFrameConfig.semanticLabel,
+      repeat: firstFrameConfig.repeat,
+      matchTextDirection: firstFrameConfig.matchTextDirection,
+      excludeFromSemantics: firstFrameConfig.excludeFromSemantics,
+      cacheWidth: firstFrameConfig.cacheWidth,
+      cacheHeight: firstFrameConfig.cacheHeight,
+      package: firstFrameConfig.package,
+      bundle: firstFrameConfig.bundle,
     );
   }
 
