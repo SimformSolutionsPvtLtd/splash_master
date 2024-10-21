@@ -35,6 +35,7 @@ void commandEntry(List<String> arguments) {
       initialSetup();
       break;
     case Command.build:
+    case Command.image:
       if (arguments.length == 2 || arguments.length == 3) {
         final inputPath = arguments[1];
         final isPluginTestMode = arguments.length == 3 && arguments[2] == '-t';

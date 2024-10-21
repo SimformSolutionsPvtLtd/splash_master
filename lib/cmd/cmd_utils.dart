@@ -2,12 +2,14 @@ enum Command {
   install,
   build,
   lottie,
+  image,
   none;
 
   static Command fromString(String str) => switch (str) {
         'install' => install,
         'build' => build,
         'lottie' => lottie,
+        'image' => image,
         _ => none,
       };
 }
@@ -26,22 +28,24 @@ enum AndroidMipMaps {
   const AndroidMipMaps(this.width, this.height, this.folder);
 }
 
+/// Scales are set according to latest [Apple guidelines](https://developer.apple.com/design/human-interface-guidelines/layout#Specifications)
+/// on 21/10/2024 for iPhone.
 enum IosScale {
   oneX(
-    width: 1080,
-    height: 1920,
+    width: 320,
+    height: 480,
     fileEndWith: '',
     scale: '1x',
   ),
   twoX(
-    width: 1080,
-    height: 1920,
+    width: 828,
+    height: 1792,
     fileEndWith: '@2x',
     scale: '2x',
   ),
   threeX(
-    width: 1080,
-    height: 1920,
+    width: 1320,
+    height: 2868,
     fileEndWith: '@3x',
     scale: '3x',
   );
