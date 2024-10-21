@@ -18,9 +18,7 @@ class SplashScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SplashMaster.image(
-      nextScreen: const Home(
-        title: 'Home',
-      ),
+      nextScreen: const Home(),
       splashDuration: const Duration(seconds: 1),
       source: AssetSource(Assets.sampleSplashScreen),
       imageConfig: const ImageConfig(fit: BoxFit.fill),

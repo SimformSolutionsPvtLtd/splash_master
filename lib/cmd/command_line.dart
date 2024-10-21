@@ -34,7 +34,7 @@ void commandEntry(List<String> arguments) {
       //TODO: Install only required tools based on selected splash type.
       initialSetup();
       break;
-    case Command.build:
+    case Command.video:
     case Command.image:
       if (arguments.length == 2 || arguments.length == 3) {
         final inputPath = arguments[1];
