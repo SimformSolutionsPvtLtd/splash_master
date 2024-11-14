@@ -21,7 +21,19 @@ class _ImageSplashState extends State<ImageSplash> {
 
   @override
   Widget build(BuildContext context) {
-    return getImageFromSource();
+    if (imageConfig.useFullScreen) {
+      return SizedBox.fromSize(
+        size: MediaQuery.sizeOf(context),
+        child: getImageFromSource(),
+      );
+    } else if (imageConfig.useAspectRatio) {
+      return AspectRatio(
+        aspectRatio: 9 / 16,
+        child: getImageFromSource(),
+      );
+    } else {
+      return getImageFromSource();
+    }
   }
 
   Widget getImageFromSource() {

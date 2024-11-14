@@ -307,6 +307,8 @@ class ImageConfig {
   final AssetBundle? bundle;
 
   final Map<String, String>? headers;
+  final bool useFullScreen;
+  final bool useAspectRatio;
 
   const ImageConfig({
     this.frameBuilder,
@@ -333,5 +335,7 @@ class ImageConfig {
     this.bundle,
     this.package,
     this.headers,
+    this.useFullScreen = true,
+    this.useAspectRatio = false,
   });
 }
