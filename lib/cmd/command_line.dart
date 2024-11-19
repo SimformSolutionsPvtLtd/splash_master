@@ -1,5 +1,5 @@
-import 'dart:io';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:splash_master/cmd/cmd_strings.dart';
 import 'package:splash_master/cmd/cmd_utils.dart';
@@ -9,12 +9,9 @@ import 'package:xml/xml.dart';
 import 'logging.dart';
 
 part 'android_splash.dart';
-
-part 'ios_splash.dart';
-
-part 'lottie_to_image.dart';
-
 part 'install_commands.dart';
+part 'ios_splash.dart';
+part 'lottie_to_image.dart';
 
 void commandEntry(List<String> arguments) {
   if (arguments.isEmpty) {
@@ -116,7 +113,7 @@ Future<void> generateAssetImage(
   bool isPluginTestMode = false,
 }) async {
   final exampleDir = isPluginTestMode ? 'example' : '';
-  final assetsPath = '$exampleDir/assets';
+  final assetsPath = exampleDir.isEmpty ? 'assets' : '$exampleDir/assets';
 
   final directory = Directory(assetsPath);
 
