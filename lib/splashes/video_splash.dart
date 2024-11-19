@@ -72,15 +72,15 @@ class _VideoSplashState extends State<VideoSplash> {
               SizedBox.fromSize(
                 size: MediaQuery.sizeOf(context),
                 child: firstFrame,
-              )
+              ),
             } else if (videoConfig.useAspectRatio) ...{
               AspectRatio(
                 aspectRatio: videoConfig.firstFrameAspectRatio,
                 child: firstFrame,
               ),
+            } else ...{
+              Image.asset(videoConfig.firstFrame!),
             },
-          } else ...{
-            Image.asset(videoConfig.firstFrame!),
           },
           if (videoController.value.isInitialized) ...{
             if (videoConfig.useFullScreen) ...{
