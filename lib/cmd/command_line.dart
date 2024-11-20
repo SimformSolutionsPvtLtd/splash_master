@@ -28,8 +28,18 @@ void commandEntry(List<String> arguments) {
   final command = Command.fromString(argument);
   switch (command) {
     case Command.install:
-      //TODO: Install only required tools based on selected splash type.
-      initialSetup();
+      if (arguments.length == 2) {
+        final inputPath = arguments[1];
+        if (inputPath == 'video') {
+          installFFmpeg();
+        } else if (inputPath == 'lottie') {
+          lottieSetup();
+        } else {
+          log('Invalid arguments.');
+        }
+      } else {
+        log('Invalid arguments.');
+      }
       break;
     case Command.video:
     case Command.image:
