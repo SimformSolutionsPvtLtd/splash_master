@@ -66,6 +66,7 @@ class _VideoSplashState extends State<VideoSplash> {
   Widget get mediaWidget {
     return Center(
       child: Stack(
+        alignment: Alignment.center,
         children: [
           if (videoConfig.firstFrame != null) ...{
             if (videoConfig.useFullScreen) ...{

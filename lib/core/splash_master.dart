@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:splash_master/configs/image_config.dart';
-import 'package:splash_master/configs/video_config.dart';
 import 'package:splash_master/configs/lottie_config.dart';
+import 'package:splash_master/configs/video_config.dart';
 import 'package:splash_master/core/source.dart';
 import 'package:splash_master/core/splash_controller.dart';
 import 'package:splash_master/enums/splash_master_enums.dart';
@@ -15,38 +15,35 @@ class SplashMaster extends StatefulWidget {
   const SplashMaster.image({
     super.key,
     this.nextScreen,
-    this.source,
+    required this.source,
     this.splashDuration,
     this.customNavigation,
     this.imageConfig,
   })  : splashMediaType = SplashMediaType.image,
         lottieConfig = null,
-        videoConfig = null,
-        assert(source != null, "Source can't be null");
+        videoConfig = null;
 
   const SplashMaster.lottie({
     super.key,
     this.nextScreen,
-    this.source,
+    required this.source,
     this.splashDuration,
     this.customNavigation,
     this.lottieConfig,
   })  : splashMediaType = SplashMediaType.lottie,
         videoConfig = null,
-        imageConfig = null,
-        assert(source != null, "Source can't be null");
+        imageConfig = null;
 
   const SplashMaster.video({
     super.key,
     required this.nextScreen,
-    this.source,
+    required this.source,
     this.splashDuration,
     this.customNavigation,
     this.videoConfig,
     this.imageConfig,
   })  : splashMediaType = SplashMediaType.video,
-        lottieConfig = null,
-        assert(source != null, "Source can't be null");
+        lottieConfig = null;
 
   /// The screen which needs to be navigated after the splash screen.
   final Widget? nextScreen;
@@ -63,7 +60,7 @@ class SplashMaster extends StatefulWidget {
   final SplashMediaType splashMediaType;
 
   /// Source for the media which needs to be shown as splash screen.
-  final Source? source;
+  final Source source;
 
   final LottieConfig? lottieConfig;
 
@@ -89,7 +86,7 @@ class _SplashScreenState extends State<SplashMaster> {
     splashDuration = widget.splashDuration ?? const Duration(seconds: 1);
     splashController = SplashController(
       splashMediaType: splashMediaType,
-      source: widget.source!,
+      source: widget.source,
     );
     if (splashMediaType != SplashMediaType.video) {
       timer = Timer(splashDuration, onSplashComplete);
@@ -113,21 +110,20 @@ class _SplashScreenState extends State<SplashMaster> {
       // screen.
       case SplashMediaType.image:
         return ImageSplash(
-          source: widget.source!,
+          source: widget.source,
           imageConfig: widget.imageConfig ?? const ImageConfig(),
         );
       case SplashMediaType.lottie:
         return LottieSplash(
-          source: widget.source!,
+          source: widget.source,
           lottieConfig: widget.lottieConfig ?? const LottieConfig(),
           onSplashDuration: _updateSplashDuration,
         );
       case SplashMediaType.video:
         return VideoSplash(
-          source: widget.source!,
+          source: widget.source,
           videoConfig: widget.videoConfig,
-          firstFrameConfig:
-              widget.imageConfig ?? const ImageConfig(fit: BoxFit.fill),
+          firstFrameConfig: widget.imageConfig ?? const ImageConfig(),
           onSplashDuration: _updateSplashDuration,
         );
       default:
