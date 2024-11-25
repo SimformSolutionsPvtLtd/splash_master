@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:splash_master/configs/image_config.dart';
 import 'package:splash_master/configs/video_config.dart';
 import 'package:splash_master/core/source.dart';
 import 'package:splash_master/core/utils.dart';
@@ -11,36 +10,34 @@ class VideoSplash extends StatefulWidget {
   const VideoSplash({
     super.key,
     required this.source,
-    required this.firstFrameConfig,
     this.videoConfig,
     this.onSplashDuration,
+    this.backGroundColor,
   });
 
   final VideoConfig? videoConfig;
   final Source source;
-  final ImageConfig firstFrameConfig;
   final OnSplashDuration? onSplashDuration;
+  final Color? backGroundColor;
 
   @override
   State<VideoSplash> createState() => _VideoSplashState();
 }
 
 class _VideoSplashState extends State<VideoSplash> {
-  late final VideoPlayerController videoController;
+  late VideoPlayerController videoController;
 
   VideoConfig get videoConfig => widget.videoConfig ?? const VideoConfig();
-
-  ImageConfig get firstFrameConfig => widget.firstFrameConfig;
 
   @override
   void initState() {
     super.initState();
-    videoController = getVideoControllerFromSource();
+    videoController = _getVideoControllerFromSource();
     videoController.initialize().then(
       (_) {
-        widget.onSplashDuration?.call(videoController.value.duration);
-        videoConfig.onVideoControllerInit?.call(videoController);
         if (mounted) setState(() {});
+        videoConfig.onVideoControllerInitialised?.call(videoController);
+        widget.onSplashDuration?.call(videoController.value.duration);
         if (videoConfig.playImmediately) {
           videoController.play();
         }
@@ -50,89 +47,42 @@ class _VideoSplashState extends State<VideoSplash> {
 
   @override
   void dispose() {
-    videoController.dispose();
+    Future.delayed(const Duration(milliseconds: 150)).then((_) {
+      videoController.dispose();
+    });
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: videoConfig.backgroundColor,
-      body:
-          videoConfig.useSafeArea ? SafeArea(child: mediaWidget) : mediaWidget,
-    );
+    return videoController.value.isInitialized
+        ? ColoredBox(
+            color: widget.backGroundColor ?? Colors.transparent,
+            child: videoConfig.useSafeArea
+                ? SafeArea(child: Center(child: mediaWidget))
+                : Center(child: mediaWidget),
+          )
+        : const SizedBox.shrink();
   }
 
   Widget get mediaWidget {
-    return Center(
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          if (videoConfig.firstFrame != null) ...{
-            if (videoConfig.useFullScreen) ...{
-              SizedBox.fromSize(
-                size: MediaQuery.sizeOf(context),
-                child: firstFrame,
-              ),
-            } else if (videoConfig.useAspectRatio) ...{
-              AspectRatio(
-                aspectRatio: videoConfig.firstFrameAspectRatio,
-                child: firstFrame,
-              ),
-            } else ...{
-              Image.asset(videoConfig.firstFrame!),
-            },
-          },
-          if (videoController.value.isInitialized) ...{
-            if (videoConfig.useFullScreen) ...{
-              SizedBox.fromSize(
-                size: MediaQuery.sizeOf(context),
-                child: VideoPlayer(videoController),
-              ),
-            } else if (videoConfig.useAspectRatio) ...{
-              AspectRatio(
-                aspectRatio: videoController.value.aspectRatio,
-                child: VideoPlayer(videoController),
-              )
-            } else ...{
-              VideoPlayer(videoController),
-            },
-          }
-        ],
-      ),
-    );
+    if (videoConfig.videoVisibilityEnum == VideoVisibilityEnum.useFullScreen) {
+      return SizedBox.fromSize(
+        size: MediaQuery.sizeOf(context),
+        child: VideoPlayer(videoController),
+      );
+    } else if (videoConfig.videoVisibilityEnum ==
+        VideoVisibilityEnum.useAspectRatio) {
+      return AspectRatio(
+        aspectRatio: videoController.value.aspectRatio,
+        child: VideoPlayer(videoController),
+      );
+    } else {
+      return VideoPlayer(videoController);
+    }
   }
 
-  Widget get firstFrame {
-    if (videoConfig.firstFrame == null) return const SizedBox.shrink();
-    return Image.asset(
-      videoConfig.firstFrame!,
-      fit: firstFrameConfig.fit,
-      frameBuilder: firstFrameConfig.frameBuilder,
-      alignment: firstFrameConfig.alignment,
-      height: firstFrameConfig.height,
-      width: firstFrameConfig.width,
-      scale: firstFrameConfig.scale,
-      opacity: firstFrameConfig.opacity,
-      color: firstFrameConfig.color,
-      errorBuilder: firstFrameConfig.errorBuilder,
-      filterQuality: firstFrameConfig.filterQuality,
-      gaplessPlayback: firstFrameConfig.gaplessPlayback,
-      isAntiAlias: firstFrameConfig.isAntiAlias,
-      centerSlice: firstFrameConfig.centerSlice,
-      colorBlendMode: firstFrameConfig.colorBlendMode,
-      semanticLabel: firstFrameConfig.semanticLabel,
-      repeat: firstFrameConfig.repeat,
-      matchTextDirection: firstFrameConfig.matchTextDirection,
-      excludeFromSemantics: firstFrameConfig.excludeFromSemantics,
-      cacheWidth: firstFrameConfig.cacheWidth,
-      cacheHeight: firstFrameConfig.cacheHeight,
-      package: firstFrameConfig.package,
-      bundle: firstFrameConfig.bundle,
-    );
-  }
-
-  VideoPlayerController getVideoControllerFromSource() {
+  VideoPlayerController _getVideoControllerFromSource() {
     VideoPlayerController? controller;
     switch (widget.source) {
       case AssetSource assetSource:
