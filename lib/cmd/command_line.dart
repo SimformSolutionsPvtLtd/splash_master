@@ -133,9 +133,9 @@ Future<void> generateAssetImage(
   }
 
   final outputPath = '$assetsPath/splash_image.png';
-  if ((await File(outputPath).exists())) {
-    log("Image already exists with same name at $outputPath");
-    return;
+  final file = File(outputPath);
+  if ((await file.exists())) {
+    await file.delete();
   }
   await runFFmpegCommand(
     inputPath: inputPath,

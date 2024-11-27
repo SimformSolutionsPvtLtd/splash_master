@@ -20,8 +20,7 @@ Future<void> generateIosImages(
     final imagePath = '$iosAssetsFolder/$fileName';
     final file = File(imagePath);
     if (await file.exists()) {
-      log('Image already exists at $imagePath. Skipping it.');
-      continue;
+      await file.delete();
     }
     await runFFmpegCommand(
       inputPath: inputPath,
