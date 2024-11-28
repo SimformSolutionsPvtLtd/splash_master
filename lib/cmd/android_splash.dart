@@ -15,12 +15,9 @@ Future<void> generateAndroidImages(
       await Directory(mipmapFolder).create(recursive: true);
     }
     final imagePath = '$mipmapFolder/splash_image.png';
-    final isImageExists = await File(imagePath).exists();
-    if (isImageExists) {
-      log(
-        'Image already exists at $imagePath. Skipping it.',
-      );
-      continue;
+    final file = File(imagePath);
+    if (await file.exists()) {
+      await file.delete();
     }
     await runFFmpegCommand(
       inputPath: inputPath,
