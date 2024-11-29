@@ -38,7 +38,7 @@ class LottieSplash extends StatelessWidget {
 
   Widget get lottieWidget {
     return LottieBuilder(
-      lottie: getLottieFromSource(source),
+      lottie: _getLottieFromSource(),
       controller: lottieConfig.controller,
       frameRate: lottieConfig.frameRate,
       animate: lottieConfig.animate,
@@ -62,7 +62,7 @@ class LottieSplash extends StatelessWidget {
     );
   }
 
-  LottieProvider getLottieFromSource(Source source) {
+  LottieProvider _getLottieFromSource() {
     switch (source) {
       case AssetSource assetSource:
         return AssetLottie(assetSource.path);

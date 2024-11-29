@@ -1,47 +1,30 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:splash_master/configs/image_config.dart';
-import 'package:splash_master/configs/lottie_config.dart';
-import 'package:splash_master/configs/video_config.dart';
-import 'package:splash_master/core/source.dart';
-import 'package:splash_master/core/splash_controller.dart';
-import 'package:splash_master/enums/splash_master_enums.dart';
-import 'package:splash_master/splashes/image_splash.dart';
+import 'package:splash_master/splash_master.dart';
 import 'package:splash_master/splashes/lottie_splash.dart';
 import 'package:splash_master/splashes/video_splash.dart';
 
 class SplashMaster extends StatefulWidget {
-  const SplashMaster.image({
-    super.key,
-    this.nextScreen,
-    required this.source,
-    this.splashDuration,
-    this.customNavigation,
-    this.imageConfig,
-  })  : splashMediaType = SplashMediaType.image,
-        lottieConfig = null,
-        videoConfig = null;
-
   const SplashMaster.lottie({
     super.key,
     this.nextScreen,
     required this.source,
-    this.splashDuration,
     this.customNavigation,
     this.lottieConfig,
+    this.onSourceLoaded,
+    this.backGroundColor,
   })  : splashMediaType = SplashMediaType.lottie,
-        videoConfig = null,
-        imageConfig = null;
+        videoConfig = null;
 
   const SplashMaster.video({
     super.key,
-    required this.nextScreen,
+    this.nextScreen,
     required this.source,
-    this.splashDuration,
     this.customNavigation,
     this.videoConfig,
-    this.imageConfig,
+    this.onSourceLoaded,
+    this.backGroundColor,
   })  : splashMediaType = SplashMediaType.video,
         lottieConfig = null;
 
@@ -52,9 +35,18 @@ class SplashMaster extends StatefulWidget {
   /// to navigate to [nextScreen].
   final VoidCallback? customNavigation;
 
-  /// For this duration splash screen will be shown and then it will be
-  /// navigated to [nextScreen].
-  final Duration? splashDuration;
+  /// A config class for lottie splash. Have default parameters which lottie
+  /// provides.
+  final LottieConfig? lottieConfig;
+
+  /// A config class for video splash. Controls how a video player preview will
+  /// look.
+  final VideoConfig? videoConfig;
+
+  final Color? backGroundColor;
+
+  /// A callback when provided source completes initializing.
+  final VoidCallback? onSourceLoaded;
 
   /// Type of the media which needs to be used as splash screen.
   final SplashMediaType splashMediaType;
@@ -62,35 +54,51 @@ class SplashMaster extends StatefulWidget {
   /// Source for the media which needs to be shown as splash screen.
   final Source source;
 
-  final LottieConfig? lottieConfig;
+  /// Prevents flutter frame to be rendered but framework will still produce
+  /// frames.
+  ///
+  /// Call this in `main` method before any other methods to load provided
+  /// source and other dependencies.
+  ///
+  /// To resume flutter frames call [resume]. Before `resume` is called, app
+  /// wait in native splash screen.
+  ///
+  /// ```dart
+  /// void main() {
+  ///  WidgetsFlutterBinding.ensureInitialized();
+  ///  SplashMaster.initialize();
+  ///  runApp(
+  ///    MaterialApp(
+  ///      home: SplashMaster.video(...),
+  ///    ),
+  ///  );
+  /// }
+  ///
+  /// ```
+  static void initialize() {
+    WidgetsBinding.instance.deferFirstFrame();
+  }
 
-  final VideoConfig? videoConfig;
-
-  final ImageConfig? imageConfig;
+  /// Resumes flutter to start rendering frames.
+  static void resume() {
+    WidgetsBinding.instance.allowFirstFrame();
+  }
 
   @override
   State<SplashMaster> createState() => _SplashScreenState();
 }
 
 class _SplashScreenState extends State<SplashMaster> {
-  late SplashMediaType splashMediaType;
-  late final SplashController splashController;
-
-  late Duration splashDuration;
   Timer? timer;
+
+  late final VoidCallback onSourceLoaded;
+
+  Source get source => widget.source;
 
   @override
   void initState() {
     super.initState();
-    splashMediaType = widget.splashMediaType;
-    splashDuration = widget.splashDuration ?? const Duration(seconds: 1);
-    splashController = SplashController(
-      splashMediaType: splashMediaType,
-      source: widget.source,
-    );
-    if (splashMediaType != SplashMediaType.video) {
-      timer = Timer(splashDuration, onSplashComplete);
-    }
+    onSourceLoaded = widget.onSourceLoaded ?? SplashMaster.resume;
   }
 
   @override
@@ -105,25 +113,18 @@ class _SplashScreenState extends State<SplashMaster> {
   }
 
   Widget get mediaWidget {
-    switch (splashMediaType) {
-      // TODO: Remove image splash if user doesn't want flutter side of the splash
-      // screen.
-      case SplashMediaType.image:
-        return ImageSplash(
-          source: widget.source,
-          imageConfig: widget.imageConfig ?? const ImageConfig(),
-        );
+    switch (widget.splashMediaType) {
       case SplashMediaType.lottie:
         return LottieSplash(
-          source: widget.source,
+          source: source,
           lottieConfig: widget.lottieConfig ?? const LottieConfig(),
           onSplashDuration: _updateSplashDuration,
         );
       case SplashMediaType.video:
         return VideoSplash(
-          source: widget.source,
+          source: source,
           videoConfig: widget.videoConfig,
-          firstFrameConfig: widget.imageConfig ?? const ImageConfig(),
+          backGroundColor: widget.backGroundColor,
           onSplashDuration: _updateSplashDuration,
         );
       default:
@@ -132,6 +133,8 @@ class _SplashScreenState extends State<SplashMaster> {
   }
 
   void _updateSplashDuration(Duration duration) {
+    onSourceLoaded.call();
+
     timer?.cancel();
     timer = Timer(duration, onSplashComplete);
   }

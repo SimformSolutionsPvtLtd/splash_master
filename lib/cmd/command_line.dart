@@ -80,7 +80,7 @@ Future<int> runFFmpegCommand({
     '-i',
     inputPath,
     '-vf',
-    'select=eq(n\\,0)$scale',
+    'select=eq(n\\,0)',
     '-q:v',
     '3',
     outputPath

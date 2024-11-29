@@ -4,6 +4,8 @@ import 'package:splash_master_example/assets.dart';
 import 'package:splash_master_example/home.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  SplashMaster.initialize();
   runApp(
     const MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -17,11 +19,13 @@ class SplashScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SplashMaster.image(
+    return SplashMaster.video(
+      source: AssetSource(Assets.sampleVideo),
+      videoConfig: const VideoConfig(
+        videoVisibilityEnum: VideoVisibilityEnum.useAspectRatio,
+      ),
+      backGroundColor: Colors.red,
       nextScreen: const Home(),
-      splashDuration: const Duration(seconds: 1),
-      source: AssetSource(Assets.sampleSplashScreen),
-      imageConfig: const ImageConfig(fit: BoxFit.fill),
     );
   }
 }
