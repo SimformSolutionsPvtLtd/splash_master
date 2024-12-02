@@ -60,6 +60,13 @@ void commandEntry(List<String> arguments) {
         log('Invalid arguments.');
       }
       break;
+    case Command.setup:
+      if (arguments.length == 2 && arguments[1] == 'native_splash') {
+        setupNativeSplash();
+      } else {
+        log('Invalid arguments.');
+      }
+      break;
     case Command.none:
       log('Invalid command or arguments.');
   }
@@ -160,4 +167,27 @@ Future<void> applySplash(
   await generateIosImages(inputPath, isPluginTestMode: isPluginTestMode);
   await applyAndroidSplashImage(inputPath, isPluginTestMode: isPluginTestMode);
   await generateAssetImage(inputPath, isPluginTestMode: isPluginTestMode);
+}
+
+Future<void> setupNativeSplash() async {
+  try {
+    // Run the shell script
+    ProcessResult result = await Process.run(
+      'bash', // Use bash to execute the shell script
+      [
+        './lib/cmd/create_storyboard.sh'
+      ], // Provide the path to the shell script
+    );
+
+    // Check if the script ran successfully
+    if (result.exitCode == 0) {
+      log('Script executed successfully');
+      log('Output: ${result.stdout}');
+    } else {
+      log('Script execution failed');
+      log('Error: ${result.stderr}');
+    }
+  } catch (e) {
+    log('Error running the script: $e');
+  }
 }

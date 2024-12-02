@@ -1,4 +1,5 @@
 enum Command {
+  setup,
   install,
   video,
   lottie,
@@ -10,6 +11,7 @@ enum Command {
         'video' => video,
         'lottie' => lottie,
         'image' => image,
+        'setup' => setup,
         _ => none,
       };
 }
