@@ -31,6 +31,12 @@ installed into you system, your apps bundle size will not increase.
 **Note**-: If you're using Windows system then you will have install these tools manually. For Macos
 & Linux, this command will suffice.
 
+Before you start setting up splash screen use below command to set native splash for iOS
+
+```bash
+dart run splash_master setup native_splash
+```
+
 Now, We have 3 ways to show a splash screen.
 1. Video
 2. Lottie

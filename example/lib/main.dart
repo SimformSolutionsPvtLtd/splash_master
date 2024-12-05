@@ -22,9 +22,8 @@ class SplashScreen extends StatelessWidget {
     return SplashMaster.video(
       source: AssetSource(Assets.sampleVideo),
       videoConfig: const VideoConfig(
-        videoVisibilityEnum: VideoVisibilityEnum.useAspectRatio,
+        videoVisibilityEnum: VideoVisibilityEnum.useFullScreen,
       ),
-      backGroundColor: Colors.red,
       nextScreen: const Home(),
     );
   }
