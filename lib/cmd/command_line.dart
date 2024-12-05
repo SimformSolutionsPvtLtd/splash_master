@@ -121,31 +121,32 @@ Future<void> runCommand(String command, List<String> arguments) async {
   }
 }
 
-Future<void> generateAssetImage(
-  String inputPath, {
-  bool isPluginTestMode = false,
-}) async {
-  final exampleDir = isPluginTestMode ? 'example' : '';
-  final assetsPath = exampleDir.isEmpty ? 'assets' : '$exampleDir/assets';
-
-  final directory = Directory(assetsPath);
-
-  if (!(await directory.exists())) {
-    log("assets folder doesn't exists. Creating it...");
-    directory.create(recursive: true);
-  }
-
-  final outputPath = '$assetsPath/splash_image.png';
-  final file = File(outputPath);
-  if ((await file.exists())) {
-    await file.delete();
-  }
-  await runFFmpegCommand(
-    inputPath: inputPath,
-    outputPath: outputPath,
-  );
-  log('Splash image added to assets.');
-}
+/// Commented below function as we are not generating splash image in assets folder in flutter
+// Future<void> generateAssetImage(
+//   String inputPath, {
+//   bool isPluginTestMode = false,
+// }) async {
+//   final exampleDir = isPluginTestMode ? 'example' : '';
+//   final assetsPath = exampleDir.isEmpty ? 'assets' : '$exampleDir/assets';
+//
+//   final directory = Directory(assetsPath);
+//
+//   if (!(await directory.exists())) {
+//     log("assets folder doesn't exists. Creating it...");
+//     directory.create(recursive: true);
+//   }
+//
+//   final outputPath = '$assetsPath/splash_image.png';
+//   final file = File(outputPath);
+//   if ((await file.exists())) {
+//     await file.delete();
+//   }
+//   await runFFmpegCommand(
+//     inputPath: inputPath,
+//     outputPath: outputPath,
+//   );
+//   log('Splash image added to assets.');
+// }
 
 Future<void> applyAndroidSplashImage(
   String inputPath, {
@@ -162,7 +163,9 @@ Future<void> applySplash(
 }) async {
   await generateIosImages(inputPath, isPluginTestMode: isPluginTestMode);
   await applyAndroidSplashImage(inputPath, isPluginTestMode: isPluginTestMode);
-  await generateAssetImage(inputPath, isPluginTestMode: isPluginTestMode);
+
+  /// Commented below code as we are not generating splash image in assets folder in flutter
+  // await generateAssetImage(inputPath, isPluginTestMode: isPluginTestMode);
 }
 
 Future<void> setupNativeSplash() async {
