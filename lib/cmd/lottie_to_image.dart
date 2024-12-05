@@ -6,10 +6,14 @@ Future<void> lottieAsSplash(
 }) async {
   final outputDir = isPluginTestMode ? 'example' : '';
   final outputPath = '$outputDir/assets/lottie_splash_image.png';
+
+  final lottieJsScript = await Isolate.resolvePackageUri(
+    Uri.parse(CmdStrings.generateImageScriptPath),
+  );
   final process = await Process.start(
     'node',
     [
-      CmdStrings.lottieJsScript,
+      lottieJsScript?.path ?? '',
       inputPath,
       outputPath,
     ],

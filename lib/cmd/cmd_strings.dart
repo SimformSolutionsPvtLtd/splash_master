@@ -7,4 +7,8 @@ class CmdStrings {
   static const iosAssetsFolder =
       'ios/Runner/Assets.xcassets/LaunchImage.imageset';
   static const lottieJsScript = 'lib/cmd/js/generate_image.js';
+  static const generateImageScriptPath =
+      'package:splash_master/cmd/js/generate_image.js';
+  static const createStoryBoardScriptPath =
+      'package:splash_master/cmd/create_storyboard.sh';
 }

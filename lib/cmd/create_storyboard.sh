@@ -1,6 +1,4 @@
-# Below path set for testing purpose only
-# Update it once we make final change
-cd ./example/ios/Runner/Base.lproj
+cd ios/Runner/Base.lproj
 
 STORYBOARD_FILE="LaunchScreen.storyboard"
 

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:isolate';
 
 import 'package:splash_master/cmd/cmd_strings.dart';
 import 'package:splash_master/cmd/cmd_utils.dart';
@@ -171,20 +172,23 @@ Future<void> applySplash(
 
 Future<void> setupNativeSplash() async {
   try {
+    final Uri? packageUri = await Isolate.resolvePackageUri(
+      Uri.parse(CmdStrings.createStoryBoardScriptPath),
+    );
+
     // Run the shell script
     ProcessResult result = await Process.run(
       'bash', // Use bash to execute the shell script
       [
-        './lib/cmd/create_storyboard.sh'
-      ], // Provide the path to the shell script
+        // Provide the path to the shell script
+        packageUri?.path ?? '',
+      ],
     );
 
     // Check if the script ran successfully
     if (result.exitCode == 0) {
-      log('Script executed successfully');
-      log('Output: ${result.stdout}');
+      log(result.stdout);
     } else {
-      log('Script execution failed');
       log('Error: ${result.stderr}');
     }
   } catch (e) {
