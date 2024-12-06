@@ -4,8 +4,8 @@ Future<void> lottieAsSplash(
   String inputPath, {
   bool isPluginTestMode = false,
 }) async {
-  final outputDir = isPluginTestMode ? 'example' : '';
-  final outputPath = '$outputDir/assets/lottie_splash_image.png';
+  final outputDir = isPluginTestMode ? 'example/' : '';
+  final outputPath = '${outputDir}assets/splash_image.png';
 
   final lottieJsScript = await Isolate.resolvePackageUri(
     Uri.parse(CmdStrings.generateImageScriptPath),
@@ -40,12 +40,12 @@ Future<void> lottieAsSplash(
 
 Future<void> deleteTempImage({bool isPluginTestMode = false}) async {
   final outputDir = isPluginTestMode ? 'example' : '';
-  final image = '$outputDir/assets/lottie_splash_image.png';
+  final image = '$outputDir/assets/splash_image.png';
 
   final file = File(image);
 
   if (await file.exists()) {
     await file.delete();
-    log('Deleted temporary lottie_splash_image.png.');
+    log('Deleted temporary splash_image.png.');
   }
 }

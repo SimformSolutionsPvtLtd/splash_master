@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:splash_master/configs/video_config.dart';
 import 'package:splash_master/core/utils.dart';
 
 class LottieConfig {
@@ -140,9 +141,7 @@ class LottieConfig {
 
   final Color? backgroundColor;
 
-  final bool useFullScreen;
-
-  final bool useAspectRatio;
+  final VisibilityEnum visibilityEnum;
 
   final double aspectRatio;
 
@@ -166,8 +165,7 @@ class LottieConfig {
     this.renderCache,
     this.overrideBoxFit = true,
     this.backgroundColor,
-    this.useFullScreen = true,
-    this.useAspectRatio = false,
     this.aspectRatio = 9 / 16,
+    this.visibilityEnum = VisibilityEnum.useFullScreen,
   });
 }

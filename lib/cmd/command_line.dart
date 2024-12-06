@@ -79,11 +79,6 @@ Future<int> runFFmpegCommand({
   AndroidMipMaps? mipMaps,
   IosScale? iosScale,
 }) async {
-  final scale = mipMaps != null
-      ? ',scale=${mipMaps.width}:${mipMaps.height}'
-      : iosScale != null
-          ? ',scale=${iosScale.width}:${iosScale.height}'
-          : '';
   final List<String> args = [
     '-i',
     inputPath,

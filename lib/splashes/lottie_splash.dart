@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:splash_master/configs/lottie_config.dart';
+import 'package:splash_master/configs/video_config.dart';
 import 'package:splash_master/core/source.dart';
 import 'package:splash_master/core/utils.dart';
 
@@ -21,19 +22,26 @@ class LottieSplash extends StatelessWidget {
     return Scaffold(
       backgroundColor: lottieConfig.backgroundColor,
       body: Center(
-        child: lottieConfig.useAspectRatio
-            ? AspectRatio(
-                aspectRatio: lottieConfig.aspectRatio,
-                child: lottieWidget,
-              )
-            : lottieConfig.useFullScreen
-                ? SizedBox.fromSize(
-                    size: MediaQuery.sizeOf(context),
-                    child: lottieWidget,
-                  )
-                : lottieWidget,
+        child: _lottieMediaWidget(context),
       ),
     );
+  }
+
+  Widget _lottieMediaWidget(BuildContext context) {
+    switch (lottieConfig.visibilityEnum) {
+      case VisibilityEnum.useFullScreen:
+        return SizedBox.fromSize(
+          size: MediaQuery.sizeOf(context),
+          child: lottieWidget,
+        );
+      case VisibilityEnum.useAspectRatio:
+        return AspectRatio(
+          aspectRatio: lottieConfig.aspectRatio,
+          child: lottieWidget,
+        );
+      case VisibilityEnum.none:
+        return lottieWidget;
+    }
   }
 
   Widget get lottieWidget {
