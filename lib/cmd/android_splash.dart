@@ -71,7 +71,7 @@ Future<void> createSplashImageDrawable({bool isPluginTestMode = false}) async {
     );
     builder.element('item', nest: () {
       builder.element('bitmap', nest: () {
-        builder.attribute('android:gravity', 'center');
+        builder.attribute('android:gravity', 'fill');
         builder.attribute('android:src', '@mipmap/splash_image');
         builder.attribute('android:tileMode', 'disabled');
       });

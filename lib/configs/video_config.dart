@@ -1,11 +1,15 @@
 import 'package:video_player/video_player.dart';
 
-enum VideoVisibilityEnum { useFullScreen, useAspectRatio }
+enum VisibilityEnum {
+  useFullScreen,
+  useAspectRatio,
+  none,
+}
 
 class VideoConfig {
   const VideoConfig({
     this.playImmediately = true,
-    this.videoVisibilityEnum = VideoVisibilityEnum.useFullScreen,
+    this.videoVisibilityEnum = VisibilityEnum.useFullScreen,
     this.useSafeArea = false,
     this.onVideoControllerInitialised,
   });
@@ -13,6 +17,6 @@ class VideoConfig {
   final bool playImmediately;
 
   final bool useSafeArea;
-  final VideoVisibilityEnum videoVisibilityEnum;
+  final VisibilityEnum videoVisibilityEnum;
   final Function(VideoPlayerController)? onVideoControllerInitialised;
 }

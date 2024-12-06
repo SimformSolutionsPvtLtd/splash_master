@@ -66,19 +66,19 @@ class _VideoSplashState extends State<VideoSplash> {
   }
 
   Widget get mediaWidget {
-    if (videoConfig.videoVisibilityEnum == VideoVisibilityEnum.useFullScreen) {
-      return SizedBox.fromSize(
-        size: MediaQuery.sizeOf(context),
-        child: VideoPlayer(videoController),
-      );
-    } else if (videoConfig.videoVisibilityEnum ==
-        VideoVisibilityEnum.useAspectRatio) {
-      return AspectRatio(
-        aspectRatio: videoController.value.aspectRatio,
-        child: VideoPlayer(videoController),
-      );
-    } else {
-      return VideoPlayer(videoController);
+    switch (videoConfig.videoVisibilityEnum) {
+      case VisibilityEnum.useFullScreen:
+        return SizedBox.fromSize(
+          size: MediaQuery.sizeOf(context),
+          child: VideoPlayer(videoController),
+        );
+      case VisibilityEnum.useAspectRatio:
+        return AspectRatio(
+          aspectRatio: videoController.value.aspectRatio,
+          child: VideoPlayer(videoController),
+        );
+      case VisibilityEnum.none:
+        return VideoPlayer(videoController);
     }
   }
 
