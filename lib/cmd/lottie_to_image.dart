@@ -10,12 +10,16 @@ Future<void> lottieAsSplash(
   final lottieJsScript = await Isolate.resolvePackageUri(
     Uri.parse(CmdStrings.generateImageScriptPath),
   );
+
+  final (width, height) = await getLottieDimensions(inputPath);
   final process = await Process.start(
     'node',
     [
       lottieJsScript?.path ?? '',
       inputPath,
       outputPath,
+      height.toString(),
+      width.toString(),
     ],
   );
 
@@ -36,6 +40,26 @@ Future<void> lottieAsSplash(
   );
 
   await deleteTempImage(isPluginTestMode: isPluginTestMode);
+}
+
+/// Get exact dimension of the lottie file (width, height)
+Future<(int, int)> getLottieDimensions(String lottieFilePath) async {
+  // Load the Lottie file as a string
+  try {
+    final lottieContent = File(lottieFilePath);
+
+    final read = await lottieContent.readAsString();
+
+    // Decode the JSON content
+    final Map<String, dynamic> lottieJson = json.decode(read);
+    // Extract dimensions
+    final int width = lottieJson['w'];
+    final int height = lottieJson['h'];
+
+    return (width, height);
+  } catch (e) {
+    return (1080, 1920);
+  }
 }
 
 Future<void> deleteTempImage({bool isPluginTestMode = false}) async {

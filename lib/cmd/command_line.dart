@@ -160,6 +160,10 @@ Future<void> applySplash(
   String inputPath, {
   bool isPluginTestMode = false,
 }) async {
+  if (!(await File(inputPath).exists())) {
+    log('File not found');
+    return;
+  }
   await generateIosImages(inputPath, isPluginTestMode: isPluginTestMode);
   await applyAndroidSplashImage(inputPath, isPluginTestMode: isPluginTestMode);
   await generateAssetImage(inputPath, isPluginTestMode: isPluginTestMode);
