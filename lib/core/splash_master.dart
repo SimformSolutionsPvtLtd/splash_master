@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:splash_master/splash_master.dart';
-import 'package:splash_master/splashes/lottie_splash.dart';
-import 'package:splash_master/splashes/video_splash.dart';
+import 'package:splash_master/splashes/lottie/lottie_splash.dart';
+import 'package:splash_master/splashes/video/video_splash.dart';
 
 class SplashMaster extends StatefulWidget {
   const SplashMaster.lottie({

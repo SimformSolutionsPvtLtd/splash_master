@@ -1,26 +1,26 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:isolate';
 
 import 'package:splash_master/cmd/cmd_strings.dart';
 import 'package:splash_master/cmd/cmd_utils.dart';
 import 'package:splash_master/cmd/models/ios_content_json_dm.dart';
+import 'package:splash_master/cmd/splash_screen_content_string.dart';
+import 'package:splash_master/cmd/yaml_config/support_parameter.dart';
+import 'package:splash_master/core/utils.dart';
+import 'package:splash_master/values/yaml_keys.dart';
 import 'package:xml/xml.dart';
+import 'package:yaml/yaml.dart';
 
 import 'logging.dart';
 
 part 'android_splash.dart';
-part 'install_commands.dart';
 part 'ios_splash.dart';
-part 'lottie_to_image.dart';
 
 void commandEntry(List<String> arguments) {
   if (arguments.isEmpty) {
-    log('Usage: ffmpeg_frame_extractor <command> [options]');
-    log('Commands:');
-    log('  install  Install required tools to generate splash images.');
-    log('  build  <inputPath>  Extract the first frame from the video and updates native files of android & ios to set generated splash images.');
-    log('  genLottie <inputPath> Extract the first frame from the lottie file and updates native files of android & ios to set generated splash images.');
+    log('Usage: dart run splash_master <command>');
+    log('Command:');
+    log('  create  To create and setup the splash screen');
     return;
   }
 
@@ -28,165 +28,131 @@ void commandEntry(List<String> arguments) {
 
   final command = Command.fromString(argument);
   switch (command) {
-    case Command.install:
-      if (arguments.length == 2) {
-        final inputPath = arguments[1];
-        if (inputPath == 'video') {
-          installFFmpeg();
-        } else if (inputPath == 'lottie') {
-          lottieSetup();
-        } else {
-          log('Invalid arguments.');
+    case Command.create:
+      if (arguments.length == 1) {
+        const filePath = 'pubspec.yaml';
+        try {
+          final yamlMap = loadYaml(File(filePath).readAsStringSync()) as Map;
+          if (yamlMap[YamlKeys.splashMasterKey].runtimeType != Map) {
+            throw SplashMasterException(message: 'Unable to read yaml file.');
+          }
+
+          final splashData = yamlMap[YamlKeys.splashMasterKey];
+          if (splashData.runtimeType != YamlMap) {
+            log("splash_master section isn't formatted correctly.");
+            return;
+          }
+
+          /// [splashData] is data that is being extracted from the YAML file.
+          setupSplashScreen(splashData);
+        } catch (_) {
+          log(
+            'Your `$filePath` file does not contain a '
+            '`splash_master` section.',
+          );
         }
-      } else {
-        log('Invalid arguments.');
       }
-      break;
-    case Command.video:
-    case Command.image:
-      if (arguments.length == 2 || arguments.length == 3) {
-        final inputPath = arguments[1];
-        final isPluginTestMode = arguments.length == 3 && arguments[2] == '-t';
-        applySplash(inputPath, isPluginTestMode: isPluginTestMode);
-      } else {
-        log('Invalid arguments.');
-      }
-      break;
-    case Command.lottie:
-      if (arguments.length == 2 || arguments.length == 3) {
-        final inputPath = arguments[1];
-        final isPluginTestMode = arguments.length == 3 && arguments[2] == '-t';
-        lottieAsSplash(inputPath, isPluginTestMode: isPluginTestMode);
-      } else {
-        log('Invalid arguments.');
-      }
-      break;
-    case Command.setup:
-      if (arguments.length == 2 && arguments[1] == 'native_splash') {
-        setupNativeSplash();
-      } else {
-        log('Invalid arguments.');
-      }
-      break;
     case Command.none:
       log('Invalid command or arguments.');
   }
 }
 
-Future<int> runFFmpegCommand({
-  required String inputPath,
-  required String outputPath,
-  AndroidMipMaps? mipMaps,
-  IosScale? iosScale,
-}) async {
-  final List<String> args = [
-    '-i',
-    inputPath,
-    '-vf',
-    'select=eq(n\\,0)',
-    '-q:v',
-    '3',
-    outputPath
-  ];
-
-  try {
-    Process process = await Process.start('ffmpeg', args);
-
-    int exitCode = await process.exitCode;
-    return exitCode;
-  } catch (e) {
-    log('Error running FFmpeg: $e');
-    return -1;
-  }
-}
-
-Future<void> runCommand(String command, List<String> arguments) async {
-  try {
-    Process process = await Process.start(command, arguments);
-
-    process.stdout.transform(utf8.decoder).listen((data) {
-      log(data);
-    });
-
-    process.stderr.transform(utf8.decoder).listen((data) {
-      log("Error: $data");
-    });
-
-    int exitCode = await process.exitCode;
-    if (exitCode != 0) {
-      log("Command failed with exit code $exitCode");
+/// Setting up the splash screen using the details provided in `pubspec.yaml` file under `splash_master`.
+void setupSplashScreen(YamlMap splashData) {
+  /// Checking keys in the `splash_master` section in `pubspec.yaml` file is proper or not.
+  if (YamlKeys.supportedYamlKeys.any(
+    (element) => splashData.keys.any(
+      (e) => e == element,
+    ),
+  )) {
+    /// Checking if provided android gravity is valid or not
+    if (splashData[YamlKeys.androidGravityKey] != null &&
+        !(AndroidGravity.values.any(
+          (element) =>
+              element ==
+              AndroidGravity.fromString(splashData[YamlKeys.androidGravityKey]),
+        ))) {
+      log('Please check the android_gravity');
+      return;
     }
-  } catch (e) {
-    log("Failed to run command: $e");
+
+    /// Checking if provided content mode is valid or not
+    else if (splashData[YamlKeys.iosContentModeKey] != null &&
+        !IosContentMode.values.any(
+          (element) =>
+              element ==
+              IosContentMode.fromString(splashData[YamlKeys.iosContentModeKey]),
+        )) {
+      log('Please check the ios_content_mode');
+      return;
+    }
+
+    /// Checking if provided image has supported extension or not
+    else if (splashData[YamlKeys.imageKey] != null) {
+      final imgExtension =
+          splashData[YamlKeys.imageKey].toString().split('.').last;
+      if (!SupportedImageExtensions.values.any(
+        (element) =>
+            element ==
+            SupportedImageExtensions.fromString(imgExtension.toLowerCase()),
+      )) {
+        log('Image should be png or jpg');
+        return;
+      }
+    }
+    applySplash(
+      inputPath: splashData[YamlKeys.imageKey],
+      color: splashData[YamlKeys.colorKey],
+      gravity: splashData[YamlKeys.androidGravityKey],
+      iosContentMode: splashData[YamlKeys.iosContentModeKey],
+      android12: splashData[YamlKeys.android12key],
+    );
   }
 }
 
-Future<void> generateAssetImage(
-  String inputPath, {
-  bool isPluginTestMode = false,
+/// Apply the splash images to Android
+Future<void> applyAndroidSplashImage({
+  String? inputPath,
+  String? color,
+  String? gravity,
+  YamlMap? android12,
 }) async {
-  final exampleDir = isPluginTestMode ? 'example' : '';
-  final assetsPath = exampleDir.isEmpty ? 'assets' : '$exampleDir/assets';
-
-  final directory = Directory(assetsPath);
-
-  if (!(await directory.exists())) {
-    log("assets folder doesn't exists. Creating it...");
-    directory.create(recursive: true);
-  }
-
-  final outputPath = '$assetsPath/splash_image.png';
-  final file = File(outputPath);
-  if ((await file.exists())) {
-    await file.delete();
-  }
-  await runFFmpegCommand(
+  await generateAndroidImages(
     inputPath: inputPath,
-    outputPath: outputPath,
+    android12: android12,
   );
-  log('Splash image added to assets.');
+  await createColors(
+    color: color,
+  );
+  await createSplashImageDrawable(
+    inputPath: inputPath,
+    color: color,
+    gravity: gravity,
+  );
+  await updateStylesXml(
+    android12: android12,
+    color: color,
+    inputPath: inputPath,
+  );
 }
 
-Future<void> applyAndroidSplashImage(
-  String inputPath, {
-  bool isPluginTestMode = false,
+/// Applies the splash screen on Android and iOS using details from the YAML file.
+Future<void> applySplash({
+  String? inputPath,
+  String? color,
+  String? gravity,
+  String? iosContentMode,
+  YamlMap? android12,
 }) async {
-  await generateAndroidImages(inputPath, isPluginTestMode: isPluginTestMode);
-  await createSplashImageDrawable(isPluginTestMode: isPluginTestMode);
-  await updateStylesXml(isPluginTestMode: isPluginTestMode);
-}
-
-Future<void> applySplash(
-  String inputPath, {
-  bool isPluginTestMode = false,
-}) async {
-  await generateIosImages(inputPath, isPluginTestMode: isPluginTestMode);
-  await applyAndroidSplashImage(inputPath, isPluginTestMode: isPluginTestMode);
-  await generateAssetImage(inputPath, isPluginTestMode: isPluginTestMode);
-}
-
-Future<void> setupNativeSplash() async {
-  try {
-    final Uri? packageUri = await Isolate.resolvePackageUri(
-      Uri.parse(CmdStrings.createStoryBoardScriptPath),
-    );
-
-    // Run the shell script
-    ProcessResult result = await Process.run(
-      'bash', // Use bash to execute the shell script
-      [
-        // Provide the path to the shell script
-        packageUri?.path ?? '',
-      ],
-    );
-
-    // Check if the script ran successfully
-    if (result.exitCode == 0) {
-      log(result.stdout);
-    } else {
-      log('Error: ${result.stderr}');
-    }
-  } catch (e) {
-    log('Error running the script: $e');
-  }
+  await generateIosImages(
+    inputPath: inputPath,
+    color: color,
+    iosContentMode: iosContentMode,
+  );
+  await applyAndroidSplashImage(
+    inputPath: inputPath,
+    color: color,
+    gravity: gravity,
+    android12: android12,
+  );
 }

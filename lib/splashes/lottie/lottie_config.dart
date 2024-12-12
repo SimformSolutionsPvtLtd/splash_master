@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-import 'package:splash_master/configs/video_config.dart';
+import 'package:splash_master/splashes/video/video_config.dart';
 import 'package:splash_master/core/utils.dart';
 
 class LottieConfig {
