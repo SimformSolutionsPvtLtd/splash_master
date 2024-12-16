@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:splash_master/configs/video_config.dart';
+import 'package:splash_master/splashes/video/video_config.dart';
 import 'package:splash_master/core/source.dart';
 import 'package:splash_master/core/utils.dart';
 import 'package:video_player/video_player.dart';

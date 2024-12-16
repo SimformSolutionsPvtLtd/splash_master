@@ -1,17 +1,9 @@
 enum Command {
-  setup,
-  install,
-  video,
-  lottie,
-  image,
+  create,
   none;
 
   static Command fromString(String str) => switch (str) {
-        'install' => install,
-        'video' => video,
-        'lottie' => lottie,
-        'image' => image,
-        'setup' => setup,
+        'create' => create,
         _ => none,
       };
 }
