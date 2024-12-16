@@ -2,13 +2,15 @@
 
 # Splash Master
 
-A Flutter package that simplifies adding splash screens to your app, supporting various options 
-like video, image, and Lottie animations. It also addresses the challenge of creating a seamless 
-transition between the native launch screen and the Flutter splash screen.
+A Flutter package that streamlines the process of adding splash screens to your app.
+This package takes care of all the necessary native-side setup which saves your time and efforts.
+Simply define the required details by adding a `splash_master` section to your `pubspec.yaml`.
+Additionally, the package ensures a smooth and seamless transition from native to flutter app, 
+enhancing the user experience.
 
 ### Installation
 
-Just add `splash_master` as a dependency in your pubspec.yaml file
+Add `splash_master` as a dependency in your pubspec.yaml
 from [pub.dev](https://pub.dev/packages/splash_master/install).
 
 ```yaml
@@ -16,134 +18,103 @@ dependencies:
   splash_master: <Latest Version>
 ```
 
-## Usage
+### Usage
 
-Before we proceed further make sure to run this command so that neccessary tool are
-installed into your system.
+1. Setup the splash screen
 
-```bash
-dart run splash_master install
-```
+- Add `splash_master` section in `pubspec.yaml`.
 
-This command installs FFmpeg, npm, Puppeteer and PuppeteerLottie. Since these tools are
-installed into you system, your apps bundle size will not increase.
+    ```yaml
+    splash_master:
+      # Use to specifies the color for the splash screen
+      color: '#FFFFFF'
+      # Use to specifies the splash image
+      image: 'assets/splash.png'
+      # Provides content mode for splash image in iOS
+      ios_content_mode: 'center'
+      # Provides gravity for splash image in Android
+      android_gravity: 'center'
+      # Section to specifies the configuration for the splash in Android 12+
+      android_12:
+        # Provides the background color of splash screen
+        color: '#FFFFFF'
+        # Provides custom icon to replace the default app icon
+        image: 'assets/splash_12.png'
+    ```
 
-**Note**-: If you're using Windows system then you will have install these tools manually. For Macos
-& Linux, this command will suffice.
+2. Create & setup splash screen  
 
-Before you start setting up splash screen use below command to set native splash for iOS
+- Run the following command to create & setup the splash screen on native side.
 
-```bash
-dart run splash_master setup native_splash
-```
+  ```shell
+  dart run splash_master create
+  ```
 
-Now, We have 3 ways to show a splash screen.
-1. Video
-2. Lottie
-3. Image/Gif
+3. Setup on the flutter side
 
-### Video as a Splash Screen
-TODO: Add video as splash demo.
+- We offer support for splash components, including video, Lottie animations, and images. Videos
+and Lottie animations are processed on the Flutter side, while image handling is managed natively. 
 
-1. Add video to assets
-   - Add your video to assets folder so that we use it generate first frame for the splash screen.
-
-2. Run this command for video
-    ```bash
-   dart run splash_master video path/to/your/video.mp4
-   ```
-   - This command will generate first frame of the video in different resolutions for android, ios 
-   and for flutter as well. These generated images will be automatically placed inside appropriate 
-   native folders.
-   - For Android, it will create a new splash_image.xml to style the splash screen and will update style.xml to
-   use it.
-   - For Ios, it will update Contents.json file.
-   - On flutter side, since a video takes a bit initialise a high resolution image will placed inside the
-   assets folder. You can use this image as first frame of the video so that splash screen to video 
-   transition looks smooth.
-
-3. Use SplashMaster widget
-   ```dart
-   SplashMaster.video(
-    nextScreen: const Home(),// The screen which will be shown after splash.
-    source: AssetSource(Assets.sampleSplashScreen), // Source of the video.
-    imageConfig: const ImageConfig(),
-    videoConfig: const VideoConfig(
-      firstFrame: 'path/to/generated/splash_screen.png'
-      ),
-    customNavigation: () {}, 
-   );
-   ```
-   - Use this widget as first widget of your app in the `runApp`.
-   - You can customise your video splash using **videoConfig** parameter and to customise the first 
-   frame of the flutter splash screen you can use imageConfig.
-   - By default, this widget will navigate like this.
-   ```dart
-    Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (_) {
-            return widget.nextScreen!;
-          },
+  ```dart
+    void main() {
+     WidgetsFlutterBinding.ensureInitialized();
+     SplashMaster.initialize();
+     runApp(
+        MaterialApp(
+           home: SplashMaster.video(...),// use for vide
+           home: SplashMaster.lottie(...), // use for lottie
         ),
-      );
-   ```
-   But if you want to use your custom navigation then you can use customNavigation parameter.
-   The customNavigation will called as soon video ends. So initial provided duration will be 
-   overridden by video duration.
+     );
+  }
+  ```
+
+ - If you prefer to use your own custom widget instead of the provided options, you can easily integrate it as a splash widget.
+
+  ```dart
+    void main() {
+     WidgetsFlutterBinding.ensureInitialized();
+     SplashMaster.initialize();
+     runApp(
+        MaterialApp(
+           home: YourCustomWidget(),
+        ),
+     );
+  }
+  ```
+
+- The `SplashMaster.initialize()` method prevents flutter frames from rendering until initialization is complete. To resume Flutter frames, call the `SplashMaster.resume()` method. Until `resume()` is called, the app will remain in the native splash screen.
+  - `initialize()`
+    - Use this method to initialize resources or execute code during app startup. Once the initialization is complete, call resume() to allow Flutter to start rendering frames.
+  - `resume()`
+    - If you use the SplashMaster.video() or SplashMaster.lottie() methods, you don’t need to call resume() explicitly. The rendering will resume automatically once the provided video or Lottie source is fully initialized.
+    - This function will be called automatically from `onSourceLoaded`, if you haven't provided this
+      parameter from `VideoConfig` or `LottieConfig`. If you set this parameter or don't use SplashMaster
+      widget, then you will be responsible for calling this function.
+
+- Once command runs successfully splash screen has been setup on native side.
 
 
-### Lottie as a Splash Screen
 
-TODO: Add lottie as splash screen demo.
+### Properties of `SplashMaster.video()` and `SplashMaster.lottie()`:
 
-1. Add lottie to assets
-   - Add your lottie file to assets folder so that we use it generate first frame for the splash screen.
+The common properties used in `SplashMaster.video()` and `SplashMaster.lottie()` are largely the same. The key difference between the two is the use of `videoConfig` and `lottieConfig`, which allow for configuration customization specific to video and Lottie animations, respectively.
 
-2. Run this command for lottie
 
-    ```bash
-   dart run splash_master lottie path/to/your/video.json
-   ```
-   - Similar to video, this command will generate images in different resolutions and place them 
-   in appropriate folders.
+| Name             | Description                                                |
+|------------------|------------------------------------------------------------|
+| source           | Media source for assets.                                   |
+| videoConfig      | To handle the video's configuration.                       |
+| lottieConfig     | To handle the lottie's configuration.                      |
+| backGroundColor  | To handle the background color of the splash screen.       |
+| nextScreen       | Screen to navigate once splash finished.                   |
+| customNavigation | Callback to handle the logic when the splash is completed. |
+| onSourceLoaded   | Called when provided media is loaded.                      |
 
-3. Use SplashMaster widget
-   ```dart
-   SplashMaster.lottie(
-    nextScreen: const Home(),// The screen which will be shown after splash.
-    source: AssetSource(Assets.sampleLottie), // Source of the lottie.
-    lottieConfig: const LottieConfig(
-      firstFrame: 'path/to/generated/splash_screen.png'
-      ),
-    customNavigation: () {}, 
-   );
-   ```
-   You can use **lottieConfig** parameter to customise your Lottie widget. 
-   The customNavigation will called as soon lottie ends.
+### Main Contributors
 
-### Image/Gif as a Splash Screen.
-TODO: Add lottie as splash screen demo.
-
-1. Add image to assets
-   - Add your lottie file to assets folder so that we use it generate first frame for the splash screen.
-
-2. Run this command for image
-
-    ```bash
-   dart run splash_master image path/to/your/video.png
-   ```
-   - Similar to video and lottie, this command will generate images in different resolutions and place them
-     in appropriate folders.
-
-3. Use SplashMaster widget
-   ```dart
-   SplashMaster.image(
-    nextScreen: const Home(),// The screen which will be shown after splash.
-    splashDuration: const Duration(seconds: 1), // Duration of the splash screen.
-    source: AssetSource(Assets.sampleImage), // Source of the image.
-    imageConfig: const ImageConfig(),
-    customNavigation: () {}, 
-   );
-   ```
-   You can use **imageConfig** parameter to customise your Lottie widget. The customNavigation will 
-   be called **splashDuration**.
+<table>
+  <tr>
+    <td align="center"><a href="https://github.com/ujas-m-simformsolutions"><img src="https://avatars.githubusercontent.com/u/56400956?v=4" width="100px;" alt=""/><br /><sub><b>Ujas Majithiya</b></sub></a></td>
+    <td align="center"><a href="https://github.com/apurva010"><img src="https://avatars.githubusercontent.com/u/122270609?v=4" width="100px;" alt=""/><br /><sub><b>Apurva Kanthraviya</b></sub></a></td>
+  </tr>
+</table>
