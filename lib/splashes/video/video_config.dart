@@ -23,12 +23,18 @@
 import 'package:video_player/video_player.dart';
 
 enum VisibilityEnum {
+  /// To display video in full screen
   useFullScreen,
+
+  /// To display video as per its aspect ratio
   useAspectRatio,
+
+  /// None
   none,
 }
 
 class VideoConfig {
+  /// Provides the configurations for the video
   const VideoConfig({
     this.playImmediately = true,
     this.videoVisibilityEnum = VisibilityEnum.useFullScreen,
@@ -36,9 +42,25 @@ class VideoConfig {
     this.onVideoControllerInitialised,
   });
 
+  /// Once video resource initialized play immediately (defaults to true)
+  ///
+  /// If it is false, then you need to call `play()` method explicitly through [onVideoControllerInitialised] function.
+  /// ```dart
+  ///   onVideoControllerInitialised: (videoController) {
+  ///        videoController.play();
+  ///   }
+  /// ```
   final bool playImmediately;
 
+  /// Specifies to use safe area while displaying video on screen
   final bool useSafeArea;
+
+  /// Specifies how video will be visible (defaults to [VisibilityEnum.useFullScreen])
+  ///
+  /// Other value is [VisibilityEnum.useAspectRatio] to use aspect ratio of video
   final VisibilityEnum videoVisibilityEnum;
-  final Function(VideoPlayerController)? onVideoControllerInitialised;
+
+  /// Provides the callback with [VideoPlayerController] as argument on video controller initialized
+  final Function(VideoPlayerController videoController)?
+      onVideoControllerInitialised;
 }

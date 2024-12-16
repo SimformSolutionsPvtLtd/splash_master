@@ -28,6 +28,7 @@ import 'package:splash_master/splashes/lottie/lottie_splash.dart';
 import 'package:splash_master/splashes/video/video_splash.dart';
 
 class SplashMaster extends StatefulWidget {
+  /// Set lottie as splash screen
   const SplashMaster.lottie({
     super.key,
     this.nextScreen,
@@ -39,6 +40,7 @@ class SplashMaster extends StatefulWidget {
   })  : splashMediaType = SplashMediaType.lottie,
         videoConfig = null;
 
+  /// Set video as splash screen
   const SplashMaster.video({
     super.key,
     this.nextScreen,
@@ -65,6 +67,7 @@ class SplashMaster extends StatefulWidget {
   /// look.
   final VideoConfig? videoConfig;
 
+  /// [backGroundColor] of the screen when video or lottie is being displayed using aspect ratio
   final Color? backGroundColor;
 
   /// A callback when provided source completes initializing.
@@ -140,6 +143,7 @@ class _SplashScreenState extends State<SplashMaster> {
         return LottieSplash(
           source: source,
           lottieConfig: widget.lottieConfig ?? const LottieConfig(),
+          backGroundColor: widget.backGroundColor,
           onSplashDuration: _updateSplashDuration,
         );
       case SplashMediaType.video:
