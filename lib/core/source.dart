@@ -25,6 +25,7 @@ import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:splash_master/core/utils.dart';
 
+/// Holds the source file
 abstract class Source {
   void setSource();
 }
@@ -42,6 +43,7 @@ class AssetSource extends Source {
 }
 
 class DeviceFileSource extends Source {
+  /// Provides the device file for the splash screen
   DeviceFileSource(this.path) {
     setSource();
   }
@@ -57,6 +59,7 @@ class DeviceFileSource extends Source {
 }
 
 class NetworkFileSource extends Source {
+  /// Provides the network source for the splash screen
   NetworkFileSource(this.path) {
     setSource();
   }
@@ -77,6 +80,7 @@ class NetworkFileSource extends Source {
 }
 
 class BytesSource extends Source {
+  /// Provides the source as bytes for the splash screen
   BytesSource(this.bytes);
 
   final Uint8List bytes;

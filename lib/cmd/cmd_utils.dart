@@ -20,8 +20,12 @@
  * SOFTWARE.
  */
 
+/// Command to create/setup the splash screen
 enum Command {
+  /// [create] used to create/setup the splash screen
   create,
+
+  /// None
   none;
 
   static Command fromString(String str) => switch (str) {
@@ -30,6 +34,7 @@ enum Command {
       };
 }
 
+/// Android mipmaps with their dimensions
 enum AndroidMipMaps {
   mdpi(320, 480, 'mipmap-mdpi'),
   hdpi(480, 800, 'mipmap-hdpi'),

@@ -51,6 +51,8 @@ Future<void> generateAndroidImages({
         await file.delete();
       }
       final sourceImage = File(android12[YamlKeys.imageKey]);
+
+      /// Creating a splash image from the provided asset source
       sourceImage.copySync(imagePath);
     }
     final imagePath = '$mipmapFolder/${AndroidStrings.splashImagePng}';
@@ -59,6 +61,8 @@ Future<void> generateAndroidImages({
       await file.delete();
     }
     final sourceImage = File(inputPath);
+
+    /// Creating a splash image from the provided asset source
     sourceImage.copySync(imagePath);
     log("Splash image added to ${mipmap.folder}");
   }
@@ -92,6 +96,7 @@ Future<void> createColors({
       }
     }
 
+    /// Add color element as child to resources element
     resourcesElement.children.addAll([
       XmlElement(
         XmlName(AndroidStrings.colorElement),
@@ -115,6 +120,8 @@ Future<void> createColors({
     final xml = await xmlFile.create();
     final builder = XmlBuilder();
     builder.processing(AndroidStrings.xml, AndroidStrings.xmlVersion);
+
+    /// Create resources element and its children element color with its attribute
     builder.element(AndroidStrings.resourcesElement, nest: () {
       builder.element(
         AndroidStrings.colorElement,
@@ -188,9 +195,12 @@ Future<void> createAndroid12Styles({
 
   final builder = XmlBuilder();
   builder.processing(AndroidStrings.xml, AndroidStrings.xmlVersion);
+
+  /// Creating a resources element
   builder.element(
     AndroidStrings.resourcesElement,
     nest: () {
+      /// Creating a style element as child of resources element
       builder.element(
         AndroidStrings.styleElement,
         attributes: {
@@ -198,6 +208,7 @@ Future<void> createAndroid12Styles({
           AndroidStrings.styleParentAttr: AndroidStrings.styleParentAttrVal,
         },
         nest: () {
+          /// Creating a item element for color
           if (color != null) {
             builder.element(
               AndroidStrings.itemElement,
@@ -207,6 +218,8 @@ Future<void> createAndroid12Styles({
               nest: color,
             );
           }
+
+          /// Creating a item element for image
           if (inputPath != null) {
             builder.element(
               AndroidStrings.itemElement,
@@ -240,11 +253,15 @@ Future<void> createSplashImageDrawable({
   final xml = await file.create();
   final builder = XmlBuilder();
   builder.processing(AndroidStrings.xml, AndroidStrings.xmlVersion);
+
+  /// Creating a layer-list element and its attributes
   builder.element(AndroidStrings.layerListElement, nest: () {
     builder.attribute(
       AndroidStrings.xmlnsAndroidAttr,
       AndroidStrings.xmlnsAndroidAttrValue,
     );
+
+    /// Creates item element and attributes for color
     if (color != null) {
       builder.element(
         AndroidStrings.itemElement,
@@ -257,6 +274,7 @@ Future<void> createSplashImageDrawable({
       );
     }
 
+    /// Creates item element and attributes for image
     if (inputPath != null) {
       builder.element(AndroidStrings.itemElement, nest: () {
         builder.element(AndroidStrings.bitmapAttrVal, nest: () {

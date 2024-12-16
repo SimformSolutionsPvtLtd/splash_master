@@ -20,18 +20,8 @@
  * SOFTWARE.
  */
 
+import 'package:splash_master/enums/splash_master_enums.dart';
 import 'package:video_player/video_player.dart';
-
-enum VisibilityEnum {
-  /// To display video in full screen
-  useFullScreen,
-
-  /// To display video as per its aspect ratio
-  useAspectRatio,
-
-  /// None
-  none,
-}
 
 class VideoConfig {
   /// Provides the configurations for the video

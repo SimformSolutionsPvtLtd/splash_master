@@ -20,6 +20,7 @@
  * SOFTWARE.
  */
 
+/// The DM used to update the `contents.json` file in iOS with the splash image
 class IosContentJsonDm {
   const IosContentJsonDm({
     required this.images,
@@ -53,6 +54,7 @@ class IosContentJsonDm {
       );
 }
 
+/// The DM used for fields that are in `contents.json`
 class Image {
   const Image({
     required this.idiom,
