@@ -29,6 +29,8 @@ import 'package:splash_master/cmd/models/ios_content_json_dm.dart';
 import 'package:splash_master/cmd/splash_screen_content_string.dart';
 import 'package:splash_master/cmd/yaml_config/support_parameter.dart';
 import 'package:splash_master/core/utils.dart';
+import 'package:splash_master/values/android_strings.dart';
+import 'package:splash_master/values/ios_strings.dart';
 import 'package:splash_master/values/yaml_keys.dart';
 import 'package:xml/xml.dart';
 import 'package:yaml/yaml.dart';

@@ -44,16 +44,16 @@ Future<void> generateAndroidImages({
     }
 
     /// Create image in mipmap directories for the Android 12+
-    if (android12['image'] != null) {
-      final imagePath = '$mipmapFolder/splash_image_12.png';
+    if (android12[YamlKeys.imageKey] != null) {
+      final imagePath = '$mipmapFolder/${AndroidStrings.splashImage12Png}';
       final file = File(imagePath);
       if (await file.exists()) {
         await file.delete();
       }
-      final sourceImage = File(android12['image']);
+      final sourceImage = File(android12[YamlKeys.imageKey]);
       sourceImage.copySync(imagePath);
     }
-    final imagePath = '$mipmapFolder/splash_image.png';
+    final imagePath = '$mipmapFolder/${AndroidStrings.splashImagePng}';
     final file = File(imagePath);
     if (await file.exists()) {
       await file.delete();
@@ -74,16 +74,18 @@ Future<void> createColors({
   }
 
   const androidValuesFolder = CmdStrings.androidValuesDirectory;
-  const colorsFilePath = '$androidValuesFolder/colors.xml';
+  const colorsFilePath = '$androidValuesFolder/${AndroidStrings.colorXml}';
 
   final xmlFile = File(colorsFilePath);
   if (await xmlFile.exists()) {
     final xmlDocument = XmlDocument.parse(xmlFile.readAsStringSync());
-    final resourcesElement = xmlDocument.findAllElements('resources').first;
+    final resourcesElement =
+        xmlDocument.findAllElements(AndroidStrings.resourcesElement).first;
 
     /// Check if `splashBackGroundColor` attribute value is already available
     for (final element in resourcesElement.childElements) {
-      if (element.getAttribute('name') == 'splashBgColor') {
+      if (element.getAttribute(AndroidStrings.nameAttr) ==
+          AndroidStrings.nameAttrValue) {
         /// Remove the attribute
         element.remove();
         break;
@@ -92,9 +94,12 @@ Future<void> createColors({
 
     resourcesElement.children.addAll([
       XmlElement(
-        XmlName('color'),
+        XmlName(AndroidStrings.colorElement),
         [
-          XmlAttribute(XmlName('name'), 'splashBgColor'),
+          XmlAttribute(
+            XmlName(AndroidStrings.nameAttr),
+            AndroidStrings.nameAttrValue,
+          ),
         ],
         [
           XmlText(color),
@@ -109,11 +114,13 @@ Future<void> createColors({
     /// If `colors.xml` file is not there, then create one
     final xml = await xmlFile.create();
     final builder = XmlBuilder();
-    builder.processing('xml', 'version="1.0" encoding="utf-8"');
-    builder.element('resources', nest: () {
+    builder.processing(AndroidStrings.xml, AndroidStrings.xmlVersion);
+    builder.element(AndroidStrings.resourcesElement, nest: () {
       builder.element(
-        'color',
-        attributes: {'name': 'splashBgColor'},
+        AndroidStrings.colorElement,
+        attributes: {
+          AndroidStrings.nameAttr: AndroidStrings.nameAttrValue,
+        },
         nest: color,
       );
     });
@@ -131,12 +138,13 @@ Future<void> updateStylesXml({
   const androidValuesFolder = CmdStrings.androidValuesDirectory;
 
   if (android12 != null &&
-      (android12['color'] != null || android12['image'] != null)) {
-    const v31 = 'android/app/src/main/res/values-v31';
+      (android12[YamlKeys.colorKey] != null ||
+          android12[YamlKeys.imageKey] != null)) {
+    const v31 = CmdStrings.androidValuesV31Directory;
     if (!await Directory(v31).exists()) {
       Directory(v31).create();
     }
-    const style = '$v31/styles.xml';
+    const style = '$v31/${AndroidStrings.stylesXml}';
     if (await File(style).exists()) {
       File(style).delete();
     }
@@ -144,22 +152,26 @@ Future<void> updateStylesXml({
 
     createAndroid12Styles(
       styleFile: styleFile,
-      color: android12['color'],
-      inputPath: android12['image'],
+      color: android12[YamlKeys.colorKey],
+      inputPath: android12[YamlKeys.imageKey],
     );
   }
-  final xml = File('$androidValuesFolder/styles.xml');
+  final xml = File('$androidValuesFolder/${AndroidStrings.stylesXml}');
   final xmlExists = await xml.exists();
   if (!xmlExists) {
     log("styles.xml doesn't exists");
     return;
   }
   final xmlDoc = XmlDocument.parse(xml.readAsStringSync());
-  xmlDoc.findAllElements('item').where((itemElement) {
-    return itemElement.getAttribute('name') == 'android:windowBackground';
+  xmlDoc.findAllElements(AndroidStrings.itemElement).where((itemElement) {
+    return itemElement.getAttribute(AndroidStrings.nameAttr) ==
+        AndroidStrings.itemNameAttrValue;
   }).forEach((itemElement) {
-    itemElement.setAttribute('name', 'android:windowBackground');
-    itemElement.innerText = '@drawable/splash_screen';
+    itemElement.setAttribute(
+      AndroidStrings.nameAttr,
+      AndroidStrings.itemNameAttrValue,
+    );
+    itemElement.innerText = AndroidStrings.drawableSplashScreen;
   });
 
   await xml.writeAsString(xmlDoc.toXmlString(pretty: true));
@@ -175,31 +187,34 @@ Future<void> createAndroid12Styles({
   final xml = await styleFile.create();
 
   final builder = XmlBuilder();
-  builder.processing('xml', 'version="1.0" encoding="utf-8"');
+  builder.processing(AndroidStrings.xml, AndroidStrings.xmlVersion);
   builder.element(
-    'resources',
+    AndroidStrings.resourcesElement,
     nest: () {
       builder.element(
-        'style',
+        AndroidStrings.styleElement,
         attributes: {
-          'name': 'LaunchTheme',
-          'parent': '@android:style/Theme.Light.NoTitleBar',
+          AndroidStrings.nameAttr: AndroidStrings.styleNameAttrVal,
+          AndroidStrings.styleParentAttr: AndroidStrings.styleParentAttrVal,
         },
         nest: () {
           if (color != null) {
             builder.element(
-              'item',
-              attributes: {'name': 'android:windowSplashScreenBackground'},
+              AndroidStrings.itemElement,
+              attributes: {
+                AndroidStrings.nameAttr: AndroidStrings.windowSplashScreenBG,
+              },
               nest: color,
             );
           }
           if (inputPath != null) {
             builder.element(
-              'item',
+              AndroidStrings.itemElement,
               attributes: {
-                'name': 'android:windowSplashScreenAnimatedIcon',
+                AndroidStrings.nameAttr:
+                    AndroidStrings.windowSplashScreenAnimatedIcon,
               },
-              nest: '@mipmap/splash_image12',
+              nest: AndroidStrings.mipmapSplashImage12,
             );
           }
         },
@@ -218,32 +233,45 @@ Future<void> createSplashImageDrawable({
   String? gravity,
 }) async {
   const androidDrawableFolder = CmdStrings.androidDrawableDirectory;
-  const splashImagePath = '$androidDrawableFolder/splash_screen.xml';
+  const splashImagePath =
+      '$androidDrawableFolder/${AndroidStrings.splashScreenXml}';
   final file = File(splashImagePath);
 
   final xml = await file.create();
   final builder = XmlBuilder();
-  builder.processing('xml', 'version="1.0" encoding="utf-8"');
-  builder.element('layer-list', nest: () {
+  builder.processing(AndroidStrings.xml, AndroidStrings.xmlVersion);
+  builder.element(AndroidStrings.layerListElement, nest: () {
     builder.attribute(
-      'xmlns:android',
-      'http://schemas.android.com/apk/res/android',
+      AndroidStrings.xmlnsAndroidAttr,
+      AndroidStrings.xmlnsAndroidAttrValue,
     );
     if (color != null) {
       builder.element(
-        'item',
+        AndroidStrings.itemElement,
         nest: () {
-          builder.attribute('android:drawable', '@color/splashBgColor');
+          builder.attribute(
+            AndroidStrings.androidDrawableAttr,
+            AndroidStrings.androidDrawableAttrVal,
+          );
         },
       );
     }
 
     if (inputPath != null) {
-      builder.element('item', nest: () {
-        builder.element('bitmap', nest: () {
-          builder.attribute('android:gravity', gravity ?? 'fill');
-          builder.attribute('android:src', '@mipmap/splash_image');
-          builder.attribute('android:tileMode', 'disabled');
+      builder.element(AndroidStrings.itemElement, nest: () {
+        builder.element(AndroidStrings.bitmapAttrVal, nest: () {
+          builder.attribute(
+            AndroidStrings.androidGravityAttr,
+            gravity ?? AndroidStrings.defaultAndroidGravityAttrVal,
+          );
+          builder.attribute(
+            AndroidStrings.androidSrcAttr,
+            AndroidStrings.androidSrcAttrVal,
+          );
+          builder.attribute(
+            AndroidStrings.androidTileModeAttr,
+            AndroidStrings.androidTileModeAttrVal,
+          );
         });
       });
     }

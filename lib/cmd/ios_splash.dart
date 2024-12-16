@@ -40,7 +40,7 @@ Future<void> generateIosImages({
 
   if (inputPath != null) {
     for (final scale in IosScale.values) {
-      final fileName = 'splash_image${scale.fileEndWith}.png';
+      final fileName = '${IOSStrings.splashImage}${scale.fileEndWith}.png';
       final imagePath = '$iosAssetsFolder/$fileName';
       final file = File(imagePath);
       if (await file.exists()) {
@@ -53,7 +53,7 @@ Future<void> generateIosImages({
 
       log('Generated $fileName.');
       images.add(Image(
-        idiom: 'universal',
+        idiom: IOSStrings.iOSContentJsonIdiom,
         filename: fileName,
         scale: scale.scale,
       ));
@@ -77,21 +77,23 @@ void updateContentOfStoryboard({
 }) {
   final file = File(CmdStrings.storyboardPath);
   final xmlDocument = XmlDocument.parse(file.readAsStringSync());
-  final documentData = xmlDocument.getElement('document');
+  final documentData = xmlDocument.getElement(
+    IOSStrings.documentElement,
+  );
 
   final view =
       documentData?.descendants.whereType<XmlElement>().firstWhere((element) {
-    return element.name.qualified == 'view' &&
-        element.getAttribute('id') == 'Ze5-6b-2t3';
+    return element.name.qualified == IOSStrings.viewElement &&
+        element.getAttribute(IOSStrings.viewIdAttr) == IOSStrings.defaultViewId;
   });
   if (view == null) {
     log(
-      'Default Flutter view Ze5-6b-2t3 not found.',
+      'Default Flutter view with ${IOSStrings.defaultViewId} ID not found.',
     );
     exit(1);
   }
 
-  final subViews = view.getElement('subviews');
+  final subViews = view.getElement(IOSStrings.subViewsElement);
   if (subViews == null) {
     final subview = _createImageSubView();
     view.children.add(subview);
@@ -99,27 +101,27 @@ void updateContentOfStoryboard({
 
   if (color != null) {
     /// Update or add a `color` element for the background color
-    final colorElement = view.getElement('color');
+    final colorElement = view.getElement(IOSStrings.colorElement);
     if (colorElement != null) {
       /// Update existing color with provided color code
       _updateColorAttributes(colorElement, color);
     } else {
       /// Add a new color element with provided color code
       view.children.add(XmlElement(
-        XmlName('color'),
+        XmlName(IOSStrings.colorElement),
         _buildColorAttributes(color),
       ));
     }
   } else {
-    final colorElement = view.getElement('color');
+    final colorElement = view.getElement(IOSStrings.colorElement);
     if (colorElement != null) {
       /// Update existing color to white background
-      _updateColorAttributes(colorElement, '#FFFFFF');
+      _updateColorAttributes(colorElement, IOSStrings.defaultColor);
     } else {
       /// Add a new color element with white background color
       view.children.add(XmlElement(
-        XmlName('color'),
-        _buildColorAttributes('#FFFFFF'),
+        XmlName(IOSStrings.colorElement),
+        _buildColorAttributes(IOSStrings.defaultColor),
       ));
     }
   }
@@ -127,8 +129,8 @@ void updateContentOfStoryboard({
     /// Find the imageView element in subViews element
     final imageView = subViews?.children.whereType<XmlElement?>().firstWhere(
       (element) =>
-          element?.name.qualified == 'imageView' &&
-          element?.getAttribute('image') == 'LaunchImage',
+          element?.name.qualified == IOSStrings.imageViewElement &&
+          element?.getAttribute(IOSStrings.image) == IOSStrings.imageValue,
       orElse: () {
         log(
           'Unable to find default imageView with the LaunchImage',
@@ -138,10 +140,13 @@ void updateContentOfStoryboard({
     );
 
     /// Update the fill property
-    imageView?.setAttribute('contentMode', iosContentMode ?? 'scaleToFill');
+    imageView?.setAttribute(
+      IOSStrings.contentMode,
+      iosContentMode ?? IOSStrings.contentModeValue,
+    );
 
     /// Remove and update the constraints
-    view.children.remove(view.getElement('constraints'));
+    view.children.remove(view.getElement(IOSStrings.constraintsElement));
     view.children.add(
       XmlDocument.parse(SplashScreenContentString.imageConstraintString)
           .rootElement
@@ -149,8 +154,9 @@ void updateContentOfStoryboard({
     );
   } else {
     /// Image is not available then remove constraints and subview element
-    view.children.remove(view.getElement('constraints'));
-    final subviewsTag = documentData?.findAllElements('subviews').firstOrNull;
+    view.children.remove(view.getElement(IOSStrings.constraintsElement));
+    final subviewsTag =
+        documentData?.findAllElements(IOSStrings.subViewsElement).firstOrNull;
 
     subviewsTag?.remove();
   }
@@ -163,23 +169,59 @@ void updateContentOfStoryboard({
 
 /// Update color attributes for a color element
 void _updateColorAttributes(XmlElement colorElement, String hexColor) {
-  colorElement.setAttribute('key', 'backgroundColor');
-  colorElement.setAttribute('customColorSpace', 'sRGB');
-  colorElement.setAttribute('red', _hexToDecimal(hexColor.substring(1, 3)));
-  colorElement.setAttribute('green', _hexToDecimal(hexColor.substring(3, 5)));
-  colorElement.setAttribute('blue', _hexToDecimal(hexColor.substring(5, 7)));
-  colorElement.setAttribute('alpha', '1');
+  colorElement.setAttribute(
+    IOSStrings.colorKeyAttr,
+    IOSStrings.colorKeyAttrVal,
+  );
+  colorElement.setAttribute(
+    IOSStrings.customColorAttr,
+    IOSStrings.customColorAttrVal,
+  );
+  colorElement.setAttribute(
+    IOSStrings.redColorAttr,
+    _hexToDecimal(hexColor.substring(1, 3)),
+  );
+  colorElement.setAttribute(
+    IOSStrings.greenColorAttr,
+    _hexToDecimal(hexColor.substring(3, 5)),
+  );
+  colorElement.setAttribute(
+    IOSStrings.blueColorAttr,
+    _hexToDecimal(hexColor.substring(5, 7)),
+  );
+  colorElement.setAttribute(
+    IOSStrings.colorAlphaAttr,
+    IOSStrings.defaultAlphaAttrVal,
+  );
 }
 
 /// Build attributes for a new color element
 List<XmlAttribute> _buildColorAttributes(String hexColor) {
   return [
-    XmlAttribute(XmlName('key'), 'backgroundColor'),
-    XmlAttribute(XmlName('customColorSpace'), 'sRGB'),
-    XmlAttribute(XmlName('red'), _hexToDecimal(hexColor.substring(1, 3))),
-    XmlAttribute(XmlName('green'), _hexToDecimal(hexColor.substring(3, 5))),
-    XmlAttribute(XmlName('blue'), _hexToDecimal(hexColor.substring(5, 7))),
-    XmlAttribute(XmlName('alpha'), '1'),
+    XmlAttribute(
+      XmlName(IOSStrings.colorKeyAttr),
+      IOSStrings.colorKeyAttrVal,
+    ),
+    XmlAttribute(
+      XmlName(IOSStrings.customColorAttr),
+      IOSStrings.customColorAttrVal,
+    ),
+    XmlAttribute(
+      XmlName(IOSStrings.redColorAttr),
+      _hexToDecimal(hexColor.substring(1, 3)),
+    ),
+    XmlAttribute(
+      XmlName(IOSStrings.greenColorAttr),
+      _hexToDecimal(hexColor.substring(3, 5)),
+    ),
+    XmlAttribute(
+      XmlName(IOSStrings.blueColorAttr),
+      _hexToDecimal(hexColor.substring(5, 7)),
+    ),
+    XmlAttribute(
+      XmlName(IOSStrings.colorAlphaAttr),
+      IOSStrings.defaultAlphaAttrVal,
+    ),
   ];
 }
 
@@ -187,28 +229,63 @@ List<XmlAttribute> _buildColorAttributes(String hexColor) {
 /// Create two sub element inside the `subviews` element.
 /// `imageView` and `rect`.
 XmlElement _createImageSubView() {
-  final element = XmlElement(XmlName('subviews'), [], [
+  final element = XmlElement(XmlName(IOSStrings.subViewsElement), [], [
     XmlElement(
-      XmlName('imageView'),
+      XmlName(IOSStrings.imageViewElement),
       [
-        XmlAttribute(XmlName('opaque'), 'NO'),
-        XmlAttribute(XmlName('clipsSubviews'), 'YES'),
-        XmlAttribute(XmlName('multipleTouchEnabled'), 'YES'),
-        XmlAttribute(XmlName('contentMode'), 'scaleAspectFill'),
-        XmlAttribute(XmlName('image'), 'LaunchImage'),
         XmlAttribute(
-            XmlName('translatesAutoresizingMaskIntoConstraints'), 'NO'),
-        XmlAttribute(XmlName('id'), 'YRO-k0-Ey4'),
+          XmlName(IOSStrings.opaque),
+          IOSStrings.opaqueValue,
+        ),
+        XmlAttribute(
+          XmlName(IOSStrings.clipsSubviews),
+          IOSStrings.clipsSubviewsValue,
+        ),
+        XmlAttribute(
+          XmlName(IOSStrings.multipleTouchEnabled),
+          IOSStrings.multipleTouchEnabledValue,
+        ),
+        XmlAttribute(
+          XmlName(IOSStrings.contentMode),
+          IOSStrings.contentModeValue,
+        ),
+        XmlAttribute(
+          XmlName(IOSStrings.image),
+          IOSStrings.imageValue,
+        ),
+        XmlAttribute(
+          XmlName(IOSStrings.translatesAutoresizingMaskIntoConstraints),
+          IOSStrings.translatesAutoresizingMaskIntoConstraintsVal,
+        ),
+        XmlAttribute(
+          XmlName(IOSStrings.defaultImageViewId),
+          IOSStrings.defaultImageViewIdValue,
+        ),
       ],
       [
         XmlElement(
-          XmlName('rect'),
+          XmlName(IOSStrings.rectElement),
           [
-            XmlAttribute(XmlName('key'), 'frame'),
-            XmlAttribute(XmlName('x'), '0.0'),
-            XmlAttribute(XmlName('y'), '0.0'),
-            XmlAttribute(XmlName('width'), '393'),
-            XmlAttribute(XmlName('height'), '1280'),
+            XmlAttribute(
+              XmlName(IOSStrings.rectElementKeyAttr),
+              IOSStrings.rectElementKeyAttrValue,
+            ),
+            XmlAttribute(
+              XmlName(IOSStrings.rectElementXAttr),
+              IOSStrings.rectElementXAttrVal,
+            ),
+            XmlAttribute(
+              XmlName(IOSStrings.rectElementYAttr),
+              IOSStrings.rectElementYAttrVal,
+            ),
+            XmlAttribute(
+              XmlName(IOSStrings.rectElementWidthAttr),
+              IOSStrings.rectElementWidthAttrVal,
+            ),
+            XmlAttribute(
+              XmlName(IOSStrings.rectElementHeightAttr),
+              IOSStrings.rectElementHeightAttrVal,
+            ),
           ],
         ),
       ],
@@ -233,7 +310,7 @@ Future<void> updateContentJson(
   }
   const iosAssetsFolder = CmdStrings.iosAssetsDirectory;
 
-  final file = File('$iosAssetsFolder/Contents.json');
+  final file = File('$iosAssetsFolder/${IOSStrings.iosContentJson}');
   final jsonString = await file.readAsString();
   final json = jsonDecode(jsonString);
   final iosContentJsonDm = IosContentJsonDm.fromJson(json);

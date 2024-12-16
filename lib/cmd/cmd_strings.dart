@@ -20,10 +20,11 @@
  * SOFTWARE.
  */
 
+/// Directory and file path of Android and iOS
 class CmdStrings {
-  CmdStrings._();
-
   static const androidValuesDirectory = 'android/app/src/main/res/values';
+  static const androidValuesV31Directory =
+      'android/app/src/main/res/values-v31';
   static const androidDrawableDirectory = 'android/app/src/main/res/drawable';
   static const androidResDirectory = 'android/app/src/main/res';
   static const iosAssetsDirectory =
