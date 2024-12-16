@@ -22,6 +22,7 @@
 
 import 'package:splash_master/core/utils.dart';
 
+/// Supported image extensions
 enum SupportedImageExtensions {
   jpg,
   png,
@@ -43,6 +44,7 @@ enum SupportedImageExtensions {
   }
 }
 
+/// All the available Android gravity values
 enum AndroidGravity {
   center,
   clipHorizontal,
@@ -95,6 +97,7 @@ enum AndroidGravity {
   }
 }
 
+/// All the available iOS content mode values
 enum IosContentMode {
   scaleToFill,
   aspectFit,

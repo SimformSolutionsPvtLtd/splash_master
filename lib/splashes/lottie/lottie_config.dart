@@ -23,7 +23,7 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:splash_master/core/utils.dart';
-import 'package:splash_master/splashes/video/video_config.dart';
+import 'package:splash_master/enums/splash_master_enums.dart';
 
 class LottieConfig {
   /// A callback called when the LottieComposition has been loaded.

@@ -20,6 +20,7 @@
  * SOFTWARE.
  */
 
+/// Constraints element string
 class SplashScreenContentString {
   static const String imageConstraintString = '''<constraints>
   <constraint firstItem="YRO-k0-Ey4" firstAttribute="leading" secondItem="Ze5-6b-2t3" secondAttribute="leading" id="3T2-ad-Qdv"/>

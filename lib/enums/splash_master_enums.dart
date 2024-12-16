@@ -21,3 +21,14 @@
  */
 
 enum SplashMediaType { image, video, lottie, rive, custom }
+
+enum VisibilityEnum {
+  /// To display video in full screen
+  useFullScreen,
+
+  /// To display video as per its aspect ratio
+  useAspectRatio,
+
+  /// None
+  none,
+}

@@ -49,6 +49,7 @@ Future<void> generateIosImages({
 
       final sourceImage = File(inputPath);
 
+      /// Creating a splash image from the provided asset source
       sourceImage.copySync(imagePath);
 
       log('Generated $fileName.');
@@ -81,6 +82,7 @@ void updateContentOfStoryboard({
     IOSStrings.documentElement,
   );
 
+  /// Find the default view in the storyboard
   final view =
       documentData?.descendants.whereType<XmlElement>().firstWhere((element) {
     return element.name.qualified == IOSStrings.viewElement &&
@@ -93,9 +95,12 @@ void updateContentOfStoryboard({
     exit(1);
   }
 
+  /// Find the default subViews element in the storyboard
   final subViews = view.getElement(IOSStrings.subViewsElement);
   if (subViews == null) {
     final subview = _createImageSubView();
+
+    /// Add subViews element as child in view element
     view.children.add(subview);
   }
 
@@ -118,7 +123,7 @@ void updateContentOfStoryboard({
       /// Update existing color to white background
       _updateColorAttributes(colorElement, IOSStrings.defaultColor);
     } else {
-      /// Add a new color element with white background color
+      /// Add a new color element with white background color as child in view element
       view.children.add(XmlElement(
         XmlName(IOSStrings.colorElement),
         _buildColorAttributes(IOSStrings.defaultColor),
@@ -145,19 +150,25 @@ void updateContentOfStoryboard({
       iosContentMode ?? IOSStrings.contentModeValue,
     );
 
-    /// Remove and update the constraints
+    /// Remove existing or old constraints
     view.children.remove(view.getElement(IOSStrings.constraintsElement));
+
+    /// Add constraints in view element
     view.children.add(
       XmlDocument.parse(SplashScreenContentString.imageConstraintString)
           .rootElement
           .copy(),
     );
   } else {
-    /// Image is not available then remove constraints and subview element
+    /// Image is not available then
+    ///
+    /// remove constraints
     view.children.remove(view.getElement(IOSStrings.constraintsElement));
+
     final subviewsTag =
         documentData?.findAllElements(IOSStrings.subViewsElement).firstOrNull;
 
+    /// subview element
     subviewsTag?.remove();
   }
 
@@ -169,6 +180,7 @@ void updateContentOfStoryboard({
 
 /// Update color attributes for a color element
 void _updateColorAttributes(XmlElement colorElement, String hexColor) {
+  /// Set attributes of color element
   colorElement.setAttribute(
     IOSStrings.colorKeyAttr,
     IOSStrings.colorKeyAttrVal,
@@ -197,6 +209,7 @@ void _updateColorAttributes(XmlElement colorElement, String hexColor) {
 
 /// Build attributes for a new color element
 List<XmlAttribute> _buildColorAttributes(String hexColor) {
+  /// Create attributes of the color element
   return [
     XmlAttribute(
       XmlName(IOSStrings.colorKeyAttr),
