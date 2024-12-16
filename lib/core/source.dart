@@ -30,6 +30,7 @@ abstract class Source {
 }
 
 class AssetSource extends Source {
+  /// Provides the asset resource for the splash screen
   AssetSource(this.path) {
     setSource();
   }

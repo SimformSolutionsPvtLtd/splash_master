@@ -33,16 +33,18 @@ class LottieSplash extends StatelessWidget {
     required this.source,
     this.lottieConfig = const LottieConfig(),
     this.onSplashDuration,
+    this.backGroundColor,
   });
 
   final Source source;
   final LottieConfig lottieConfig;
   final OnSplashDuration? onSplashDuration;
+  final Color? backGroundColor;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: lottieConfig.backgroundColor,
+      backgroundColor: backGroundColor,
       body: Center(
         child: _lottieMediaWidget(context),
       ),

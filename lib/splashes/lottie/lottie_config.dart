@@ -161,10 +161,15 @@ class LottieConfig {
   /// Sets BoxFit to fill which removes padding around the lottie file. Defaults to true.
   final bool overrideBoxFit;
 
-  final Color? backgroundColor;
-
+  /// Specifies how video will be visible (defaults to [VisibilityEnum.useFullScreen])
+  ///
+  /// Other value is [VisibilityEnum.useAspectRatio] to use aspect ratio of lottie
   final VisibilityEnum visibilityEnum;
 
+  /// Specifies the aspect ratio of the lottie
+  ///
+  /// If [VisibilityEnum.useAspectRatio] then you have to provide aspect ratio
+  /// Defaults to 9/16
   final double aspectRatio;
 
   const LottieConfig({
@@ -186,7 +191,6 @@ class LottieConfig {
     this.errorBuilder,
     this.renderCache,
     this.overrideBoxFit = true,
-    this.backgroundColor,
     this.aspectRatio = 9 / 16,
     this.visibilityEnum = VisibilityEnum.useFullScreen,
   });
