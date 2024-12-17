@@ -125,7 +125,7 @@ void setupSplashScreen(YamlMap splashData) {
       }
     }
     applySplash(
-      inputPath: splashData[YamlKeys.imageKey],
+      imageSource: splashData[YamlKeys.imageKey],
       color: splashData[YamlKeys.colorKey],
       gravity: splashData[YamlKeys.androidGravityKey],
       iosContentMode: splashData[YamlKeys.iosContentModeKey],
@@ -136,45 +136,46 @@ void setupSplashScreen(YamlMap splashData) {
 
 /// Apply the splash images to Android
 Future<void> applyAndroidSplashImage({
-  String? inputPath,
+  String? imageSource,
   String? color,
   String? gravity,
   YamlMap? android12,
 }) async {
   await generateAndroidImages(
-    inputPath: inputPath,
+    imageSource: imageSource,
+  );
+  await generateAndroid12Images(
     android12: android12,
   );
   await createColors(
     color: color,
   );
   await createSplashImageDrawable(
-    inputPath: inputPath,
+    imageSource: imageSource,
     color: color,
     gravity: gravity,
   );
   await updateStylesXml(
     android12: android12,
     color: color,
-    inputPath: inputPath,
   );
 }
 
 /// Applies the splash screen on Android and iOS using details from the YAML file.
 Future<void> applySplash({
-  String? inputPath,
+  String? imageSource,
   String? color,
   String? gravity,
   String? iosContentMode,
   YamlMap? android12,
 }) async {
   await generateIosImages(
-    inputPath: inputPath,
+    imageSource: imageSource,
     color: color,
     iosContentMode: iosContentMode,
   );
   await applyAndroidSplashImage(
-    inputPath: inputPath,
+    imageSource: imageSource,
     color: color,
     gravity: gravity,
     android12: android12,

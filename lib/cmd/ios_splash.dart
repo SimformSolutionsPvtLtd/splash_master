@@ -24,7 +24,7 @@ part of 'command_line.dart';
 
 /// Generate splash images for the iOS
 Future<void> generateIosImages({
-  String? inputPath,
+  String? imageSource,
   String? color,
   String? iosContentMode,
 }) async {
@@ -38,7 +38,7 @@ Future<void> generateIosImages({
 
   final List<Image> images = [];
 
-  if (inputPath != null) {
+  if (imageSource != null) {
     for (final scale in IosScale.values) {
       final fileName = '${IOSStrings.splashImage}${scale.fileEndWith}.png';
       final imagePath = '$iosAssetsFolder/$fileName';
@@ -47,7 +47,7 @@ Future<void> generateIosImages({
         await file.delete();
       }
 
-      final sourceImage = File(inputPath);
+      final sourceImage = File(imageSource);
 
       /// Creating a splash image from the provided asset source
       sourceImage.copySync(imagePath);
@@ -61,7 +61,7 @@ Future<void> generateIosImages({
     }
   }
   updateContentOfStoryboard(
-    imagePath: inputPath,
+    imagePath: imageSource,
     color: color,
     iosContentMode: iosContentMode,
   );
