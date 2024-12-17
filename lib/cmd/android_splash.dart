@@ -24,12 +24,42 @@ part of 'command_line.dart';
 
 /// Generate splash images for the Android
 Future<void> generateAndroidImages({
-  String? inputPath,
+  String? imageSource,
   String? color,
+}) async {
+  if (imageSource == null) {
+    log('No images were provided. Skip generating Android images');
+    return;
+  }
+  const androidResDir = CmdStrings.androidResDirectory;
+
+  // Create splash images with the provided image in mipmap directories
+  for (final mipmap in AndroidMipMaps.values) {
+    final mipmapFolder = '$androidResDir/${mipmap.folder}';
+    final directory = Directory(mipmapFolder);
+    if (!(await directory.exists())) {
+      log("${mipmap.folder} folder doesn't exists. Creating it...");
+      await Directory(mipmapFolder).create(recursive: true);
+    }
+
+    final imagePath = '$mipmapFolder/${AndroidStrings.splashImagePng}';
+    final file = File(imagePath);
+    if (await file.exists()) {
+      await file.delete();
+    }
+    final sourceImage = File(imageSource);
+
+    /// Creating a splash image from the provided asset source
+    sourceImage.copySync(imagePath);
+    log("Splash image added to ${mipmap.folder}");
+  }
+}
+
+Future<void> generateAndroid12Images({
   YamlMap? android12,
 }) async {
-  if (inputPath == null || android12 == null) {
-    log('No images were provided. Skip generating Android images');
+  if (android12 == null) {
+    log('Skipping Android 12 configuration as it is not provided.');
     return;
   }
   const androidResDir = CmdStrings.androidResDirectory;
@@ -54,17 +84,8 @@ Future<void> generateAndroidImages({
 
       /// Creating a splash image from the provided asset source
       sourceImage.copySync(imagePath);
+      log("Splash image added to ${mipmap.folder}");
     }
-    final imagePath = '$mipmapFolder/${AndroidStrings.splashImagePng}';
-    final file = File(imagePath);
-    if (await file.exists()) {
-      await file.delete();
-    }
-    final sourceImage = File(inputPath);
-
-    /// Creating a splash image from the provided asset source
-    sourceImage.copySync(imagePath);
-    log("Splash image added to ${mipmap.folder}");
   }
 }
 
@@ -139,7 +160,6 @@ Future<void> createColors({
 /// Updates the `styles.xml` file for the splash screen setup.
 Future<void> updateStylesXml({
   YamlMap? android12,
-  String? inputPath,
   String? color,
 }) async {
   const androidValuesFolder = CmdStrings.androidValuesDirectory;
@@ -160,7 +180,7 @@ Future<void> updateStylesXml({
     createAndroid12Styles(
       styleFile: styleFile,
       color: android12[YamlKeys.colorKey],
-      inputPath: android12[YamlKeys.imageKey],
+      imageSource: android12[YamlKeys.imageKey],
     );
   }
   final xml = File('$androidValuesFolder/${AndroidStrings.stylesXml}');
@@ -189,7 +209,7 @@ Future<void> updateStylesXml({
 Future<void> createAndroid12Styles({
   required File styleFile,
   String? color,
-  String? inputPath,
+  String? imageSource,
 }) async {
   final xml = await styleFile.create();
 
@@ -220,7 +240,7 @@ Future<void> createAndroid12Styles({
           }
 
           /// Creating a item element for image
-          if (inputPath != null) {
+          if (imageSource != null) {
             builder.element(
               AndroidStrings.itemElement,
               attributes: {
@@ -241,7 +261,7 @@ Future<void> createAndroid12Styles({
 
 /// Creates a new `splash_screen.xml` file to define the splash screen setup.
 Future<void> createSplashImageDrawable({
-  String? inputPath,
+  String? imageSource,
   String? color,
   String? gravity,
 }) async {
@@ -275,7 +295,7 @@ Future<void> createSplashImageDrawable({
     }
 
     /// Creates item element and attributes for image
-    if (inputPath != null) {
+    if (imageSource != null) {
       builder.element(AndroidStrings.itemElement, nest: () {
         builder.element(AndroidStrings.bitmapAttrVal, nest: () {
           builder.attribute(
