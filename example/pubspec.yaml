@@ -21,3 +21,6 @@ flutter:
 
   assets:
     - assets/
+
+splash_master:
+  image: assets/splash_image.png
