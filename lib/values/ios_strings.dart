@@ -17,8 +17,8 @@ class IOSStrings {
   /// `view`
   static const viewElement = 'view';
 
-  /// `subViews`
-  static const subViewsElement = 'subViews';
+  /// `subviews`
+  static const subViewsElement = 'subviews';
 
   /// `color`
   static const colorElement = 'color';
