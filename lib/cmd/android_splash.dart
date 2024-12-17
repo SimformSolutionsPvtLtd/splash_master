@@ -28,12 +28,12 @@ Future<void> generateAndroidImages({
   String? color,
 }) async {
   if (imageSource == null) {
-    log('No images were provided. Skip generating Android images');
+    log('No images were provided. Skipping generating Android images');
     return;
   }
   const androidResDir = CmdStrings.androidResDirectory;
 
-  // Create splash images with the provided image in mipmap directories
+  /// Create splash images with the provided image in mipmap directories
   for (final mipmap in AndroidMipMaps.values) {
     final mipmapFolder = '$androidResDir/${mipmap.folder}';
     final directory = Directory(mipmapFolder);
@@ -64,7 +64,7 @@ Future<void> generateAndroid12Images({
   }
   const androidResDir = CmdStrings.androidResDirectory;
 
-  // Create splash images with the provided image in mipmap directories
+  /// Create splash images with the provided image in mipmap directories
   for (final mipmap in AndroidMipMaps.values) {
     final mipmapFolder = '$androidResDir/${mipmap.folder}';
     final directory = Directory(mipmapFolder);
