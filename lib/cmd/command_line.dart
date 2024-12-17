@@ -56,8 +56,9 @@ void commandEntry(List<String> arguments) {
       if (arguments.length == 1) {
         const filePath = 'pubspec.yaml';
         try {
-          final yamlMap = loadYaml(File(filePath).readAsStringSync()) as Map;
-          if (yamlMap[YamlKeys.splashMasterKey].runtimeType != Map) {
+          final yamlMap =
+              loadYaml(File(filePath).readAsStringSync()) as YamlMap;
+          if (yamlMap[YamlKeys.splashMasterKey].runtimeType != YamlMap) {
             throw SplashMasterException(message: 'Unable to read yaml file.');
           }
 
