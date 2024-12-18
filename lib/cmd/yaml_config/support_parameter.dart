@@ -99,28 +99,32 @@ enum AndroidGravity {
 
 /// All the available iOS content mode values
 enum IosContentMode {
-  scaleToFill,
-  aspectFit,
-  aspectFill,
-  redraw,
-  center,
-  top,
-  bottom,
-  left,
-  right,
-  topLeft,
-  topRight,
-  bottomLeft,
-  bottomRight;
+  scaleToFill('scaleToFill'),
+  scaleAspectFit('scaleAspectFit'),
+  scaleAspectFill('scaleAspectFill'),
+  redraw('redraw'),
+  center('center'),
+  top('top'),
+  bottom('bottom'),
+  left('right'),
+  right('right'),
+  topLeft('topLeft'),
+  topRight('topRight'),
+  bottomLeft('bottomLeft'),
+  bottomRight('bottomRight');
+
+  final String mode;
+
+  const IosContentMode(this.mode);
 
   static IosContentMode fromString(String str) {
     switch (str) {
       case 'scaleToFill':
         return scaleToFill;
       case 'aspectFit':
-        return aspectFit;
+        return scaleAspectFit;
       case 'aspectFill':
-        return aspectFill;
+        return scaleAspectFill;
       case 'redraw':
         return redraw;
       case 'center':

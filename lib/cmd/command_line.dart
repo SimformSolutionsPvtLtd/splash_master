@@ -70,11 +70,8 @@ void commandEntry(List<String> arguments) {
 
           /// [splashData] is data that is being extracted from the YAML file.
           setupSplashScreen(splashData);
-        } catch (_) {
-          log(
-            'Your `$filePath` file does not contain a '
-            '`splash_master` section.',
-          );
+        } catch (e) {
+          log(e.toString());
         }
       }
     case Command.none:
@@ -90,6 +87,12 @@ void setupSplashScreen(YamlMap splashData) {
       (e) => e == element,
     ),
   )) {
+    IosContentMode? iosContentMode;
+    if (splashData[YamlKeys.iosContentModeKey] != null) {
+      iosContentMode =
+          IosContentMode.fromString(splashData[YamlKeys.iosContentModeKey]);
+    }
+
     /// Checking if provided android gravity is valid or not
     if (splashData[YamlKeys.androidGravityKey] != null &&
         !(AndroidGravity.values.any(
@@ -104,9 +107,7 @@ void setupSplashScreen(YamlMap splashData) {
     /// Checking if provided content mode is valid or not
     else if (splashData[YamlKeys.iosContentModeKey] != null &&
         !IosContentMode.values.any(
-          (element) =>
-              element ==
-              IosContentMode.fromString(splashData[YamlKeys.iosContentModeKey]),
+          (element) => element == iosContentMode,
         )) {
       log('Please check the ios_content_mode');
       return;
@@ -129,7 +130,7 @@ void setupSplashScreen(YamlMap splashData) {
       imageSource: splashData[YamlKeys.imageKey],
       color: splashData[YamlKeys.colorKey],
       gravity: splashData[YamlKeys.androidGravityKey],
-      iosContentMode: splashData[YamlKeys.iosContentModeKey],
+      iosContentMode: iosContentMode?.mode,
       android12: splashData[YamlKeys.android12key],
     );
   }
