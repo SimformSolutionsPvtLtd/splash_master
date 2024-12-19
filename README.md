@@ -2,10 +2,10 @@
 
 # Splash Master
 
-A Flutter package that streamlines the process of adding splash screens to your app.
-This package takes care of all the necessary native-side setup which saves your time and efforts.
+A Flutter plugin that streamlines the process of adding splash screens to your app.
+This plugin takes care of all the necessary native-side setup which saves your time and efforts.
 Simply define the required details by adding a `splash_master` section to your `pubspec.yaml`.
-Additionally, the package ensures a smooth and seamless transition from native to flutter app, 
+Additionally, the plugin ensures a smooth and seamless transition from native to flutter app, 
 enhancing the user experience.
 
 ### Installation
@@ -31,8 +31,12 @@ dependencies:
       # Use to specifies the splash image
       image: 'assets/splash.png'
       # Provides content mode for splash image in iOS
+      # iOS content mode options: scaleToFill, scaleAspectFit, scaleAspectFill, redraw, center, top, bottom,
+      # left, right, topLeft, topRight, bottomLeft, bottomRight.
       ios_content_mode: 'center'
       # Provides gravity for splash image in Android
+      # Android gravity options: center, clip_horizontal, clip_vertical, fill_horizontal, fill, center_vertical, 
+      # bottom, fill_vertical, center_horizontal, top, end, left, right, start
       android_gravity: 'center'
       # Section to specifies the configuration for the splash in Android 12+
       android_12:

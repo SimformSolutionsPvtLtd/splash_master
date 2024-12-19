@@ -106,7 +106,7 @@ enum IosContentMode {
   center('center'),
   top('top'),
   bottom('bottom'),
-  left('right'),
+  left('left'),
   right('right'),
   topLeft('topLeft'),
   topRight('topRight'),
