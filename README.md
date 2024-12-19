@@ -1,4 +1,4 @@
-![Banner](https://raw.githubusercontent.com/SimformSolutionsPvtLtd/flutter_chatview/main/preview/banner.png)
+![Banner](https://raw.githubusercontent.com/SimformSolutionsPvtLtd/splash_screen/master/preview/banner.png)
 
 # Splash Master
 
