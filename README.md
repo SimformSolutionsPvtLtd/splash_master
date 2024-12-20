@@ -8,6 +8,14 @@ Simply define the required details by adding a `splash_master` section to your `
 Additionally, the plugin ensures a smooth and seamless transition from native to flutter app, 
 enhancing the user experience.
 
+### Preview
+
+| Android                                                                                                                                                                                                                                                                       | iOS                                                                                                                                                                                                                                                            |
+|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| <a href="https://raw.githubusercontent.com/SimformSolutionsPvtLtd/splash_screen/master/preview/android_preview.gif"><img src="https://raw.githubusercontent.com/SimformSolutionsPvtLtd/splash_screen/master/preview/android_preview.gif" width="390px;" height="700px;"/></a> | <a href="https://raw.githubusercontent.com/SimformSolutionsPvtLtd/splash_screen/master/preview/ios_preview.gif"><img src="https://raw.githubusercontent.com/SimformSolutionsPvtLtd/splash_screen/master/preview/ios_preview.gif" width="390px;" height="700px;"/></a> |
+
+
+
 ### Installation
 
 Add `splash_master` as a dependency in your pubspec.yaml
