@@ -37,7 +37,7 @@ class YamlKeys {
   static const iosContentModeKey = 'ios_content_mode';
 
   /// Specifies splash screen setup details for Android 12.
-  static const android12key = 'android_12';
+  static const android12AndAbovekey = 'android_12_and_above';
 
   /// List of supported keys
   static List<String> supportedYamlKeys = [
@@ -45,6 +45,6 @@ class YamlKeys {
     colorKey,
     androidGravityKey,
     iosContentModeKey,
-    android12key,
+    android12AndAbovekey,
   ];
 }

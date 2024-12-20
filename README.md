@@ -48,7 +48,7 @@ dependencies:
       # bottom, fill_vertical, center_horizontal, top, end, left, right, start
       android_gravity: 'center'
       # Section to specifies the configuration for the splash in Android 12+
-      android_12:
+      android_12_and_above:
         # Provides the background color of splash screen
         color: '#FFFFFF'
         # Provides custom icon to replace the default app icon

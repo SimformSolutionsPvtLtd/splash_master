@@ -48,17 +48,21 @@ Future<void> generateAndroidImages({
       await file.delete();
     }
     final sourceImage = File(imageSource);
+    if (await sourceImage.exists()) {
+      /// Creating a splash image from the provided asset source
+      sourceImage.copySync(imagePath);
+    } else {
+      throw SplashMasterException(message: 'Image path not found');
+    }
 
-    /// Creating a splash image from the provided asset source
-    sourceImage.copySync(imagePath);
     log("Splash image added to ${mipmap.folder}");
   }
 }
 
-Future<void> generateAndroid12Images({
-  YamlMap? android12,
+Future<void> generateImageForAndroid12AndAbove({
+  YamlMap? android12AndAbove,
 }) async {
-  if (android12 == null) {
+  if (android12AndAbove == null) {
     log('Skipping Android 12 configuration as it is not provided.');
     return;
   }
@@ -74,16 +78,20 @@ Future<void> generateAndroid12Images({
     }
 
     /// Create image in mipmap directories for the Android 12+
-    if (android12[YamlKeys.imageKey] != null) {
+    if (android12AndAbove[YamlKeys.imageKey] != null) {
       final imagePath = '$mipmapFolder/${AndroidStrings.splashImage12Png}';
       final file = File(imagePath);
       if (await file.exists()) {
         await file.delete();
       }
-      final sourceImage = File(android12[YamlKeys.imageKey]);
+      final sourceImage = File(android12AndAbove[YamlKeys.imageKey]);
+      if (await sourceImage.exists()) {
+        /// Creating a splash image from the provided asset source
+        sourceImage.copySync(imagePath);
+      } else {
+        throw SplashMasterException(message: 'Image path not found');
+      }
 
-      /// Creating a splash image from the provided asset source
-      sourceImage.copySync(imagePath);
       log("Splash image added to ${mipmap.folder}");
     }
   }
@@ -159,14 +167,14 @@ Future<void> createColors({
 
 /// Updates the `styles.xml` file for the splash screen setup.
 Future<void> updateStylesXml({
-  YamlMap? android12,
+  YamlMap? android12AndAbove,
   String? color,
 }) async {
   const androidValuesFolder = CmdStrings.androidValuesDirectory;
 
-  if (android12 != null &&
-      (android12[YamlKeys.colorKey] != null ||
-          android12[YamlKeys.imageKey] != null)) {
+  if (android12AndAbove != null &&
+      (android12AndAbove[YamlKeys.colorKey] != null ||
+          android12AndAbove[YamlKeys.imageKey] != null)) {
     const v31 = CmdStrings.androidValuesV31Directory;
     if (!await Directory(v31).exists()) {
       Directory(v31).create();
@@ -179,8 +187,8 @@ Future<void> updateStylesXml({
 
     createAndroid12Styles(
       styleFile: styleFile,
-      color: android12[YamlKeys.colorKey],
-      imageSource: android12[YamlKeys.imageKey],
+      color: android12AndAbove[YamlKeys.colorKey],
+      imageSource: android12AndAbove[YamlKeys.imageKey],
     );
   }
   final xml = File('$androidValuesFolder/${AndroidStrings.stylesXml}');
