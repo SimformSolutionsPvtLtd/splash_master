@@ -68,14 +68,44 @@ dependencies:
 - We offer support for splash components, including video, Lottie animations, and images. Videos
 and Lottie animations are processed on the Flutter side, while image handling is managed natively. 
 
+
+- Video
   ```dart
     void main() {
      WidgetsFlutterBinding.ensureInitialized();
      SplashMaster.initialize();
      runApp(
         MaterialApp(
-           home: SplashMaster.video(...),// use for vide
-           home: SplashMaster.lottie(...), // use for lottie
+           home: SplashMaster.video(...),  // use for video
+        ),
+      );
+    }
+  ```
+
+- Lottie
+  ```dart
+    void main() {
+     WidgetsFlutterBinding.ensureInitialized();
+     SplashMaster.initialize();
+     runApp(
+        MaterialApp(
+           home: SplashMaster.lottie(...),  // use for lottie
+        ),
+      );
+    }
+  ```
+
+- Image: While using image as splash screen you have to call the `SplashMaster.resume()` method explicitly
+  to resume the Flutter app.
+  ```dart
+    void main() {
+     WidgetsFlutterBinding.ensureInitialized();
+     SplashMaster.initialize();
+     // Setup your config before the resume.
+     SplashMaster.resume();
+     runApp(
+        MaterialApp(
+           home: YourWidget(),  // Your first screen
         ),
      );
   }
@@ -83,17 +113,17 @@ and Lottie animations are processed on the Flutter side, while image handling is
 
  - If you prefer to use your own custom widget instead of the provided options, you can easily integrate it as a splash widget.
 
-  ```dart
-    void main() {
-     WidgetsFlutterBinding.ensureInitialized();
-     SplashMaster.initialize();
-     runApp(
-        MaterialApp(
-           home: YourCustomWidget(),
-        ),
-     );
-  }
-  ```
+    ```dart
+      void main() {
+       WidgetsFlutterBinding.ensureInitialized();
+       SplashMaster.initialize();
+       runApp(
+          MaterialApp(
+             home: YourCustomWidget(),
+          ),
+       );
+    }
+    ```
 
 - The `SplashMaster.initialize()` method prevents flutter frames from rendering until initialization is complete. To resume Flutter frames, call the `SplashMaster.resume()` method. Until `resume()` is called, the app will remain in the native splash screen.
   - `initialize()`
