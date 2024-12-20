@@ -3,6 +3,12 @@ description: "Unifying Native and Flutter splash screens with multiple media opt
 version: 0.0.1
 repository: https://github.com/SimformSolutionsPvtLtd/splash_master
 issue_tracker: https://github.com/SimformSolutionsPvtLtd/splash_master/issues
+topics:
+  - splash-screen
+  - flutter-splash-screen
+  - flutter-splash
+  - native-splash-screen
+  - launch-screen
 
 environment:
   sdk: '>=3.4.3 <4.0.0'
