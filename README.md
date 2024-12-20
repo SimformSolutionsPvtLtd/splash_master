@@ -1,4 +1,4 @@
-![Banner](https://raw.githubusercontent.com/SimformSolutionsPvtLtd/splash_screen/master/preview/banner.png)
+![Banner](https://raw.githubusercontent.com/SimformSolutionsPvtLtd/splash_master/master/preview/banner.png)
 
 # Splash Master
 
@@ -10,9 +10,9 @@ enhancing the user experience.
 
 ### Preview
 
-| Android                                                                                                                                                                                                                                                                       | iOS                                                                                                                                                                                                                                                            |
-|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| <a href="https://raw.githubusercontent.com/SimformSolutionsPvtLtd/splash_screen/master/preview/android_preview.gif"><img src="https://raw.githubusercontent.com/SimformSolutionsPvtLtd/splash_screen/master/preview/android_preview.gif" width="390px;" height="700px;"/></a> | <a href="https://raw.githubusercontent.com/SimformSolutionsPvtLtd/splash_screen/master/preview/ios_preview.gif"><img src="https://raw.githubusercontent.com/SimformSolutionsPvtLtd/splash_screen/master/preview/ios_preview.gif" width="390px;" height="700px;"/></a> |
+| Android                                                                                                                                                                                                                                                | iOS                                                                                                                                                                                                                                                     |
+|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| <a href="https://raw.githubusercontent.com/SimformSolutionsPvtLtd/splash_master/master/preview/android_preview.gif"><img src="https://raw.githubusercontent.com/SimformSolutionsPvtLtd/splash_master/master/preview/android_preview.gif"  height="600px;"/></a> | <a href="https://raw.githubusercontent.com/SimformSolutionsPvtLtd/splash_master/master/preview/ios_preview.gif"><img src="https://raw.githubusercontent.com/SimformSolutionsPvtLtd/splash_master/master/preview/ios_preview.gif" height="600px;"/></a> |
 
 
 

@@ -1,8 +1,8 @@
 name: splash_master
 description: "Unifying Native and Flutter splash screens with multiple media options for a seamless user experience."
 version: 0.0.1
-homepage: https://github.com/SimformSolutionsPvtLtd/splash_screen
-issue_tracker: https://github.com/SimformSolutionsPvtLtd/splash_screen/issues
+homepage: https://github.com/SimformSolutionsPvtLtd/splash_master
+issue_tracker: https://github.com/SimformSolutionsPvtLtd/splash_master/issues
 
 environment:
   sdk: '>=3.4.3 <4.0.0'
