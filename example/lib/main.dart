@@ -20,10 +20,11 @@ class SplashScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SplashMaster.video(
-      source: AssetSource(Assets.sampleVideo),
+      source: AssetSource(Assets.simformSplashVideo),
       videoConfig: const VideoConfig(
-        videoVisibilityEnum: VisibilityEnum.useFullScreen,
+        videoVisibilityEnum: VisibilityEnum.useAspectRatio,
       ),
+      backGroundColor: Colors.white,
       nextScreen: const Home(),
     );
   }

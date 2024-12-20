@@ -23,4 +23,7 @@ flutter:
     - assets/
 
 splash_master:
-  image: assets/splash_image.png
+  image: 'assets/simform_splash_img.png'
+  ios_content_mode: 'aspectFit'
+  android_gravity: 'center'
+  color: '#FFFFFF'
