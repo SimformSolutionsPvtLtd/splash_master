@@ -4,6 +4,7 @@
 
 A Flutter plugin that streamlines the process of adding splash screens to your app.
 This plugin takes care of all the necessary native-side setup which saves your time and efforts.
+It supports videos, Lottie animations, images and custom Flutter widgets, giving users various creative options.
 Simply define the required details by adding a `splash_master` section to your `pubspec.yaml`.
 Additionally, the plugin ensures a smooth and seamless transition from native to flutter app, 
 enhancing the user experience.
