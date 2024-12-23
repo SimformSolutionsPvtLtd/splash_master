@@ -6,6 +6,9 @@ class AndroidStrings {
   /// `splash_image_12.png`
   static const splashImage12Png = 'splash_image_12.png';
 
+  /// `android_12_branding_image.png`
+  static const android12BrandingImage = 'android_12_branding_image.png';
+
   /// `colors.xml`
   static const colorXml = 'colors.xml';
 
@@ -102,6 +105,14 @@ class AndroidStrings {
   static const windowSplashScreenAnimatedIcon =
       'android:windowSplashScreenAnimatedIcon';
 
+  /// `android:windowSplashScreenBrandingImage`
+  static const windowSplashScreenBrandingImage =
+      'android:windowSplashScreenBrandingImage';
+
   /// `@drawable/splash_image12`
   static const drawableSplashImage12 = '@drawable/splash_image_12';
+
+  /// `@drawable/android_12_branding_image`
+  static const drawableAndroid12BrandingImage =
+      '@drawable/android_12_branding_image';
 }
