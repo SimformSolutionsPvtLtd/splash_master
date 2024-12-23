@@ -25,7 +25,6 @@ part of 'command_line.dart';
 /// Generate splash images for the Android
 Future<void> generateAndroidImages({
   String? imageSource,
-  String? color,
 }) async {
   if (imageSource == null) {
     log('No images were provided. Skipping generating Android images');
@@ -33,30 +32,29 @@ Future<void> generateAndroidImages({
   }
   const androidResDir = CmdStrings.androidResDirectory;
 
-  /// Create splash images with the provided image in mipmap directories
-  for (final mipmap in AndroidMipMaps.values) {
-    final mipmapFolder = '$androidResDir/${mipmap.folder}';
-    final directory = Directory(mipmapFolder);
-    if (!(await directory.exists())) {
-      log("${mipmap.folder} folder doesn't exists. Creating it...");
-      await Directory(mipmapFolder).create(recursive: true);
-    }
+  final drawable = getAndroidDrawable();
 
-    final imagePath = '$mipmapFolder/${AndroidStrings.splashImagePng}';
-    final file = File(imagePath);
-    if (await file.exists()) {
-      await file.delete();
-    }
-    final sourceImage = File(imageSource);
-    if (await sourceImage.exists()) {
-      /// Creating a splash image from the provided asset source
-      sourceImage.copySync(imagePath);
-    } else {
-      throw SplashMasterException(message: 'Image path not found');
-    }
-
-    log("Splash image added to ${mipmap.folder}");
+  /// Create splash images with the provided image in drawable directories
+  final drawableFolder = '$androidResDir/$drawable';
+  if (!await Directory(drawableFolder).exists()) {
+    log("$drawable folder doesn't exists. Creating it...");
+    await Directory(drawableFolder).create(recursive: true);
   }
+
+  final imagePath = '$drawableFolder/${AndroidStrings.splashImagePng}';
+  final file = File(imagePath);
+  if (await file.exists()) {
+    await file.delete();
+  }
+  final sourceImage = File(imageSource);
+  if (await sourceImage.exists()) {
+    /// Creating a splash image from the provided asset source
+    sourceImage.copySync(imagePath);
+  } else {
+    throw SplashMasterException(message: 'Image path not found');
+  }
+
+  log("Splash image added to $drawable");
 }
 
 Future<void> generateImageForAndroid12AndAbove({
@@ -66,34 +64,34 @@ Future<void> generateImageForAndroid12AndAbove({
     log('Skipping Android 12 configuration as it is not provided.');
     return;
   }
+
   const androidResDir = CmdStrings.androidResDirectory;
+  if (android12AndAbove[YamlKeys.imageKey] != null) {
+    final drawable = getAndroidDrawable(android12: true);
 
-  /// Create splash images with the provided image in mipmap directories
-  for (final mipmap in AndroidMipMaps.values) {
-    final mipmapFolder = '$androidResDir/${mipmap.folder}';
-    final directory = Directory(mipmapFolder);
+    /// Create splash images with the provided image in drawable directories
+    final drawableFolder = '$androidResDir/$drawable';
+    final directory = Directory(drawableFolder);
     if (!(await directory.exists())) {
-      log("${mipmap.folder} folder doesn't exists. Creating it...");
-      await Directory(mipmapFolder).create(recursive: true);
+      log("$drawable folder doesn't exists. Creating it...");
+      await Directory(drawableFolder).create(recursive: true);
     }
 
-    /// Create image in mipmap directories for the Android 12+
-    if (android12AndAbove[YamlKeys.imageKey] != null) {
-      final imagePath = '$mipmapFolder/${AndroidStrings.splashImage12Png}';
-      final file = File(imagePath);
-      if (await file.exists()) {
-        await file.delete();
-      }
-      final sourceImage = File(android12AndAbove[YamlKeys.imageKey]);
-      if (await sourceImage.exists()) {
-        /// Creating a splash image from the provided asset source
-        sourceImage.copySync(imagePath);
-      } else {
-        throw SplashMasterException(message: 'Image path not found');
-      }
-
-      log("Splash image added to ${mipmap.folder}");
+    /// Create image in drawable directories for the Android 12+
+    final imagePath = '$drawableFolder/${AndroidStrings.splashImage12Png}';
+    final file = File(imagePath);
+    if (await file.exists()) {
+      await file.delete();
     }
+    final sourceImage = File(android12AndAbove[YamlKeys.imageKey]);
+    if (await sourceImage.exists()) {
+      /// Creating a splash image from the provided asset source
+      sourceImage.copySync(imagePath);
+    } else {
+      throw SplashMasterException(message: 'Image path not found');
+    }
+
+    log("Splash image added to $drawable");
   }
 }
 
@@ -255,7 +253,7 @@ Future<void> createAndroid12Styles({
                 AndroidStrings.nameAttr:
                     AndroidStrings.windowSplashScreenAnimatedIcon,
               },
-              nest: AndroidStrings.mipmapSplashImage12,
+              nest: AndroidStrings.drawableSplashImage12,
             );
           }
         },

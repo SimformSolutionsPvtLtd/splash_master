@@ -131,7 +131,7 @@ void setupSplashScreen(YamlMap splashData) {
       color: splashData[YamlKeys.colorKey],
       gravity: splashData[YamlKeys.androidGravityKey],
       iosContentMode: iosContentMode?.mode,
-      android12AndAbove: splashData[YamlKeys.android12AndAbovekey],
+      android12AndAbove: splashData[YamlKeys.android12AndAboveKey],
     );
   }
 }

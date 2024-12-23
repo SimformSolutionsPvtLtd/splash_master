@@ -34,19 +34,13 @@ enum Command {
       };
 }
 
-/// Android mipmaps with their dimensions
-enum AndroidMipMaps {
-  mdpi(320, 480, 'mipmap-mdpi'),
-  hdpi(480, 800, 'mipmap-hdpi'),
-  xhdpi(720, 1280, 'mipmap-xhdpi'),
-  xxhdpi(960, 1600, 'mipmap-xxhdpi'),
-  xxxhdpi(1280, 1920, 'mipmap-xxxhdpi');
-
-  final double height;
-  final double width;
-  final String folder;
-
-  const AndroidMipMaps(this.width, this.height, this.folder);
+/// Android drawable directory name
+String getAndroidDrawable({
+  bool android12 = false,
+}) {
+  const prefix = "drawable";
+  final suffix = android12 ? '-v31' : '';
+  return '$prefix-xxhdpi$suffix';
 }
 
 /// Scales are set according to latest [Apple guidelines](https://developer.apple.com/design/human-interface-guidelines/layout#Specifications)
