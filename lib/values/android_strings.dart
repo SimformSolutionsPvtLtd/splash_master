@@ -77,8 +77,8 @@ class AndroidStrings {
   /// `android:src`
   static const androidSrcAttr = 'android:src';
 
-  /// `@mipmap/splash_image`
-  static const androidSrcAttrVal = '@mipmap/splash_image';
+  /// `@drawable/splash_image`
+  static const androidSrcAttrVal = '@drawable/splash_image';
 
   /// `android:tileMode`
   static const androidTileModeAttr = 'android:tileMode';
@@ -102,6 +102,6 @@ class AndroidStrings {
   static const windowSplashScreenAnimatedIcon =
       'android:windowSplashScreenAnimatedIcon';
 
-  /// `@mipmap/splash_image12`
-  static const mipmapSplashImage12 = '@mipmap/splash_image12';
+  /// `@drawable/splash_image12`
+  static const drawableSplashImage12 = '@drawable/splash_image_12';
 }
