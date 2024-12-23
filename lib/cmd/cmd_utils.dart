@@ -20,6 +20,8 @@
  * SOFTWARE.
  */
 
+import 'dart:convert';
+
 /// Command to create/setup the splash screen
 enum Command {
   /// [create] used to create/setup the splash screen
@@ -77,3 +79,5 @@ enum IosScale {
     required this.scale,
   });
 }
+
+const encoder = JsonEncoder.withIndent((' '));
