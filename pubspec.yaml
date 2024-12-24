@@ -30,3 +30,13 @@ executables:
   splash_master: splash_master
 
 scripts: scripts.yaml
+
+platforms:
+  android:
+  ios:
+
+screenshots:
+  - description: 'This screenshot showcases video as splash screen for ios.'
+    path: preview/ios_preview.gif
+  - description: 'This screenshot showcases video as splash screen for android.'
+    path: preview/android_preview.gif
