@@ -46,6 +46,8 @@ class YamlKeys {
 
   static const iosBackgroundContentMode = 'ios_background_content_mode';
 
+  static const androidBackgroundGravity = 'android_background_image_gravity';
+
   /// List of supported keys
   static List<String> supportedYamlKeys = [
     imageKey,
@@ -56,5 +58,6 @@ class YamlKeys {
     brandingImageKey,
     backgroundImage,
     iosBackgroundContentMode,
+    androidBackgroundGravity,
   ];
 }

@@ -47,6 +47,12 @@ dependencies:
       # Android gravity options: center, clip_horizontal, clip_vertical, fill_horizontal, fill, center_vertical, 
       # bottom, fill_vertical, center_horizontal, top, end, left, right, start
       android_gravity: 'center'
+      # Use to specifies the splash image
+      background_image: 'assets/background_image.png'
+      # Provides gravity for background image in Android
+      # Android gravity options: center, clip_horizontal, clip_vertical, fill_horizontal, fill, center_vertical, 
+      # bottom, fill_vertical, center_horizontal, top, end, left, right, start
+      android_background_image_gravity: 'fill'
       # Section to specifies the configuration for the splash in Android 12+
       android_12_and_above:
         # Provides the background color of splash screen

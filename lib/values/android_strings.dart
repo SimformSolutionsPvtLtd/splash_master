@@ -83,6 +83,9 @@ class AndroidStrings {
   /// `@drawable/splash_image`
   static const androidSrcAttrVal = '@drawable/splash_image';
 
+  /// `@drawable/background_image`
+  static const androidBackgroundSrcAttrVal = '@drawable/background_image';
+
   /// `android:tileMode`
   static const androidTileModeAttr = 'android:tileMode';
 
@@ -115,4 +118,7 @@ class AndroidStrings {
   /// `@drawable/android_12_branding_image`
   static const drawableAndroid12BrandingImage =
       '@drawable/android_12_branding_image';
+
+  /// `background_image.png`
+  static const splashBackgroundImagePng = 'background_image.png';
 }
