@@ -34,6 +34,12 @@ Future<void> generateAndroidImages({
 
   final drawable = getAndroidDrawable();
 
+  final sourceImage = File(imageSource);
+
+  if (!await sourceImage.exists()) {
+    throw SplashMasterException(message: 'Image path not found');
+  }
+
   /// Create splash images with the provided image in drawable directories
   final drawableFolder = '$androidResDir/$drawable';
   if (!await Directory(drawableFolder).exists()) {
@@ -42,17 +48,14 @@ Future<void> generateAndroidImages({
   }
 
   final imagePath = '$drawableFolder/${AndroidStrings.splashImagePng}';
+
   final file = File(imagePath);
   if (await file.exists()) {
     await file.delete();
   }
-  final sourceImage = File(imageSource);
-  if (await sourceImage.exists()) {
-    /// Creating a splash image from the provided asset source
-    sourceImage.copySync(imagePath);
-  } else {
-    throw SplashMasterException(message: 'Image path not found');
-  }
+
+  /// Creating a splash image from the provided asset source
+  await sourceImage.copy(imagePath);
 
   log("Splash image added to $drawable");
 }
@@ -66,10 +69,19 @@ Future<void> generateImageForAndroid12AndAbove({
   }
 
   const androidResDir = CmdStrings.androidResDirectory;
-  if (android12AndAbove[YamlKeys.imageKey] != null) {
-    final drawable = getAndroidDrawable(android12: true);
+  final drawable = getAndroidDrawable(android12: true);
 
-    /// Create splash images with the provided image in drawable directories
+  final image = android12AndAbove[YamlKeys.imageKey];
+  final brandingImage = android12AndAbove[YamlKeys.brandingImageKey];
+
+  if (image != null) {
+    final sourceImage = File(android12AndAbove[YamlKeys.imageKey]);
+
+    /// Checking if provided asset image source exist or not
+    if (!await sourceImage.exists()) {
+      throw SplashMasterException(message: 'Image path not found');
+    }
+
     final drawableFolder = '$androidResDir/$drawable';
     final directory = Directory(drawableFolder);
     if (!(await directory.exists())) {
@@ -79,20 +91,55 @@ Future<void> generateImageForAndroid12AndAbove({
 
     /// Create image in drawable directories for the Android 12+
     final imagePath = '$drawableFolder/${AndroidStrings.splashImage12Png}';
+
     final file = File(imagePath);
     if (await file.exists()) {
       await file.delete();
     }
-    final sourceImage = File(android12AndAbove[YamlKeys.imageKey]);
-    if (await sourceImage.exists()) {
-      /// Creating a splash image from the provided asset source
-      sourceImage.copySync(imagePath);
-    } else {
-      throw SplashMasterException(message: 'Image path not found');
-    }
 
+    /// Creating a splash image from the provided asset source
+    await sourceImage.copy(imagePath);
     log("Splash image added to $drawable");
   }
+
+  if (brandingImage != null) {
+    final sourceImage = File(brandingImage);
+
+    /// Checking if provided asset image source exist or not
+    if (!await sourceImage.exists()) {
+      throw SplashMasterException(message: 'Branding Image path not found');
+    }
+
+    final drawableFolder = '$androidResDir/$drawable';
+    final directory = Directory(drawableFolder);
+    if (!(await directory.exists())) {
+      log("$drawable folder doesn't exists. Creating it...");
+      await Directory(drawableFolder).create(recursive: true);
+    }
+
+    createBrandingImageForAndroid12(
+      drawableFolder,
+      sourceImage,
+    );
+  }
+}
+
+/// Create branding image for the Android 12+
+Future<void> createBrandingImageForAndroid12(
+  String drawableFolder,
+  File brandingImageSource,
+) async {
+  final imagePath = '$drawableFolder/${AndroidStrings.android12BrandingImage}';
+
+  final file = File(imagePath);
+  if (await file.exists()) {
+    await file.delete();
+  }
+
+  /// Creating a branding image from the provided asset source
+  await brandingImageSource.copy(imagePath);
+
+  log("Branding image added");
 }
 
 /// Creates a `colors.xml` file to define background color for the splash.
@@ -187,6 +234,7 @@ Future<void> updateStylesXml({
       styleFile: styleFile,
       color: android12AndAbove[YamlKeys.colorKey],
       imageSource: android12AndAbove[YamlKeys.imageKey],
+      brandingImageSource: android12AndAbove[YamlKeys.brandingImageKey],
     );
   }
   final xml = File('$androidValuesFolder/${AndroidStrings.stylesXml}');
@@ -216,6 +264,7 @@ Future<void> createAndroid12Styles({
   required File styleFile,
   String? color,
   String? imageSource,
+  String? brandingImageSource,
 }) async {
   final xml = await styleFile.create();
 
@@ -254,6 +303,16 @@ Future<void> createAndroid12Styles({
                     AndroidStrings.windowSplashScreenAnimatedIcon,
               },
               nest: AndroidStrings.drawableSplashImage12,
+            );
+          }
+          if (brandingImageSource != null) {
+            builder.element(
+              AndroidStrings.itemElement,
+              attributes: {
+                AndroidStrings.nameAttr:
+                    AndroidStrings.windowSplashScreenBrandingImage,
+              },
+              nest: AndroidStrings.drawableAndroid12BrandingImage,
             );
           }
         },

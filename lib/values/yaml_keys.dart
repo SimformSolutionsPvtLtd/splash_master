@@ -39,6 +39,9 @@ class YamlKeys {
   /// Specifies splash screen setup details for Android 12.
   static const android12AndAboveKey = 'android_12_and_above';
 
+  /// Specifies branding image for the Android 12+
+  static const brandingImageKey = 'branding_image';
+
   /// List of supported keys
   static List<String> supportedYamlKeys = [
     imageKey,
@@ -46,5 +49,6 @@ class YamlKeys {
     androidGravityKey,
     iosContentModeKey,
     android12AndAboveKey,
+    brandingImageKey,
   ];
 }
