@@ -135,6 +135,8 @@ void setupSplashScreen(YamlMap splashData) {
       backgroundImage: splashData[YamlKeys.backgroundImage],
       android12AndAbove: splashData[YamlKeys.android12AndAboveKey],
       iosBackgroundContentMode: splashData[YamlKeys.iosBackgroundContentMode],
+      backgroundImageSource: splashData[YamlKeys.backgroundImage],
+      backgroundImageGravity: splashData[YamlKeys.androidBackgroundGravity],
     );
   }
 }
@@ -146,10 +148,18 @@ Future<void> applyAndroidSplashImage({
   String? gravity,
   YamlMap? android12AndAbove,
   String? backgroundImage,
+  String? backgroundImageSource,
+  String? backgroundImageGravity,
 }) async {
   await generateAndroidImages(
     imageSource: imageSource,
   );
+  if (backgroundImageSource != null) {
+    generateAndroidImages(
+      imageSource: backgroundImageSource,
+      backgroundImageName: AndroidStrings.splashBackgroundImagePng,
+    );
+  }
   await generateImageForAndroid12AndAbove(
     android12AndAbove: android12AndAbove,
   );
@@ -160,6 +170,8 @@ Future<void> applyAndroidSplashImage({
     imageSource: imageSource,
     color: color,
     gravity: gravity,
+    backgroundImageSource: backgroundImageSource,
+    backgroundImageGravity: backgroundImageGravity,
   );
   await updateStylesXml(
     android12AndAbove: android12AndAbove,
@@ -176,6 +188,8 @@ Future<void> applySplash({
   String? backgroundImage,
   String? iosBackgroundContentMode,
   YamlMap? android12AndAbove,
+  String? backgroundImageSource,
+  String? backgroundImageGravity,
 }) async {
   await generateIosImages(
     imageSource: imageSource,
@@ -189,5 +203,7 @@ Future<void> applySplash({
     color: color,
     gravity: gravity,
     android12AndAbove: android12AndAbove,
+    backgroundImageSource: backgroundImageSource,
+    backgroundImageGravity: backgroundImageGravity,
   );
 }

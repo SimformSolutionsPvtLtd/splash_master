@@ -25,6 +25,7 @@ part of 'command_line.dart';
 /// Generate splash images for the Android
 Future<void> generateAndroidImages({
   String? imageSource,
+  String? backgroundImageName,
 }) async {
   if (imageSource == null) {
     log('No images were provided. Skipping generating Android images');
@@ -34,12 +35,6 @@ Future<void> generateAndroidImages({
 
   final drawable = getAndroidDrawable();
 
-  final sourceImage = File(imageSource);
-
-  if (!await sourceImage.exists()) {
-    throw SplashMasterException(message: 'Image path not found');
-  }
-
   /// Create splash images with the provided image in drawable directories
   final drawableFolder = '$androidResDir/$drawable';
   if (!await Directory(drawableFolder).exists()) {
@@ -47,15 +42,19 @@ Future<void> generateAndroidImages({
     await Directory(drawableFolder).create(recursive: true);
   }
 
-  final imagePath = '$drawableFolder/${AndroidStrings.splashImagePng}';
-
+  final imagePath =
+      '$drawableFolder/${backgroundImageName ?? AndroidStrings.splashImagePng}';
   final file = File(imagePath);
   if (await file.exists()) {
     await file.delete();
   }
-
-  /// Creating a splash image from the provided asset source
-  await sourceImage.copy(imagePath);
+  final sourceImage = File(imageSource);
+  if (await sourceImage.exists()) {
+    /// Creating a splash image from the provided asset source
+    sourceImage.copySync(imagePath);
+  } else {
+    throw SplashMasterException(message: 'Asset not found. $imagePath');
+  }
 
   log("Splash image added to $drawable");
 }
@@ -329,6 +328,8 @@ Future<void> createSplashImageDrawable({
   String? imageSource,
   String? color,
   String? gravity,
+  String? backgroundImageSource,
+  String? backgroundImageGravity,
 }) async {
   const androidDrawableFolder = CmdStrings.androidDrawableDirectory;
   const splashImagePath =
@@ -357,6 +358,30 @@ Future<void> createSplashImageDrawable({
           );
         },
       );
+    }
+
+    /// Creates item element and attributes for background image
+    if (backgroundImageSource != null) {
+      builder.element(AndroidStrings.itemElement, nest: () {
+        builder.element(
+          AndroidStrings.bitmapAttrVal,
+          nest: () {
+            builder.attribute(
+              AndroidStrings.androidGravityAttr,
+              backgroundImageGravity ??
+                  AndroidStrings.defaultAndroidGravityAttrVal,
+            );
+            builder.attribute(
+              AndroidStrings.androidSrcAttr,
+              AndroidStrings.androidBackgroundSrcAttrVal,
+            );
+            builder.attribute(
+              AndroidStrings.androidTileModeAttr,
+              AndroidStrings.androidTileModeAttrVal,
+            );
+          },
+        );
+      });
     }
 
     /// Creates item element and attributes for image
