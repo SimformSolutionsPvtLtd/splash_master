@@ -33,4 +33,8 @@ class CmdStrings {
       'ios/Runner/Assets.xcassets/BackgroundImage.imageset';
 
   static const storyboardPath = 'ios/Runner/Base.lproj/LaunchScreen.storyboard';
+  static const androidDrawableDarkDirectory =
+      'android/app/src/main/res/drawable';
+  static const androidDarkValuesDirectory =
+      'android/app/src/main/res/values-night';
 }

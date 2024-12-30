@@ -48,6 +48,15 @@ class YamlKeys {
 
   static const androidBackgroundGravity = 'android_background_image_gravity';
 
+  /// Specifies image for android dark mode
+  static const imageDarkAndroid = 'image_dark_android';
+
+  /// Specifies gravity for android dark mode
+  static const androidDarkGravityKey = 'android_dark_gravity';
+
+  /// Specifies color for android dark mode
+  static const colorDarkAndroid = 'color_dark_android';
+
   /// List of supported keys
   static List<String> supportedYamlKeys = [
     imageKey,
@@ -59,5 +68,8 @@ class YamlKeys {
     backgroundImage,
     iosBackgroundContentMode,
     androidBackgroundGravity,
+    imageDarkAndroid,
+    androidDarkGravityKey,
+    colorDarkAndroid,
   ];
 }

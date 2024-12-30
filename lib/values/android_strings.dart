@@ -3,6 +3,9 @@ class AndroidStrings {
   /// `splash_image.png`
   static const splashImagePng = 'splash_image.png';
 
+  /// `splash_image_dark.png`
+  static const splashImageDarkPng = 'splash_image_dark.png';
+
   /// `splash_image_12.png`
   static const splashImage12Png = 'splash_image_12.png';
 
@@ -86,6 +89,9 @@ class AndroidStrings {
   /// `@drawable/background_image`
   static const androidBackgroundSrcAttrVal = '@drawable/background_image';
 
+  /// `@drawable/splash_image_dark`
+  static const androidDarkSrcAttrVal = '@drawable/splash_image_dark';
+
   /// `android:tileMode`
   static const androidTileModeAttr = 'android:tileMode';
 
@@ -121,4 +127,10 @@ class AndroidStrings {
 
   /// `background_image.png`
   static const splashBackgroundImagePng = 'background_image.png';
+
+  /// `@drawable/splash_screen_dark`
+  static const androidDarkDrawable = '@drawable/splash_screen_dark';
+
+  /// `splash_screen_dark.xml`
+  static const splashScreenDarkXml = 'splash_screen_dark.xml';
 }

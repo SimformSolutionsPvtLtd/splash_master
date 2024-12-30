@@ -53,6 +53,12 @@ dependencies:
       # Android gravity options: center, clip_horizontal, clip_vertical, fill_horizontal, fill, center_vertical, 
       # bottom, fill_vertical, center_horizontal, top, end, left, right, start
       android_background_image_gravity: 'fill'
+      # Use to specifies image for android in dark mode
+      image_dark_android: 'assets/splash_dark.png'
+      # Provides gravity for splash image for Android in dark mode
+      android_dark_gravity_key: 'center'
+      # Use to specifies the color for the splash screen for Android in dark mode
+      color_dark_android: '#000000'
       # Section to specifies the configuration for the splash in Android 12+
       android_12_and_above:
         # Provides the background color of splash screen
