@@ -26,6 +26,7 @@ part of 'command_line.dart';
 Future<void> generateAndroidImages({
   String? imageSource,
   String? backgroundImageName,
+  String? darkImageSource,
 }) async {
   if (imageSource == null) {
     log('No images were provided. Skipping generating Android images');
@@ -56,7 +57,23 @@ Future<void> generateAndroidImages({
     throw SplashMasterException(message: 'Asset not found. $imagePath');
   }
 
+  if (darkImageSource != null) {
+    generateAndroidDarkImage(darkImageSource, drawableFolder);
+  }
+
   log("Splash image added to $drawable");
+}
+
+Future<void> generateAndroidDarkImage(String image, String drawable) async {
+  final imagePath = '$drawable/${AndroidStrings.splashImageDarkPng}';
+  final sourceImage = File(image);
+  if (await sourceImage.exists()) {
+    /// Creating a splash image from the provided asset source
+    await sourceImage.copy(imagePath);
+  } else {
+    throw SplashMasterException(message: '$image does not exists.');
+  }
+  log("Dark splash image added.");
 }
 
 Future<void> generateImageForAndroid12AndAbove({
@@ -144,14 +161,17 @@ Future<void> createBrandingImageForAndroid12(
 /// Creates a `colors.xml` file to define background color for the splash.
 Future<void> createColors({
   String? color,
+  bool isDark = false,
 }) async {
   if (color == null) {
     log('No color is provided. Skip setting up color in Android');
     return;
   }
 
-  const androidValuesFolder = CmdStrings.androidValuesDirectory;
-  const colorsFilePath = '$androidValuesFolder/${AndroidStrings.colorXml}';
+  final androidValuesFolder = isDark
+      ? CmdStrings.androidDarkValuesDirectory
+      : CmdStrings.androidValuesDirectory;
+  final colorsFilePath = '$androidValuesFolder/${AndroidStrings.colorXml}';
 
   final xmlFile = File(colorsFilePath);
   if (await xmlFile.exists()) {
@@ -408,4 +428,118 @@ Future<void> createSplashImageDrawable({
   final document = builder.buildDocument();
   await xml.writeAsString(document.toXmlString(pretty: true));
   log("Created splash_screen.xml.");
+}
+
+Future<void> createDarkSplashImageDrawable({
+  String? darkImage,
+  String? color,
+  String? gravity,
+}) async {
+  log(darkImage ?? '');
+  if (darkImage == null) return;
+  final darkImageFile = File(darkImage);
+  if (await darkImageFile.exists()) {
+    const androidDrawableFolder = CmdStrings.androidDrawableDarkDirectory;
+    const splashImagePath =
+        '$androidDrawableFolder/${AndroidStrings.splashScreenDarkXml}';
+    final file = File(splashImagePath);
+
+    final xml = await file.create(recursive: true);
+
+    final builder = XmlBuilder();
+
+    builder.processing(AndroidStrings.xml, AndroidStrings.xmlVersion);
+
+    /// Creating a layer-list element and its attributes
+    builder.element(AndroidStrings.layerListElement, nest: () {
+      builder.attribute(
+        AndroidStrings.xmlnsAndroidAttr,
+        AndroidStrings.xmlnsAndroidAttrValue,
+      );
+
+      /// Creates item element and attributes for color
+      if (color != null) {
+        builder.element(
+          AndroidStrings.itemElement,
+          nest: () {
+            builder.attribute(
+              AndroidStrings.androidDrawableAttr,
+              AndroidStrings.androidDrawableAttrVal,
+            );
+          },
+        );
+      }
+
+      /// Creates item element and attributes for image
+      builder.element(AndroidStrings.itemElement, nest: () {
+        builder.element(AndroidStrings.bitmapAttrVal, nest: () {
+          builder.attribute(
+            AndroidStrings.androidGravityAttr,
+            gravity ?? AndroidStrings.defaultAndroidGravityAttrVal,
+          );
+          builder.attribute(
+            AndroidStrings.androidSrcAttr,
+            AndroidStrings.androidDarkSrcAttrVal,
+          );
+          builder.attribute(
+            AndroidStrings.androidTileModeAttr,
+            AndroidStrings.androidTileModeAttrVal,
+          );
+        });
+      });
+    });
+
+    final document = builder.buildDocument();
+    await xml.writeAsString(document.toXmlString(pretty: true));
+  } else {
+    throw SplashMasterException(message: "$darkImage doesn't exists.");
+  }
+}
+
+/// Updates the `values-night/styles.xml` file for the splash screen setup.
+Future<void> updateDarkStylesXml({
+  YamlMap? android12AndAbove,
+  String? color,
+}) async {
+  const androidValuesFolder = CmdStrings.androidDarkValuesDirectory;
+
+  if (android12AndAbove != null &&
+      (android12AndAbove[YamlKeys.colorKey] != null ||
+          android12AndAbove[YamlKeys.imageKey] != null)) {
+    const v31 = CmdStrings.androidValuesV31Directory;
+    if (!await Directory(v31).exists()) {
+      Directory(v31).create();
+    }
+    const style = '$v31/${AndroidStrings.stylesXml}';
+    if (await File(style).exists()) {
+      File(style).delete();
+    }
+    final styleFile = File(style);
+
+    createAndroid12Styles(
+      styleFile: styleFile,
+      color: android12AndAbove[YamlKeys.colorKey],
+      imageSource: android12AndAbove[YamlKeys.imageKey],
+    );
+  }
+  final xml = File('$androidValuesFolder/${AndroidStrings.stylesXml}');
+  final xmlExists = await xml.exists();
+  if (!xmlExists) {
+    log("values-night/styles.xml updated.");
+    return;
+  }
+  final xmlDoc = XmlDocument.parse(xml.readAsStringSync());
+  xmlDoc.findAllElements(AndroidStrings.itemElement).where((itemElement) {
+    return itemElement.getAttribute(AndroidStrings.nameAttr) ==
+        AndroidStrings.itemNameAttrValue;
+  }).forEach((itemElement) {
+    itemElement.setAttribute(
+      AndroidStrings.nameAttr,
+      AndroidStrings.itemNameAttrValue,
+    );
+    itemElement.innerText = AndroidStrings.androidDarkDrawable;
+  });
+
+  await xml.writeAsString(xmlDoc.toXmlString(pretty: true));
+  log('values-night/styles.xml updated.');
 }

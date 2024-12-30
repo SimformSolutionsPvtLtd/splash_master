@@ -137,6 +137,9 @@ void setupSplashScreen(YamlMap splashData) {
       iosBackgroundContentMode: splashData[YamlKeys.iosBackgroundContentMode],
       backgroundImageSource: splashData[YamlKeys.backgroundImage],
       backgroundImageGravity: splashData[YamlKeys.androidBackgroundGravity],
+      darkColor: splashData[YamlKeys.colorDarkAndroid],
+      darkGravity: splashData[YamlKeys.androidGravityKey],
+      darkImage: splashData[YamlKeys.imageDarkAndroid],
     );
   }
 }
@@ -150,9 +153,13 @@ Future<void> applyAndroidSplashImage({
   String? backgroundImage,
   String? backgroundImageSource,
   String? backgroundImageGravity,
+  String? darkImage,
+  String? darkColor,
+  String? darkGravity,
 }) async {
   await generateAndroidImages(
     imageSource: imageSource,
+    darkImageSource: darkImage,
   );
   if (backgroundImageSource != null) {
     generateAndroidImages(
@@ -166,6 +173,12 @@ Future<void> applyAndroidSplashImage({
   await createColors(
     color: color,
   );
+  if (darkColor != null) {
+    await createColors(
+      color: darkColor,
+      isDark: true,
+    );
+  }
   await createSplashImageDrawable(
     imageSource: imageSource,
     color: color,
@@ -173,9 +186,18 @@ Future<void> applyAndroidSplashImage({
     backgroundImageSource: backgroundImageSource,
     backgroundImageGravity: backgroundImageGravity,
   );
+  await createDarkSplashImageDrawable(
+    darkImage: darkImage,
+    color: darkColor,
+    gravity: darkGravity,
+  );
   await updateStylesXml(
     android12AndAbove: android12AndAbove,
     color: color,
+  );
+  await updateDarkStylesXml(
+    android12AndAbove: android12AndAbove,
+    color: darkColor,
   );
 }
 
@@ -190,6 +212,9 @@ Future<void> applySplash({
   YamlMap? android12AndAbove,
   String? backgroundImageSource,
   String? backgroundImageGravity,
+  String? darkImage,
+  String? darkColor,
+  String? darkGravity,
 }) async {
   await generateIosImages(
     imageSource: imageSource,
@@ -205,5 +230,8 @@ Future<void> applySplash({
     android12AndAbove: android12AndAbove,
     backgroundImageSource: backgroundImageSource,
     backgroundImageGravity: backgroundImageGravity,
+    darkImage: darkImage,
+    darkColor: darkColor,
+    darkGravity: darkGravity,
   );
 }
