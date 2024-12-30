@@ -65,6 +65,8 @@ dependencies:
         color: '#FFFFFF'
         # Provides custom icon to replace the default app icon
         image: 'assets/splash_12.png'
+        # Provides branding image which is shown under main icon image. 
+        branding_image: 'assets/branding_image.png'
     ```
 
 2. Create & setup splash screen  
