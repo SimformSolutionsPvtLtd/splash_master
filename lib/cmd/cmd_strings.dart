@@ -29,6 +29,8 @@ class CmdStrings {
   static const androidResDirectory = 'android/app/src/main/res';
   static const iosAssetsDirectory =
       'ios/Runner/Assets.xcassets/LaunchImage.imageset';
+  static const iosBackgroundImageDirectory =
+      'ios/Runner/Assets.xcassets/BackgroundImage.imageset';
 
   static const storyboardPath = 'ios/Runner/Base.lproj/LaunchScreen.storyboard';
 }

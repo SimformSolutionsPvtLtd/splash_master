@@ -38,6 +38,7 @@ import 'package:yaml/yaml.dart';
 import 'logging.dart';
 
 part 'android_splash.dart';
+
 part 'ios_splash.dart';
 
 void commandEntry(List<String> arguments) {
@@ -131,7 +132,9 @@ void setupSplashScreen(YamlMap splashData) {
       color: splashData[YamlKeys.colorKey],
       gravity: splashData[YamlKeys.androidGravityKey],
       iosContentMode: iosContentMode?.mode,
+      backgroundImage: splashData[YamlKeys.backgroundImage],
       android12AndAbove: splashData[YamlKeys.android12AndAboveKey],
+      iosBackgroundContentMode: splashData[YamlKeys.iosBackgroundContentMode],
     );
   }
 }
@@ -142,6 +145,7 @@ Future<void> applyAndroidSplashImage({
   String? color,
   String? gravity,
   YamlMap? android12AndAbove,
+  String? backgroundImage,
 }) async {
   await generateAndroidImages(
     imageSource: imageSource,
@@ -169,12 +173,16 @@ Future<void> applySplash({
   String? color,
   String? gravity,
   String? iosContentMode,
+  String? backgroundImage,
+  String? iosBackgroundContentMode,
   YamlMap? android12AndAbove,
 }) async {
   await generateIosImages(
     imageSource: imageSource,
     color: color,
+    backgroundImage: backgroundImage,
     iosContentMode: iosContentMode,
+    iosBackgroundContentMode: iosBackgroundContentMode,
   );
   await applyAndroidSplashImage(
     imageSource: imageSource,

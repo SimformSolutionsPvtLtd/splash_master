@@ -27,6 +27,8 @@ Future<void> generateIosImages({
   String? imageSource,
   String? color,
   String? iosContentMode,
+  String? backgroundImage,
+  String? iosBackgroundContentMode,
 }) async {
   const iosAssetsFolder = CmdStrings.iosAssetsDirectory;
 
@@ -64,6 +66,8 @@ Future<void> generateIosImages({
     imagePath: imageSource,
     color: color,
     iosContentMode: iosContentMode,
+    backgroundImage: backgroundImage,
+    iosBackgroundContentMode: iosBackgroundContentMode,
   );
 
   await updateContentJson(images);
@@ -71,11 +75,13 @@ Future<void> generateIosImages({
 
 /// Update the default storyboard content with the provided details
 /// Image, Color and contentMode
-void updateContentOfStoryboard({
+Future<void> updateContentOfStoryboard({
   String? imagePath,
   String? color,
   String? iosContentMode,
-}) {
+  String? backgroundImage,
+  String? iosBackgroundContentMode,
+}) async {
   final file = File(CmdStrings.storyboardPath);
   final xmlDocument = XmlDocument.parse(file.readAsStringSync());
   final documentData = xmlDocument.getElement(
@@ -98,7 +104,7 @@ void updateContentOfStoryboard({
   /// Find the default subViews element in the storyboard
   final subViews = view.getElement(IOSStrings.subViewsElement);
   if (subViews == null) {
-    final subview = _createImageSubView();
+    final subview = _createImageSubView(backgroundImage: backgroundImage);
 
     /// Add subViews element as child in view element
     view.children.add(subview);
@@ -130,6 +136,25 @@ void updateContentOfStoryboard({
       ));
     }
   }
+  XmlNode? backgroundImageElement;
+  if (backgroundImage != null) {
+    final backgroundImageFile = File(backgroundImage);
+    final backgroundImageFileExists = await backgroundImageFile.exists();
+
+    if (backgroundImageFileExists) {
+      await createBackgroundImage(
+        Image(
+          scale: '3x',
+          filename: backgroundImageFile.name,
+          idiom: 'universal',
+        ),
+        backgroundImageFile,
+      );
+      backgroundImageElement = getBackgroundImageElement(subViews);
+    } else {
+      log("$backgroundImage doesn't exists. No background image was set.");
+    }
+  }
   if (imagePath != null) {
     /// Find the imageView element in subViews element
     final imageView = subViews?.children.whereType<XmlElement?>().firstWhere(
@@ -155,10 +180,27 @@ void updateContentOfStoryboard({
 
     /// Add constraints in view element
     view.children.add(
-      XmlDocument.parse(SplashScreenContentString.imageConstraintString)
+      XmlDocument.parse(backgroundImageElement == null
+              ? SplashScreenContentString
+                  .splashAndBackConstraints
+              : SplashScreenContentString.splashImageConstraints)
           .rootElement
           .copy(),
     );
+
+    final imageViewCopy = imageView?.copy();
+    imageView?.remove();
+    if (backgroundImageElement == null) {
+      backgroundImageElement = getImageXMLElement(
+        elementId: IOSStrings.backgroundImageViewIdValue,
+        imageName: IOSStrings.backgroundImage,
+        contentMode: iosBackgroundContentMode ?? IOSStrings.contentModeValue,
+      );
+      subViews?.children.add(backgroundImageElement);
+    } else {
+      log("BackgroundImage already exists. Background image wasn't set.");
+    }
+    if (imageViewCopy != null) subViews?.children.add(imageViewCopy);
   } else {
     /// Image is not available then
     ///
@@ -241,68 +283,15 @@ List<XmlAttribute> _buildColorAttributes(String hexColor) {
 /// Create the subviews element.
 /// Create two sub element inside the `subviews` element.
 /// `imageView` and `rect`.
-XmlElement _createImageSubView() {
+XmlElement _createImageSubView({String? backgroundImage}) {
   final element = XmlElement(XmlName(IOSStrings.subViewsElement), [], [
-    XmlElement(
-      XmlName(IOSStrings.imageViewElement),
-      [
-        XmlAttribute(
-          XmlName(IOSStrings.opaque),
-          IOSStrings.opaqueValue,
-        ),
-        XmlAttribute(
-          XmlName(IOSStrings.clipsSubviews),
-          IOSStrings.clipsSubviewsValue,
-        ),
-        XmlAttribute(
-          XmlName(IOSStrings.multipleTouchEnabled),
-          IOSStrings.multipleTouchEnabledValue,
-        ),
-        XmlAttribute(
-          XmlName(IOSStrings.contentMode),
-          IOSStrings.contentModeValue,
-        ),
-        XmlAttribute(
-          XmlName(IOSStrings.image),
-          IOSStrings.imageValue,
-        ),
-        XmlAttribute(
-          XmlName(IOSStrings.translatesAutoresizingMaskIntoConstraints),
-          IOSStrings.translatesAutoresizingMaskIntoConstraintsVal,
-        ),
-        XmlAttribute(
-          XmlName(IOSStrings.defaultImageViewId),
-          IOSStrings.defaultImageViewIdValue,
-        ),
-      ],
-      [
-        XmlElement(
-          XmlName(IOSStrings.rectElement),
-          [
-            XmlAttribute(
-              XmlName(IOSStrings.rectElementKeyAttr),
-              IOSStrings.rectElementKeyAttrValue,
-            ),
-            XmlAttribute(
-              XmlName(IOSStrings.rectElementXAttr),
-              IOSStrings.rectElementXAttrVal,
-            ),
-            XmlAttribute(
-              XmlName(IOSStrings.rectElementYAttr),
-              IOSStrings.rectElementYAttrVal,
-            ),
-            XmlAttribute(
-              XmlName(IOSStrings.rectElementWidthAttr),
-              IOSStrings.rectElementWidthAttrVal,
-            ),
-            XmlAttribute(
-              XmlName(IOSStrings.rectElementHeightAttr),
-              IOSStrings.rectElementHeightAttrVal,
-            ),
-          ],
-        ),
-      ],
-    )
+    if (backgroundImage != null) ...{
+      getImageXMLElement(
+        elementId: IOSStrings.backgroundImageViewIdValue,
+        imageName: IOSStrings.backgroundImage,
+      ),
+    },
+    getImageXMLElement(),
   ]);
   return element;
 }
@@ -329,8 +318,109 @@ Future<void> updateContentJson(
   final iosContentJsonDm = IosContentJsonDm.fromJson(json);
 
   final updatedIosContentJson = iosContentJsonDm.copyWith(images: images);
-  const encoder = JsonEncoder.withIndent((' '));
   final encodedContentJson = encoder.convert(updatedIosContentJson);
   await file.writeAsString(encodedContentJson);
   log('Updated Contents.json.');
+}
+
+Future<void> createBackgroundImage(Image image, File imageFile) async {
+  const iosAssetsFolder = CmdStrings.iosBackgroundImageDirectory;
+  final file = await File('$iosAssetsFolder/${IOSStrings.iosContentJson}')
+      .create(recursive: true);
+
+  final iosContent = IosContentJsonDm(
+    images: [image],
+    info: const Info(author: 'xcode', version: 1),
+  );
+  final iosContentJson = iosContent.toJson();
+  encoder.convert(iosContentJson);
+  file.writeAsString(encoder.convert(iosContentJson));
+  final backgroundImage =
+      File('$iosAssetsFolder/${IOSStrings.backgroundImageSnakeCase}.png');
+
+  await backgroundImage.writeAsBytes(await imageFile.readAsBytes());
+}
+
+XmlElement getImageXMLElement({
+  String? elementId,
+  String? imageName,
+  String? contentMode,
+}) {
+  return XmlElement(
+    /// Adds image element to storyboard.
+    XmlName(IOSStrings.imageViewElement),
+    [
+      XmlAttribute(
+        XmlName(IOSStrings.opaque),
+        IOSStrings.opaqueValue,
+      ),
+      XmlAttribute(
+        XmlName(IOSStrings.clipsSubviews),
+        IOSStrings.clipsSubviewsValue,
+      ),
+      XmlAttribute(
+        XmlName(IOSStrings.multipleTouchEnabled),
+        IOSStrings.multipleTouchEnabledValue,
+      ),
+      XmlAttribute(
+        XmlName(IOSStrings.contentMode),
+        contentMode ?? IOSStrings.contentModeValue,
+      ),
+      XmlAttribute(
+        XmlName(IOSStrings.image),
+        imageName ?? IOSStrings.imageValue,
+      ),
+      XmlAttribute(
+        XmlName(IOSStrings.translatesAutoresizingMaskIntoConstraints),
+        IOSStrings.translatesAutoresizingMaskIntoConstraintsVal,
+      ),
+      XmlAttribute(
+        XmlName(IOSStrings.defaultImageViewId),
+        elementId ?? IOSStrings.defaultImageViewIdValue,
+      ),
+    ],
+    [
+      /// Adds rect element for imageView in storyboard.
+      XmlElement(
+        XmlName(IOSStrings.rectElement),
+        [
+          XmlAttribute(
+            XmlName(IOSStrings.rectElementKeyAttr),
+            IOSStrings.rectElementKeyAttrValue,
+          ),
+          XmlAttribute(
+            XmlName(IOSStrings.rectElementXAttr),
+            IOSStrings.rectElementXAttrVal,
+          ),
+          XmlAttribute(
+            XmlName(IOSStrings.rectElementYAttr),
+            IOSStrings.rectElementYAttrVal,
+          ),
+          XmlAttribute(
+            XmlName(IOSStrings.rectElementWidthAttr),
+            IOSStrings.rectElementWidthAttrVal,
+          ),
+          XmlAttribute(
+            XmlName(IOSStrings.rectElementHeightAttr),
+            IOSStrings.rectElementHeightAttrVal,
+          ),
+        ],
+      ),
+    ],
+  );
+}
+
+/// Create element for background element.
+XmlNode? getBackgroundImageElement(XmlElement? subViews) {
+  final backgroundImageElement = subViews?.children.firstWhereOrNull(
+    (child) {
+      final attribute = child.attributes.firstWhereOrNull(
+        (attribute) {
+          return attribute.value == IOSStrings.backgroundImageViewIdValue;
+        },
+      );
+      return attribute != null;
+    },
+  );
+  return backgroundImageElement;
 }

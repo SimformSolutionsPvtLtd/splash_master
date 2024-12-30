@@ -1,5 +1,7 @@
 /// IOS Strings Element, attribute keys and values
 class IOSStrings {
+  IOSStrings._();
+
   /// `splash_image`
   static const splashImage = 'splash_image';
 
@@ -115,6 +117,9 @@ class IOSStrings {
   /// `YRO-k0-Ey4`
   static const defaultImageViewIdValue = 'YRO-k0-Ey4';
 
+  /// `edQ-YT-iED`
+  static const backgroundImageViewIdValue = 'edQ-YT-iED';
+
   /// Rect Element
   ///
   /// `rect`
@@ -151,4 +156,10 @@ class IOSStrings {
 
   /// `1280`
   static const rectElementHeightAttrVal = '1280';
+
+  /// `BackgroundImage`
+  static const backgroundImage = 'BackgroundImage';
+
+  /// `background_image`
+  static const backgroundImageSnakeCase = 'background_image';
 }

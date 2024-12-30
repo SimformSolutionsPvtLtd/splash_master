@@ -42,6 +42,10 @@ class YamlKeys {
   /// Specifies branding image for the Android 12+
   static const brandingImageKey = 'branding_image';
 
+  static const backgroundImage = 'background_image';
+
+  static const iosBackgroundContentMode = 'ios_background_content_mode';
+
   /// List of supported keys
   static List<String> supportedYamlKeys = [
     imageKey,
@@ -50,5 +54,7 @@ class YamlKeys {
     iosContentModeKey,
     android12AndAboveKey,
     brandingImageKey,
+    backgroundImage,
+    iosBackgroundContentMode,
   ];
 }

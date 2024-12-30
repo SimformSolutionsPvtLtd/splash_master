@@ -22,10 +22,24 @@
 
 /// Constraints element string
 class SplashScreenContentString {
-  static const String imageConstraintString = '''<constraints>
+  static const String splashImageConstraints = '''<constraints>
   <constraint firstItem="YRO-k0-Ey4" firstAttribute="leading" secondItem="Ze5-6b-2t3" secondAttribute="leading" id="3T2-ad-Qdv"/>
 <constraint firstAttribute="trailing" secondItem="YRO-k0-Ey4" secondAttribute="trailing" id="TQA-XW-tRk"/>
 <constraint firstItem="YRO-k0-Ey4" firstAttribute="bottom" secondItem="Ze5-6b-2t3" secondAttribute="bottom" id="duK-uY-Gun"/>
 <constraint firstItem="YRO-k0-Ey4" firstAttribute="top" secondItem="Ze5-6b-2t3" secondAttribute="top" id="xPn-NY-SIU"/>
+</constraints>''';
+
+  /// These are constraints for splash image and background image.
+  static const String splashAndBackConstraints = '''
+  <constraints>
+   <constraint firstItem="YRO-k0-Ey4" firstAttribute="leading" secondItem="Ze5-6b-2t3" secondAttribute="leading" id="3T2-ad-Qdv"/>
+   <constraint firstItem="edQ-YT-iED" firstAttribute="top" secondItem="Ze5-6b-2t3" secondAttribute="top" id="B02-Ap-adr"/>
+   <constraint firstAttribute="trailing" secondItem="edQ-YT-iED" secondAttribute="trailing" id="T4v-vm-VRP"/>
+   <constraint firstAttribute="trailing" secondItem="YRO-k0-Ey4" secondAttribute="trailing" id="TQA-XW-tRk"/>
+   <constraint firstItem="YRO-k0-Ey4" firstAttribute="bottom" secondItem="Ze5-6b-2t3" secondAttribute="bottom" id="duK-uY-Gun"/>
+   <constraint firstAttribute="bottom" secondItem="edQ-YT-iED" secondAttribute="bottom" id="e2S-gZ-2jl"/>
+   <constraint firstAttribute="bottom" secondItem="edQ-YT-iED" secondAttribute="bottom" id="wnX-KJ-aN5"/>
+   <constraint firstItem="YRO-k0-Ey4" firstAttribute="top" secondItem="Ze5-6b-2t3" secondAttribute="top" id="xPn-NY-SIU"/>
+   <constraint firstItem="edQ-YT-iED" firstAttribute="leading" secondItem="Ze5-6b-2t3" secondAttribute="leading" id="zVa-1q-mai"/>
 </constraints>''';
 }
