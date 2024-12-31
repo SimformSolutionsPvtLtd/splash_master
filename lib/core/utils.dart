@@ -19,8 +19,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import 'dart:io';
-import 'package:path/path.dart';
 
 typedef WarningCallback = void Function(String);
 typedef OnSplashDuration = void Function(Duration);
@@ -34,10 +32,6 @@ class SplashMasterException implements Exception {
   String toString() {
     return message;
   }
-}
-
-extension FileExtension on File {
-  String get name => basename(path);
 }
 
 extension FirstWhereOrNullExtension<E> on Iterable<E> {

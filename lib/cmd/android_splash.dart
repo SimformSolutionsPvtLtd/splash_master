@@ -238,7 +238,8 @@ Future<void> updateStylesXml({
 
   if (android12AndAbove != null &&
       (android12AndAbove[YamlKeys.colorKey] != null ||
-          android12AndAbove[YamlKeys.imageKey] != null)) {
+          android12AndAbove[YamlKeys.imageKey] != null ||
+          android12AndAbove[YamlKeys.brandingImageKey] != null)) {
     const v31 = CmdStrings.androidValuesV31Directory;
     if (!await Directory(v31).exists()) {
       Directory(v31).create();
