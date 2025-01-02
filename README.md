@@ -49,6 +49,8 @@ dependencies:
       android_gravity: 'center'
       # Use to specifies the splash image
       background_image: 'assets/background_image.png'
+      # Provided content mode for splash image in background for iOS
+      ios_background_content_mode: 'scaleToFill'
       # Provides gravity for background image in Android
       # Android gravity options: center, clip_horizontal, clip_vertical, fill_horizontal, fill, center_vertical, 
       # bottom, fill_vertical, center_horizontal, top, end, left, right, start
@@ -75,6 +77,15 @@ dependencies:
 
   ```shell
   dart run splash_master create
+  ```
+
+- Or run following command to activate splash_master globally
+  ```shell
+  dart pub global activate splash_master
+  ```
+- Now you can directly use following command to set splash screen
+  ```shell
+  splash_master create
   ```
 
 3. Setup on the flutter side

@@ -126,6 +126,15 @@ void setupSplashScreen(YamlMap splashData) {
         log('Image should be png or jpg');
         return;
       }
+    } else if (splashData[YamlKeys.androidBackgroundGravity] != null &&
+        !(AndroidGravity.values.any(
+          (element) =>
+              element ==
+              AndroidGravity.fromString(
+                  splashData[YamlKeys.androidBackgroundGravity]),
+        ))) {
+      log('Please check the android_background_image_gravity');
+      return;
     }
     applySplash(
       imageSource: splashData[YamlKeys.imageKey],
@@ -195,10 +204,12 @@ Future<void> applyAndroidSplashImage({
     android12AndAbove: android12AndAbove,
     color: color,
   );
-  await updateDarkStylesXml(
-    android12AndAbove: android12AndAbove,
-    color: darkColor,
-  );
+  if (darkImage != null) {
+    await updateDarkStylesXml(
+      android12AndAbove: android12AndAbove,
+      color: darkColor,
+    );
+  }
 }
 
 /// Applies the splash screen on Android and iOS using details from the YAML file.

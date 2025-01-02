@@ -143,9 +143,9 @@ Future<void> updateContentOfStoryboard({
 
     if (backgroundImageFileExists) {
       await createBackgroundImage(
-        Image(
+        const Image(
           scale: '3x',
-          filename: backgroundImageFile.name,
+          filename: '${IOSStrings.backgroundImageSnakeCase}.png',
           idiom: 'universal',
         ),
         backgroundImageFile,
@@ -181,8 +181,7 @@ Future<void> updateContentOfStoryboard({
     /// Add constraints in view element
     view.children.add(
       XmlDocument.parse(backgroundImageElement == null
-              ? SplashScreenContentString
-                  .splashAndBackConstraints
+              ? SplashScreenContentString.splashAndBackConstraints
               : SplashScreenContentString.splashImageConstraints)
           .rootElement
           .copy(),
@@ -198,6 +197,12 @@ Future<void> updateContentOfStoryboard({
       );
       subViews?.children.add(backgroundImageElement);
     } else {
+      if (iosBackgroundContentMode != null) {
+        backgroundImageElement.setAttribute(
+          IOSStrings.contentMode,
+          IosContentMode.fromString(iosBackgroundContentMode).mode,
+        );
+      }
       log("BackgroundImage already exists. Background image wasn't set.");
     }
     if (imageViewCopy != null) subViews?.children.add(imageViewCopy);
@@ -364,7 +369,8 @@ XmlElement getImageXMLElement({
       ),
       XmlAttribute(
         XmlName(IOSStrings.contentMode),
-        contentMode ?? IOSStrings.contentModeValue,
+        IosContentMode.fromString(contentMode ?? IOSStrings.contentModeValue)
+            .mode,
       ),
       XmlAttribute(
         XmlName(IOSStrings.image),
