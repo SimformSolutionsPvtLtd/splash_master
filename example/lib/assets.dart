@@ -6,4 +6,5 @@ class Assets {
   static const sampleLottie = '$assets/sample_lottie.json';
   static const sampleVideo = '$assets/sample_video.mp4';
   static const simformSplashVideo = '$assets/simform_splash_video.mp4';
+  static const sampleRive = '$assets/sample_rive.riv';
 }

@@ -1,3 +1,7 @@
+## [0.0.3] (unreleased)
+
+* Feature: Add support for rive animations
+
 ## [0.0.2]
 
 * Feature: Add branding image support for the Android 12+

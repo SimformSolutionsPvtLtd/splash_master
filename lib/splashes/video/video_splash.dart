@@ -128,11 +128,8 @@ class _VideoSplashState extends State<VideoSplash> {
         final file = File.fromRawPath(bytesSource.bytes);
         controller = VideoPlayerController.file(file);
         break;
-    }
-    if (controller == null) {
-      throw SplashMasterException(
-        message: "Unknown source, video controller is null",
-      );
+      default:
+        throw SplashMasterException(message: 'Unknown source found.');
     }
     return controller;
   }

@@ -25,6 +25,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:splash_master/splash_master.dart';
 import 'package:splash_master/splashes/lottie/lottie_splash.dart';
+import 'package:splash_master/splashes/rive/rive_splash.dart';
 import 'package:splash_master/splashes/video/video_splash.dart';
 
 class SplashMaster extends StatefulWidget {
@@ -38,7 +39,10 @@ class SplashMaster extends StatefulWidget {
     this.onSourceLoaded,
     this.backGroundColor,
   })  : splashMediaType = SplashMediaType.lottie,
-        videoConfig = null;
+        videoConfig = null,
+        riveConfig = null,
+        assert(source is RiveArtboardSource,
+            "RiveArtboardSource is not supported for lottie splash");
 
   /// Set video as splash screen
   const SplashMaster.video({
@@ -50,7 +54,26 @@ class SplashMaster extends StatefulWidget {
     this.onSourceLoaded,
     this.backGroundColor,
   })  : splashMediaType = SplashMediaType.video,
-        lottieConfig = null;
+        lottieConfig = null,
+        riveConfig = null,
+        assert(source is RiveArtboardSource,
+            "RiveArtboardSource is not supported for video splash");
+
+  /// Set rive as splash screen
+  const SplashMaster.rive({
+    super.key,
+    this.nextScreen,
+    required this.source,
+    this.customNavigation,
+    this.riveConfig,
+    this.onSourceLoaded,
+    this.backGroundColor,
+  })  : splashMediaType = SplashMediaType.rive,
+        lottieConfig = null,
+        videoConfig = null;
+
+  /// Source for the media which needs to be shown as splash screen.
+  final Source source;
 
   /// The screen which needs to be navigated after the splash screen.
   final Widget? nextScreen;
@@ -67,6 +90,10 @@ class SplashMaster extends StatefulWidget {
   /// look.
   final VideoConfig? videoConfig;
 
+  /// A config class for rive splash. Controls how a rive animation will
+  /// look.
+  final RiveConfig? riveConfig;
+
   /// [backGroundColor] of the screen when video or lottie is being displayed using aspect ratio
   final Color? backGroundColor;
 
@@ -75,9 +102,6 @@ class SplashMaster extends StatefulWidget {
 
   /// Type of the media which needs to be used as splash screen.
   final SplashMediaType splashMediaType;
-
-  /// Source for the media which needs to be shown as splash screen.
-  final Source source;
 
   /// Prevents flutter frame to be rendered but framework will still produce
   /// frames.
@@ -118,13 +142,13 @@ class _SplashScreenState extends State<SplashMaster> {
 
   late final VoidCallback onSourceLoaded;
 
-  Source get source => widget.source;
-
   @override
   void initState() {
     super.initState();
     onSourceLoaded = widget.onSourceLoaded ?? SplashMaster.resume;
   }
+
+  Source get source => widget.source;
 
   @override
   void dispose() {
@@ -150,6 +174,13 @@ class _SplashScreenState extends State<SplashMaster> {
         return VideoSplash(
           source: source,
           videoConfig: widget.videoConfig,
+          backGroundColor: widget.backGroundColor,
+          onSplashDuration: _updateSplashDuration,
+        );
+      case SplashMediaType.rive:
+        return RiveSplash(
+          source: source,
+          riveConfig: widget.riveConfig ?? const RiveConfig(),
           backGroundColor: widget.backGroundColor,
           onSplashDuration: _updateSplashDuration,
         );
