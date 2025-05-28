@@ -4,7 +4,8 @@
 
 A Flutter plugin that streamlines the process of adding splash screens to your app.
 This plugin takes care of all the necessary native-side setup which saves your time and efforts.
-It supports videos, Lottie animations, images and custom Flutter widgets, giving users various creative options.
+It supports videos, Lottie animations, Rive animations, images and custom Flutter widgets, giving
+users various creative options.
 Simply define the required details by adding a `splash_master` section to your `pubspec.yaml`.
 Additionally, the plugin ensures a smooth and seamless transition from native to flutter app, 
 enhancing the user experience.
@@ -120,6 +121,19 @@ and Lottie animations are processed on the Flutter side, while image handling is
     }
   ```
 
+- Rive
+  ```dart
+    void main() {
+     WidgetsFlutterBinding.ensureInitialized();
+     SplashMaster.initialize();
+     runApp(
+        MaterialApp(
+           home: SplashMaster.rive(...),  // use for rive animations
+        ),
+      );
+    }
+  ```
+
 - Image: While using image as splash screen you have to call the `SplashMaster.resume()` method explicitly
   to resume the Flutter app.
   ```dart
@@ -156,27 +170,32 @@ and Lottie animations are processed on the Flutter side, while image handling is
   - `resume()`
     - If you use the SplashMaster.video() or SplashMaster.lottie() methods, you don’t need to call resume() explicitly. The rendering will resume automatically once the provided video or Lottie source is fully initialized.
     - This function will be called automatically from `onSourceLoaded`, if you haven't provided this
-      parameter from `VideoConfig` or `LottieConfig`. If you set this parameter or don't use SplashMaster
+      parameter from `VideoConfig`, `LottieConfig` or `RiveConfig`. If you set this parameter or
+      don't use SplashMaster
       widget, then you will be responsible for calling this function.
 
 - Once command runs successfully splash screen has been setup on native side.
 
+### Properties of `SplashMaster.video()`, `SplashMaster.lottie()` and `SplashMaster.rive()`:
 
+The common properties used in `SplashMaster.video()`, `SplashMaster.lottie()`
+and `SplashMaster.rive()` are largely the same. The key difference between them is the use
+of `videoConfig`, `lottieConfig` and `riveConfig`, which allow for configuration customization specific to video, Lottie animations
+and Rive animations, respectively.
 
-### Properties of `SplashMaster.video()` and `SplashMaster.lottie()`:
+Rive animations have an additional property called `splashDuration` that allows you to set a specific duration for the splash screen.
 
-The common properties used in `SplashMaster.video()` and `SplashMaster.lottie()` are largely the same. The key difference between the two is the use of `videoConfig` and `lottieConfig`, which allow for configuration customization specific to video and Lottie animations, respectively.
-
-
-| Name             | Description                                                |
-|------------------|------------------------------------------------------------|
-| source           | Media source for assets.                                   |
-| videoConfig      | To handle the video's configuration.                       |
-| lottieConfig     | To handle the lottie's configuration.                      |
-| backGroundColor  | To handle the background color of the splash screen.       |
-| nextScreen       | Screen to navigate once splash finished.                   |
-| customNavigation | Callback to handle the logic when the splash is completed. |
-| onSourceLoaded   | Called when provided media is loaded.                      |
+| Name                            | Description                                                                                                   |
+|---------------------------------|---------------------------------------------------------------------------------------------------------------|
+| source                          | Media source for assets.                                                                                      |
+| videoConfig                     | To handle the video's configuration.                                                                          |
+| lottieConfig                    | To handle the lottie's configuration.                                                                         |
+| riveConfig                      | Configuration for the Rive animation (appearance, behavior, animations to play).                              |
+| backGroundColor                 | To handle the background color of the splash screen.                                                          |
+| nextScreen                      | Screen to navigate once splash finished.                                                                      |
+| customNavigation                | Callback to handle the logic when the splash is completed.                                                    |
+| onSourceLoaded                  | Called when provided media is loaded.                                                                         |
+| splashDuration <br/>(rive only) | Optional explicit duration for the splash screen (overrides automatic calculation based on animation length). |
 
 ### Main Contributors
 
@@ -185,5 +204,5 @@ The common properties used in `SplashMaster.video()` and `SplashMaster.lottie()`
     <td align="center"><a href="https://github.com/Ujas-Majithiya"><img src="https://avatars.githubusercontent.com/u/56400956?v=4" width="100px;" alt=""/><br /><sub><b>Ujas Majithiya</b></sub></a></td>
     <td align="center"><a href="https://github.com/apurva780"><img src="https://avatars.githubusercontent.com/u/65003381?v=4" width="100px;" alt=""/><br /><sub><b>Apurva Kanthraviya</b></sub></a></td>
 <td align="center"><a href="https://github.com/DhavalRKansara"><img src="https://avatars.githubusercontent.com/u/44993081?v=4" width="100px;" alt=""/><br /><sub><b>Dhaval Kansara</b></sub></a></td>
-  </tr>
+ </tr>
 </table>

@@ -23,18 +23,17 @@
 import 'dart:io';
 
 import 'package:flutter/services.dart';
+import 'package:rive/rive.dart';
 import 'package:splash_master/core/utils.dart';
 
 /// Holds the source file
-abstract class Source {
+sealed class Source {
   void setSource();
 }
 
-class AssetSource extends Source {
+final class AssetSource extends Source {
   /// Provides the asset resource for the splash screen
-  AssetSource(this.path) {
-    setSource();
-  }
+  AssetSource(this.path);
 
   final String path;
 
@@ -42,11 +41,9 @@ class AssetSource extends Source {
   Future<void> setSource() async {}
 }
 
-class DeviceFileSource extends Source {
+final class DeviceFileSource extends Source {
   /// Provides the device file for the splash screen
-  DeviceFileSource(this.path) {
-    setSource();
-  }
+  DeviceFileSource(this.path);
 
   final String path;
 
@@ -58,7 +55,7 @@ class DeviceFileSource extends Source {
   }
 }
 
-class NetworkFileSource extends Source {
+final class NetworkFileSource extends Source {
   /// Provides the network source for the splash screen
   NetworkFileSource(this.path) {
     setSource();
@@ -79,11 +76,23 @@ class NetworkFileSource extends Source {
   }
 }
 
-class BytesSource extends Source {
+final class BytesSource extends Source {
   /// Provides the source as bytes for the splash screen
   BytesSource(this.bytes);
 
   final Uint8List bytes;
+
+  @override
+  void setSource() {}
+}
+
+/// Provides a pre-loaded Rive artboard instance for the splash screen
+final class RiveArtboardSource extends Source{
+  /// Provides a pre-loaded Rive artboard instance for the splash screen
+  RiveArtboardSource(this.artboard);
+
+  /// The Rive artboard instance to display
+  final Artboard artboard;
 
   @override
   void setSource() {}
