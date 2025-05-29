@@ -22,7 +22,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:rive/rive.dart';
-import 'package:splash_master/enums/splash_master_enums.dart';
 
 /// Configuration class for Rive animation splash screens
 class RiveConfig {
@@ -55,42 +54,24 @@ class RiveConfig {
   /// Whether to use a SafeArea widget
   final bool useSafeArea;
 
-  /// Specifies how the animation will be visible (defaults to [VisibilityEnum.useFullScreen])
-  /// Other value is [VisibilityEnum.useAspectRatio] to use the aspect ratio of the animation
-  final VisibilityEnum riveVisibilityEnum;
-
-  /// Specifies the aspect ratio of the animation
-  ///
-  /// If [VisibilityEnum.useAspectRatio] then you need to provide aspect ratio
-  /// Defaults to 9/16
-  final double aspectRatio;
-
-  /// The path to the image that should be used as the native splash screen
-  /// 
-  /// This allows you to specify an image that matches your Rive animation
-  /// to be shown as the native splash screen before the Flutter app loads.
-  /// 
-  /// The path should be relative to the assets folder, e.g., 'assets/splash_image.png'
-  final String? nativeSplashImagePath;
-
   /// Custom asset loader for loading Rive assets
-  /// 
+  ///
   /// This allows loading assets from custom sources not supported by default loaders
   final FileAssetLoader? assetLoader;
-  
+
   /// Whether to load CDN assets referenced within the Rive file
-  /// 
+  ///
   /// Set to false to skip loading external assets if the Rive file references them
   final bool loadCdnAssets;
-  
+
   /// Factory function for creating custom Core objects
-  /// 
+  ///
   /// This allows for more advanced customization of the Rive runtime
   final ObjectGenerator? objectGenerator;
-  
+
   /// Rectangle used to clip the animation
   final Rect? clipRect;
-  
+
   /// Controls if the animation responds to touch scroll events
   final bool isTouchScrollEnabled;
 
@@ -133,9 +114,6 @@ class RiveConfig {
     this.controllers = const [],
     this.onInit,
     this.useSafeArea = false,
-    this.riveVisibilityEnum = VisibilityEnum.useFullScreen,
-    this.aspectRatio = 9 / 16,
-    this.nativeSplashImagePath,
     this.assetLoader,
     this.loadCdnAssets = true,
     this.objectGenerator,

@@ -78,6 +78,15 @@ class _RiveSplashState extends State<RiveSplash> {
       final animation = artboard.animations.first;
       Duration duration = Duration.zero;
 
+      // Handle autoplay: if autoplay is true and no specific animations were provided,
+      // create and add a simple animation controller to play the first animation
+      if (riveConfig.autoplay &&
+          riveConfig.animations.isEmpty &&
+          riveConfig.stateMachineName.isEmpty) {
+        final controller = SimpleAnimation(animation.name);
+        artboard.addController(controller);
+      }
+
       if (riveConfig.splashDuration != null) {
         duration = riveConfig.splashDuration!;
       } else if (animation is LinearAnimation) {
@@ -90,18 +99,27 @@ class _RiveSplashState extends State<RiveSplash> {
 
       riveConfig.onInit?.call(artboard);
     } else {
-      widget.onSplashDuration?.call(riveConfig.splashDuration ?? defaultDuration);
+      widget.onSplashDuration?.call(
+        riveConfig.splashDuration ?? defaultDuration,
+      );
     }
   }
 
   Widget _getRiveFromSource() {
+    List<String> animations = riveConfig.animations;
+    List<String> stateMachines = riveConfig.stateMachineName;
+    if (!riveConfig.autoplay) {
+      animations = [];
+      stateMachines = [];
+    }
+
     switch (widget.source) {
       case AssetSource assetSource:
         return RiveAnimation.asset(
           assetSource.path,
           artboard: riveConfig.artboardName,
-          animations: riveConfig.animations,
-          stateMachines: riveConfig.stateMachineName,
+          animations: animations,
+          stateMachines: stateMachines,
           fit: riveConfig.fit,
           alignment: riveConfig.alignment,
           controllers: riveConfig.controllers,
@@ -119,8 +137,8 @@ class _RiveSplashState extends State<RiveSplash> {
         return RiveAnimation.file(
           deviceFileSource.path,
           artboard: riveConfig.artboardName,
-          animations: riveConfig.animations,
-          stateMachines: riveConfig.stateMachineName,
+          animations: animations,
+          stateMachines: stateMachines,
           fit: riveConfig.fit,
           alignment: riveConfig.alignment,
           controllers: riveConfig.controllers,
@@ -138,8 +156,8 @@ class _RiveSplashState extends State<RiveSplash> {
         return RiveAnimation.network(
           networkFileSource.url.toString(),
           artboard: riveConfig.artboardName,
-          animations: riveConfig.animations,
-          stateMachines: riveConfig.stateMachineName,
+          animations: animations,
+          stateMachines: stateMachines,
           fit: riveConfig.fit,
           alignment: riveConfig.alignment,
           controllers: riveConfig.controllers,
@@ -165,8 +183,8 @@ class _RiveSplashState extends State<RiveSplash> {
         return RiveAnimation.direct(
           riveFile,
           artboard: riveConfig.artboardName,
-          animations: riveConfig.animations,
-          stateMachines: riveConfig.stateMachineName,
+          animations: animations,
+          stateMachines: stateMachines,
           fit: riveConfig.fit,
           alignment: riveConfig.alignment,
           controllers: riveConfig.controllers,
