@@ -1,4 +1,4 @@
-## [0.0.3] (unreleased)
+## [0.0.3] 
 
 * Feature: Add support for rive animations
 
