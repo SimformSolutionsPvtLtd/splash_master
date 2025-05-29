@@ -41,8 +41,9 @@ class SplashMaster extends StatefulWidget {
   })  : splashMediaType = SplashMediaType.lottie,
         videoConfig = null,
         riveConfig = null,
-        assert(source is RiveArtboardSource,
-            "RiveArtboardSource is not supported for lottie splash");
+        assert(source is! RiveArtboardSource,
+          "RiveArtboardSource is not supported for lottie splash",
+        );
 
   /// Set video as splash screen
   const SplashMaster.video({
@@ -56,8 +57,9 @@ class SplashMaster extends StatefulWidget {
   })  : splashMediaType = SplashMediaType.video,
         lottieConfig = null,
         riveConfig = null,
-        assert(source is RiveArtboardSource,
-            "RiveArtboardSource is not supported for video splash");
+        assert(source is! RiveArtboardSource,
+          "RiveArtboardSource is not supported for video splash",
+        );
 
   /// Set rive as splash screen
   const SplashMaster.rive({
