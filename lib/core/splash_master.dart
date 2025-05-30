@@ -41,7 +41,8 @@ class SplashMaster extends StatefulWidget {
   })  : splashMediaType = SplashMediaType.lottie,
         videoConfig = null,
         riveConfig = null,
-        assert(source is! RiveArtboardSource,
+        assert(
+          source is! RiveArtboardSource,
           "RiveArtboardSource is not supported for lottie splash",
         );
 
@@ -57,7 +58,8 @@ class SplashMaster extends StatefulWidget {
   })  : splashMediaType = SplashMediaType.video,
         lottieConfig = null,
         riveConfig = null,
-        assert(source is! RiveArtboardSource,
+        assert(
+          source is! RiveArtboardSource,
           "RiveArtboardSource is not supported for video splash",
         );
 

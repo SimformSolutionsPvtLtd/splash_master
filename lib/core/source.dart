@@ -87,7 +87,7 @@ final class BytesSource extends Source {
 }
 
 /// Provides a pre-loaded Rive artboard instance for the splash screen
-final class RiveArtboardSource extends Source{
+final class RiveArtboardSource extends Source {
   /// Provides a pre-loaded Rive artboard instance for the splash screen
   RiveArtboardSource(this.artboard);
 
