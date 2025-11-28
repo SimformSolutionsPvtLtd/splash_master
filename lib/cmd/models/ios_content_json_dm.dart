@@ -34,7 +34,9 @@ class IosContentJsonDm {
     );
   }
 
+  /// The list of images in the `contents.json`
   final List<Image> images;
+  /// The info section in the `contents.json`
   final Info info;
 
   Map<String, dynamic> toJson() {
@@ -60,6 +62,7 @@ class Image {
     required this.idiom,
     required this.filename,
     required this.scale,
+    this.appearances,
   });
 
   factory Image.fromJson(Map<String, dynamic> json) {
@@ -67,30 +70,97 @@ class Image {
       idiom: json['idiom'],
       filename: json['filename'],
       scale: json['scale'],
+      appearances: json['appearances'] != null
+          ? List<Appearance>.from(
+              json['appearances'].map((x) => Appearance.fromJson(x)))
+          : null,
     );
   }
 
+  /// The device idiom, e.g. 'iphone', 'ipad'
   final String idiom;
+
+  /// The filename of the image
   final String filename;
+
+  /// The scale of the image, e.g. '1x', '2x', '3x'
   final String scale;
 
+  /// The list of appearances for dark mode support
+  final List<Appearance>? appearances;
+
   Map<String, dynamic> toJson() {
-    return {
+    final map = <String, dynamic>{
       'idiom': idiom,
       'filename': filename,
       'scale': scale,
     };
+    if (appearances != null) {
+      map['appearances'] = appearances!.map((x) => x.toJson()).toList();
+    }
+    return map;
   }
 
   Image copyWith({
     String? idiom,
     String? filename,
     String? scale,
+    List<Appearance>? appearances,
   }) =>
       Image(
         idiom: idiom ?? this.idiom,
         filename: filename ?? this.filename,
         scale: scale ?? this.scale,
+        appearances: appearances ?? this.appearances,
+      );
+}
+
+/// The DM used for appearance entries in `contents.json` for dark mode support
+class Appearance {
+  const Appearance({
+    required this.appearance,
+    required this.value,
+  });
+
+  factory Appearance.fromJson(Map<String, dynamic> json) {
+    return Appearance(
+      appearance: json['appearance'],
+      value: json['value'],
+    );
+  }
+
+  /// The appearance type, e.g. 'luminosity'
+  final String appearance;
+
+  /// The appearance value, e.g. 'light' or 'dark'
+  final String value;
+
+  Map<String, dynamic> toJson() {
+    return {
+      'appearance': appearance,
+      'value': value,
+    };
+  }
+
+  Appearance copyWith({
+    String? appearance,
+    String? value,
+  }) =>
+      Appearance(
+        appearance: appearance ?? this.appearance,
+        value: value ?? this.value,
+      );
+
+  /// Helper to create a light appearance
+  static Appearance light() => const Appearance(
+        appearance: 'luminosity',
+        value: 'light',
+      );
+
+  /// Helper to create a dark appearance
+  static Appearance dark() => const Appearance(
+        appearance: 'luminosity',
+        value: 'dark',
       );
 }
 
@@ -107,7 +177,10 @@ class Info {
     );
   }
 
+  /// The version of the contents.json format
   final int version;
+
+  /// The author of the contents.json file
   final String author;
 
   Map<String, dynamic> toJson() {

@@ -149,6 +149,9 @@ void setupSplashScreen(YamlMap splashData) {
       darkColor: splashData[YamlKeys.colorDarkAndroid],
       darkGravity: splashData[YamlKeys.androidGravityKey],
       darkImage: splashData[YamlKeys.imageDarkAndroid],
+      darkImageIos: splashData[YamlKeys.imageDarkIos],
+      darkColorIos: splashData[YamlKeys.colorDarkIos],
+      iosDarkContentMode: splashData[YamlKeys.iosDarkContentModeKey],
     );
   }
 }
@@ -226,6 +229,9 @@ Future<void> applySplash({
   String? darkImage,
   String? darkColor,
   String? darkGravity,
+  String? darkImageIos,
+  String? darkColorIos,
+  String? iosDarkContentMode,
 }) async {
   await generateIosImages(
     imageSource: imageSource,
@@ -233,6 +239,9 @@ Future<void> applySplash({
     backgroundImage: backgroundImage,
     iosContentMode: iosContentMode,
     iosBackgroundContentMode: iosBackgroundContentMode,
+    darkImageSource: darkImageIos,
+    darkColor: darkColorIos,
+    iosDarkContentMode: iosDarkContentMode,
   );
   await applyAndroidSplashImage(
     imageSource: imageSource,

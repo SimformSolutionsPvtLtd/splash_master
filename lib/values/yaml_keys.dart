@@ -57,6 +57,15 @@ class YamlKeys {
   /// Specifies color for android dark mode
   static const colorDarkAndroid = 'color_dark_android';
 
+  /// Specifies image for iOS dark mode
+  static const imageDarkIos = 'image_dark_ios';
+
+  /// Specifies content mode for iOS dark mode
+  static const iosDarkContentModeKey = 'ios_dark_content_mode';
+
+  /// Specifies color for iOS dark mode
+  static const colorDarkIos = 'color_dark_ios';
+
   /// List of supported keys
   static List<String> supportedYamlKeys = [
     imageKey,
@@ -71,5 +80,8 @@ class YamlKeys {
     imageDarkAndroid,
     androidDarkGravityKey,
     colorDarkAndroid,
+    imageDarkIos,
+    iosDarkContentModeKey,
+    colorDarkIos,
   ];
 }

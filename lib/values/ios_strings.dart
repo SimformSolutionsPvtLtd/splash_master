@@ -162,4 +162,10 @@ class IOSStrings {
 
   /// `background_image`
   static const backgroundImageSnakeCase = 'background_image';
+
+  /// `splash_image_dark`
+  static const splashImageDark = 'splash_image_dark';
+
+  /// `LaunchImageDark`
+  static const launchImageDark = 'LaunchImageDark';
 }

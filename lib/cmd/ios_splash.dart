@@ -29,6 +29,9 @@ Future<void> generateIosImages({
   String? iosContentMode,
   String? backgroundImage,
   String? iosBackgroundContentMode,
+  String? darkImageSource,
+  String? darkColor,
+  String? iosDarkContentMode,
 }) async {
   const iosAssetsFolder = CmdStrings.iosAssetsDirectory;
 
@@ -39,6 +42,7 @@ Future<void> generateIosImages({
   }
 
   final List<Image> images = [];
+  final bool hasDarkImage = darkImageSource != null;
 
   if (imageSource != null) {
     for (final scale in IosScale.values) {
@@ -55,13 +59,26 @@ Future<void> generateIosImages({
       sourceImage.copySync(imagePath);
 
       log('Generated $fileName.');
+
+      /// If dark image is provided, add appearances for light mode
       images.add(Image(
         idiom: IOSStrings.iOSContentJsonIdiom,
         filename: fileName,
         scale: scale.scale,
+        appearances: hasDarkImage ? [Appearance.light()] : null,
       ));
     }
   }
+
+  /// Generate dark mode images if provided
+  if (darkImageSource != null) {
+    await _generateIosDarkImages(
+      darkImageSource: darkImageSource,
+      iosAssetsFolder: iosAssetsFolder,
+      images: images,
+    );
+  }
+
   updateContentOfStoryboard(
     imagePath: imageSource,
     color: color,
@@ -71,6 +88,40 @@ Future<void> generateIosImages({
   );
 
   await updateContentJson(images);
+}
+
+/// Generate dark mode splash images for iOS
+Future<void> _generateIosDarkImages({
+  required String darkImageSource,
+  required String iosAssetsFolder,
+  required List<Image> images,
+}) async {
+  final darkSourceImage = File(darkImageSource);
+  if (!await darkSourceImage.exists()) {
+    throw SplashMasterException(
+        message: 'Dark image path not found: $darkImageSource');
+  }
+
+  for (final scale in IosScale.values) {
+    final fileName =
+        '${IOSStrings.splashImageDark}${scale.fileEndWith}.png';
+    final imagePath = '$iosAssetsFolder/$fileName';
+    final file = File(imagePath);
+    if (await file.exists()) {
+      await file.delete();
+    }
+
+    /// Creating a dark splash image from the provided asset source
+    await darkSourceImage.copy(imagePath);
+
+    log('Generated dark mode $fileName.');
+    images.add(Image(
+      idiom: IOSStrings.iOSContentJsonIdiom,
+      filename: fileName,
+      scale: scale.scale,
+      appearances: [Appearance.dark()],
+    ));
+  }
 }
 
 /// Update the default storyboard content with the provided details

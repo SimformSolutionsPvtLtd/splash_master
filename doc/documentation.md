@@ -90,6 +90,17 @@ Add a `splash_master` section to your `pubspec.yaml` file.
       android_dark_gravity_key: 'center'
       # Use to specifies the color for the splash screen for Android in dark mode
       color_dark_android: '#000000'
+      
+      # ===== iOS Dark Mode Configuration =====
+      
+      # Dark mode image for iOS
+      # iOS automatically picks the correct image based on system appearance
+      image_dark_ios: 'assets/splash_dark.png'
+      # Provides content mode for splash image in iOS dark mode
+      ios_dark_content_mode: 'center'
+      # Use to specifies the color for the splash screen for iOS in dark mode
+      color_dark_ios: '#000000'
+      
       # Section to specifies the configuration for the splash in Android 12+
       android_12_and_above:
         # Provides the background color of splash screen
@@ -98,6 +109,28 @@ Add a `splash_master` section to your `pubspec.yaml` file.
         image: 'assets/splash_12.png'
         # Provides branding image which is shown under main icon image. 
         branding_image: 'assets/branding_image.png'
+```
+
+### iOS Dark Mode Support
+
+Splash Master supports dark mode for iOS. When you provide dark mode images, iOS automatically picks the correct asset based on the user's theme preference.
+
+For iOS, when you specify `image_dark_ios`, the generator:
+1. Creates light mode images with `luminosity: light` appearance
+2. Creates dark mode images with `luminosity: dark` appearance
+3. Updates the `Contents.json` with proper appearance entries
+
+iOS automatically switches between light and dark splash images based on the system appearance setting.
+
+#### Example: iOS Dark Mode
+
+```yaml
+splash_master:
+  image: 'assets/splash_light.png'
+  color: '#FFFFFF'
+  image_dark_ios: 'assets/splash_dark.png'
+  color_dark_ios: '#000000'
+  ios_dark_content_mode: 'center'
 ```
 
 ## 2. Generate Native Splash Screen
