@@ -171,6 +171,14 @@ Future<void> createColors({
   final androidValuesFolder = isDark
       ? CmdStrings.androidDarkValuesDirectory
       : CmdStrings.androidValuesDirectory;
+
+  /// Create the directory if it doesn't exist (needed for values-night)
+  final directory = Directory(androidValuesFolder);
+  if (!await directory.exists()) {
+    await directory.create(recursive: true);
+    log('Created $androidValuesFolder directory');
+  }
+
   final colorsFilePath = '$androidValuesFolder/${AndroidStrings.colorXml}';
 
   final xmlFile = File(colorsFilePath);
@@ -304,13 +312,14 @@ Future<void> createAndroid12Styles({
         },
         nest: () {
           /// Creating a item element for color
+          /// Use color reference from colors.xml so Android uses light/dark mode colors
           if (color != null) {
             builder.element(
               AndroidStrings.itemElement,
               attributes: {
                 AndroidStrings.nameAttr: AndroidStrings.windowSplashScreenBG,
               },
-              nest: color,
+              nest: AndroidStrings.androidDrawableAttrVal,
             );
           }
 
@@ -522,6 +531,26 @@ Future<void> updateDarkStylesXml({
       color: android12AndAbove[YamlKeys.colorKey],
       imageSource: android12AndAbove[YamlKeys.imageKey],
     );
+
+    /// Create styles.xml for values-night-v31 for Android 12+ dark mode
+    /// Only create when dark color is provided
+    if (color != null) {
+      const v31Night = CmdStrings.androidDarkValuesV31Directory;
+      if (!await Directory(v31Night).exists()) {
+        Directory(v31Night).create();
+      }
+      const styleNight = '$v31Night/${AndroidStrings.stylesXml}';
+      if (await File(styleNight).exists()) {
+        File(styleNight).delete();
+      }
+      final styleFileNight = File(styleNight);
+
+      createAndroid12Styles(
+        styleFile: styleFileNight,
+        color: android12AndAbove[YamlKeys.colorKey],
+        imageSource: android12AndAbove[YamlKeys.imageKey],
+      );
+    }
   }
   final xml = File('$androidValuesFolder/${AndroidStrings.stylesXml}');
   final xmlExists = await xml.exists();
