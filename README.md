@@ -44,6 +44,18 @@ dependencies:
 For questions, issues, or feature requests, [create an issue](https://github.com/SimformSolutionsPvtLtd/splash_master/issues) on GitHub or reach out via the GitHub Discussions tab. We're happy to help and encourage community contributions.  
 To contribute documentation updates specifically, please make changes to the `doc/documentation.md` file and submit a pull request.
 
+## Android 16 KB Page Size Support (Rive)
+
+If you're using Rive animations with Splash Master and encounter the 16 KB page size error when uploading your APK to Google Play Console, you can resolve this by overriding the NDK version used by Rive.
+
+Add the following line to your app's `android/gradle.properties` file:
+
+```properties
+rive.ndk.version=28.1.13356709
+```
+
+This enables 16 KB page size support required by Google Play for apps targeting Android 15+. For more details, see the [Rive Flutter issue #547](https://github.com/rive-app/rive-flutter/issues/547).
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](https://github.com/SimformSolutionsPvtLtd/splash_master/blob/master/LICENSE) file for details.
