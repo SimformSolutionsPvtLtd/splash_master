@@ -23,7 +23,7 @@
 import 'dart:io';
 
 import 'package:flutter/services.dart';
-import 'package:rive/rive.dart';
+import 'package:rive/rive.dart' as rive;
 import 'package:splash_master/core/utils.dart';
 
 /// Holds the source file
@@ -43,7 +43,9 @@ final class AssetSource extends Source {
 
 final class DeviceFileSource extends Source {
   /// Provides the device file for the splash screen
-  DeviceFileSource(this.path);
+  DeviceFileSource(this.path) {
+    setSource();
+  }
 
   final String path;
 
@@ -86,13 +88,16 @@ final class BytesSource extends Source {
   void setSource() {}
 }
 
-/// Provides a pre-loaded Rive artboard instance for the splash screen
-final class RiveArtboardSource extends Source {
-  /// Provides a pre-loaded Rive artboard instance for the splash screen
-  RiveArtboardSource(this.artboard);
+/// Provides a pre-loaded Rive File instance for the splash screen
+///
+/// Note: This is for Rive 0.14.x which uses [rive.File] instead of Artboard
+/// for pre-loaded files.
+final class RiveFileSource extends Source {
+  /// Provides a pre-loaded Rive File instance for the splash screen
+  RiveFileSource(this.file);
 
-  /// The Rive artboard instance to display
-  final Artboard artboard;
+  /// The Rive file instance to use
+  final rive.File file;
 
   @override
   void setSource() {}

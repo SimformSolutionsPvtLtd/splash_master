@@ -27,6 +27,9 @@ import 'package:splash_master/core/utils.dart';
 import 'package:splash_master/splashes/rive/rive_config.dart';
 
 /// A widget that displays a Rive animation as a splash screen
+///
+/// This implementation is designed for Rive 0.14.x which uses the new
+/// C++ runtime-based API with [RiveWidgetBuilder] and [RiveWidget].
 class RiveSplash extends StatefulWidget {
   /// Creates a splash screen with a Rive animation
   const RiveSplash({
@@ -59,159 +62,127 @@ class _RiveSplashState extends State<RiveSplash> {
 
   RiveConfig get riveConfig => widget.riveConfig;
 
+  FileLoader? _fileLoader;
+
+  @override
+  void initState() {
+    super.initState();
+    _initFileLoader();
+  }
+
+  @override
+  void didUpdateWidget(covariant RiveSplash oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.source != oldWidget.source ||
+        widget.riveConfig.riveFactory != oldWidget.riveConfig.riveFactory) {
+      _fileLoader?.dispose();
+      _fileLoader = null;
+      _initFileLoader();
+    }
+  }
+
+  void _initFileLoader() {
+    final source = widget.source;
+    final factory = riveConfig.riveFactory ?? Factory.rive;
+    switch (source) {
+      case AssetSource assetSource:
+        _fileLoader = FileLoader.fromAsset(
+          assetSource.path,
+          riveFactory: factory,
+        );
+      case NetworkFileSource networkSource:
+        _fileLoader = FileLoader.fromUrl(
+          networkSource.url.toString(),
+          riveFactory: factory,
+        );
+      case RiveFileSource riveFileSource:
+        _fileLoader = FileLoader.fromFile(
+          riveFileSource.file,
+          riveFactory: factory,
+        );
+      case DeviceFileSource _:
+      case BytesSource _:
+        // DeviceFileSource and BytesSource are not directly supported by Rive 0.14.x
+        // The new Rive API only supports loading from assets, URLs, or pre-loaded File objects.
+        // Users should migrate to AssetSource, NetworkFileSource, or RiveFileSource.
+        _fileLoader = null;
+    }
+  }
+
+  @override
+  void dispose() {
+    _fileLoader?.dispose();
+    super.dispose();
+  }
+
+  void _onLoaded(RiveLoaded state) {
+    // Use provided splashDuration or fall back to defaultDuration.
+    final duration = riveConfig.splashDuration ?? defaultDuration;
+    widget.onSplashDuration?.call(duration);
+    riveConfig.onInit?.call(state.controller);
+  }
+
+  void _onFailed(Object error, StackTrace stackTrace) {
+    // Report duration on failure to allow splash to complete.
+    widget.onSplashDuration?.call(riveConfig.splashDuration ?? defaultDuration);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: widget.backGroundColor,
       body: Center(
-        child: riveWidget,
+        child: _buildRiveWidget(),
       ),
     );
   }
 
-  Widget get riveWidget {
-    return _getRiveFromSource();
-  }
-
-  void _onInit(Artboard artboard) {
-    if (artboard.animations.isNotEmpty) {
-      final animation = artboard.animations.first;
-      Duration duration = Duration.zero;
-
-      // Handle autoplay: if autoplay is true and no specific animations were provided,
-      // create and add a simple animation controller to play the first animation
-      if (riveConfig.autoplay &&
-          riveConfig.animations.isEmpty &&
-          riveConfig.stateMachineName.isEmpty) {
-        final controller = SimpleAnimation(animation.name);
-        artboard.addController(controller);
-      }
-
-      if (riveConfig.splashDuration != null) {
-        duration = riveConfig.splashDuration!;
-      } else if (animation is LinearAnimation) {
-        final durationInSeconds = animation.durationSeconds;
-        duration = Duration(milliseconds: (durationInSeconds * 1000).round());
-      } else {
-        duration = defaultDuration;
-      }
-      widget.onSplashDuration?.call(duration);
-
-      riveConfig.onInit?.call(artboard);
-    } else {
-      widget.onSplashDuration?.call(
-        riveConfig.splashDuration ?? defaultDuration,
-      );
-    }
-  }
-
-  Widget _getRiveFromSource() {
-    List<String> animations = riveConfig.animations;
-    List<String> stateMachines = riveConfig.stateMachineName;
-    if (!riveConfig.autoplay) {
-      animations = [];
-      stateMachines = [];
+  Widget _buildRiveWidget() {
+    final loader = _fileLoader;
+    if (loader == null) {
+      // For unsupported source types, report the duration so the splash flow
+      // (onSourceLoaded/resume/navigation) is not left stuck.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        widget.onSplashDuration
+            ?.call(riveConfig.splashDuration ?? defaultDuration);
+      });
+      // DeviceFileSource and BytesSource are not directly supported in Rive 0.14.x
+      // Consider using AssetSource or NetworkFileSource instead
+      return riveConfig.placeHolder ??
+          const Center(
+            child: Text(
+              'Unsupported source type for Rive 0.14.x.\n'
+              'Use AssetSource, NetworkFileSource, or RiveFileSource instead.',
+              textAlign: TextAlign.center,
+            ),
+          );
     }
 
-    switch (widget.source) {
-      case AssetSource assetSource:
-        return RiveAnimation.asset(
-          assetSource.path,
-          artboard: riveConfig.artboardName,
-          animations: animations,
-          stateMachines: stateMachines,
-          fit: riveConfig.fit,
-          alignment: riveConfig.alignment,
-          controllers: riveConfig.controllers,
-          onInit: _onInit,
-          antialiasing: riveConfig.antialiasing,
-          placeHolder: riveConfig.placeHolder,
-          clipRect: riveConfig.clipRect,
-          isTouchScrollEnabled: riveConfig.isTouchScrollEnabled,
-          speedMultiplier: riveConfig.speedMultiplier,
-          behavior: riveConfig.behavior,
-          useArtboardSize: riveConfig.useArtboardSize,
-          objectGenerator: riveConfig.objectGenerator,
-        );
-      case DeviceFileSource deviceFileSource:
-        return RiveAnimation.file(
-          deviceFileSource.path,
-          artboard: riveConfig.artboardName,
-          animations: animations,
-          stateMachines: stateMachines,
-          fit: riveConfig.fit,
-          alignment: riveConfig.alignment,
-          controllers: riveConfig.controllers,
-          onInit: _onInit,
-          antialiasing: riveConfig.antialiasing,
-          placeHolder: riveConfig.placeHolder,
-          clipRect: riveConfig.clipRect,
-          isTouchScrollEnabled: riveConfig.isTouchScrollEnabled,
-          speedMultiplier: riveConfig.speedMultiplier,
-          behavior: riveConfig.behavior,
-          useArtboardSize: riveConfig.useArtboardSize,
-          objectGenerator: riveConfig.objectGenerator,
-        );
-      case NetworkFileSource networkFileSource:
-        return RiveAnimation.network(
-          networkFileSource.url.toString(),
-          artboard: riveConfig.artboardName,
-          animations: animations,
-          stateMachines: stateMachines,
-          fit: riveConfig.fit,
-          alignment: riveConfig.alignment,
-          controllers: riveConfig.controllers,
-          onInit: _onInit,
-          antialiasing: riveConfig.antialiasing,
-          placeHolder: riveConfig.placeHolder,
-          clipRect: riveConfig.clipRect,
-          isTouchScrollEnabled: riveConfig.isTouchScrollEnabled,
-          speedMultiplier: riveConfig.speedMultiplier,
-          behavior: riveConfig.behavior,
-          useArtboardSize: riveConfig.useArtboardSize,
-          headers: riveConfig.headers,
-          objectGenerator: riveConfig.objectGenerator,
-        );
-      case BytesSource riveBytesSource:
-        // Create a RiveFile from bytes
-        final riveFile = RiveFile.import(
-          riveBytesSource.bytes.buffer.asByteData(),
-          assetLoader: riveConfig.assetLoader,
-          loadCdnAssets: riveConfig.loadCdnAssets,
-          objectGenerator: riveConfig.objectGenerator,
-        );
-        return RiveAnimation.direct(
-          riveFile,
-          artboard: riveConfig.artboardName,
-          animations: animations,
-          stateMachines: stateMachines,
-          fit: riveConfig.fit,
-          alignment: riveConfig.alignment,
-          controllers: riveConfig.controllers,
-          onInit: _onInit,
-          antialiasing: riveConfig.antialiasing,
-          placeHolder: riveConfig.placeHolder,
-          clipRect: riveConfig.clipRect,
-          isTouchScrollEnabled: riveConfig.isTouchScrollEnabled,
-          speedMultiplier: riveConfig.speedMultiplier,
-          behavior: riveConfig.behavior,
-          useArtboardSize: riveConfig.useArtboardSize,
-        );
-      case RiveArtboardSource riveArtboardSource:
-        // Use the pre-loaded artboard instance directly
-        return Rive(
-          artboard: riveArtboardSource.artboard.instance(),
-          fit: riveConfig.fit,
-          alignment: riveConfig.alignment,
-          antialiasing: riveConfig.antialiasing,
-          useArtboardSize: riveConfig.useArtboardSize,
-          enablePointerEvents: riveConfig.enablePointerEvents,
-          cursor: riveConfig.cursor,
-          behavior: riveConfig.behavior,
-          clipRect: riveConfig.clipRect,
-          speedMultiplier: riveConfig.speedMultiplier,
-          isTouchScrollEnabled: riveConfig.isTouchScrollEnabled,
-        );
-    }
+    return RiveWidgetBuilder(
+      fileLoader: loader,
+      artboardSelector: riveConfig.artboardSelector,
+      stateMachineSelector: riveConfig.stateMachineSelector,
+      dataBind: riveConfig.dataBind,
+      controller: riveConfig.controller,
+      onLoaded: _onLoaded,
+      onFailed: _onFailed,
+      builder: (context, state) {
+        return switch (state) {
+          RiveLoading() =>
+            riveConfig.placeHolder ?? const CircularProgressIndicator(),
+          RiveLoaded(:final controller) => RiveWidget(
+              controller: controller,
+              fit: riveConfig.fit,
+              alignment: riveConfig.alignment,
+              hitTestBehavior: riveConfig.hitTestBehavior,
+              cursor: riveConfig.cursor,
+              layoutScaleFactor: riveConfig.layoutScaleFactor,
+            ),
+          RiveFailed(:final error) => Center(
+              child: Text('Failed to load Rive: $error'),
+            ),
+        };
+      },
+    );
   }
 }

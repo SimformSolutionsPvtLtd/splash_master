@@ -146,6 +146,9 @@ void main() {
 ```
 
 **Rive Splash Example:**
+
+> **Note:** This package uses Rive 0.14.x which requires Flutter `>=3.27.0` and Dart SDK `>=3.6.0`.
+
 ```dart
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -222,12 +225,12 @@ Rive animations have an additional property called `splashDuration` that allows 
 | source                         | Media source for assets.                                                                                      |
 | videoConfig                    | To handle the video's configuration.                                                                          |
 | lottieConfig                   | To handle the lottie's configuration.                                                                         |
-| riveConfig                     | Configuration for the Rive animation (appearance, behavior, animations to play).                              |
+| riveConfig                     | Configuration for the Rive animation (appearance, behavior, artboard and state machine selection via `artboardSelector`/`stateMachineSelector`). |
 | backGroundColor                | To handle the background color of the splash screen.                                                          |
 | nextScreen                     | Screen to navigate once splash finished.                                                                      |
 | customNavigation               | Callback to handle the logic when the splash is completed.                                                    |
 | onSourceLoaded                 | Called when provided media is loaded.                                                                         |
-| splashDuration (rive only) | Optional explicit duration for the splash screen (overrides automatic calculation based on animation length). |
+| splashDuration (rive only) | Optional explicit duration for the splash screen. If provided, uses this value; otherwise defaults to 3 seconds. |
 
 
 # Contributors

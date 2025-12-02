@@ -24,109 +24,96 @@ import 'package:flutter/material.dart';
 import 'package:rive/rive.dart';
 
 /// Configuration class for Rive animation splash screens
+///
+/// Note: This configuration is designed for Rive 0.14.x which uses a completely
+/// new C++ runtime-based API. Many parameters from the previous Rive versions
+/// have been replaced with new equivalents.
 class RiveConfig {
-  /// The name of the animation state machine to play
-  final List<String> stateMachineName;
+  /// The selector to specify which artboard to use.
+  ///
+  /// Defaults to [ArtboardSelector.byDefault()] which uses the default artboard.
+  /// You can also use:
+  /// - [ArtboardSelector.byName(name)] to select by artboard name
+  /// - [ArtboardSelector.byIndex(index)] to select by index
+  final ArtboardSelector artboardSelector;
 
-  /// The name of the animation to play
-  final List<String> animations;
+  /// The selector to specify which state machine to use.
+  ///
+  /// Defaults to [StateMachineSelector.byDefault()] which uses the default state machine.
+  /// You can also use:
+  /// - [StateMachineSelector.byName(name)] to select by state machine name
+  /// - [StateMachineSelector.byIndex(index)] to select by index
+  final StateMachineSelector stateMachineSelector;
 
-  /// The name of the artboard to use
-  final String? artboardName;
-
-  /// Controls how the animation fits within its bounds
-  final BoxFit fit;
-
-  /// Whether to play animation automatically
-  final bool autoplay;
+  /// Controls how the animation fits within its bounds.
+  ///
+  /// Note: In Rive 0.14.x, this uses the Rive [Fit] enum instead of Flutter's [BoxFit].
+  final Fit fit;
 
   /// Alignment of the animation within its bounds
   final Alignment alignment;
 
-  /// Use this to provide custom controllers for the Rive animation
-  final List<RiveAnimationController> controllers;
-
-  /// Called when the Rive file is loaded and ready to be displayed
-  final void Function(Artboard)? onInit;
-
-  /// Called when there's a playback state change
+  /// Called when the Rive file is loaded and ready to be displayed.
+  ///
+  /// Provides the [RiveWidgetController] which can be used to access the
+  /// artboard and state machine.
+  final void Function(RiveWidgetController)? onInit;
 
   /// Whether to use a SafeArea widget
   final bool useSafeArea;
 
-  /// Custom asset loader for loading Rive assets
-  ///
-  /// This allows loading assets from custom sources not supported by default loaders
-  final FileAssetLoader? assetLoader;
-
-  /// Whether to load CDN assets referenced within the Rive file
-  ///
-  /// Set to false to skip loading external assets if the Rive file references them
-  final bool loadCdnAssets;
-
-  /// Factory function for creating custom Core objects
-  ///
-  /// This allows for more advanced customization of the Rive runtime
-  final ObjectGenerator? objectGenerator;
-
-  /// Rectangle used to clip the animation
-  final Rect? clipRect;
-
-  /// Controls if the animation responds to touch scroll events
-  final bool isTouchScrollEnabled;
-
-  /// Multiplier for animation playback speed
-  final double speedMultiplier;
-
   /// Defines the behavior when hit testing the Rive animation
-  final RiveHitTestBehavior behavior;
-
-  /// Whether to use the artboard's dimensions for layout
-  final bool useArtboardSize;
-
-  /// Controls if antialiasing is applied to the animation
-  final bool antialiasing;
-
-  /// Controls if pointer events are enabled for the animation
-  final bool enablePointerEvents;
+  final RiveHitTestBehavior hitTestBehavior;
 
   /// The cursor to show when hovering over the animation
   final MouseCursor cursor;
 
-  /// HTTP headers to use when fetching animation from network
-  final Map<String, String>? headers;
+  /// The layout scale factor of the artboard when using [Fit.layout].
+  final double layoutScaleFactor;
 
   /// A widget to display as a placeholder while the Rive animation is loading
   final Widget? placeHolder;
 
   /// Duration for which the splash will be visible for Rive animations.
-  /// If provided, this overrides the automatic duration calculation.
+  /// If provided, uses this value; otherwise defaults to 3 seconds.
   final Duration? splashDuration;
+
+  /// The Rive factory to use.
+  ///
+  /// Defaults to [Factory.rive] which uses the Rive Renderer.
+  /// Can be set to [Factory.flutter] to use the Flutter renderer.
+  /// If null, defaults to [Factory.rive].
+  final Factory? riveFactory;
+
+  /// The data bind to specify which view model instance to bind to.
+  ///
+  /// Use [DataBind.auto()] to auto-bind, [DataBind.byName(name)] to bind by
+  /// name, [DataBind.byIndex(index)] to bind by index, or
+  /// [DataBind.byInstance(instance)] to bind to a specific instance.
+  final DataBind? dataBind;
+
+  /// An optional function to manually create the controller instead of using
+  /// the default one.
+  ///
+  /// Receives the loaded [File] and must return a [RiveWidgetController].
+  /// Use this for advanced controller customization.
+  final Controller? controller;
 
   /// Creates a configuration for Rive animation splash screens
   const RiveConfig({
-    this.stateMachineName = const [],
-    this.animations = const [],
-    this.artboardName,
-    this.fit = BoxFit.contain,
-    this.autoplay = true,
+    this.artboardSelector = const ArtboardDefault(),
+    this.stateMachineSelector = const StateMachineDefault(),
+    this.fit = Fit.contain,
     this.alignment = Alignment.center,
-    this.controllers = const [],
     this.onInit,
     this.useSafeArea = false,
-    this.assetLoader,
-    this.loadCdnAssets = true,
-    this.objectGenerator,
-    this.clipRect,
-    this.isTouchScrollEnabled = false,
-    this.speedMultiplier = 1,
-    this.behavior = RiveHitTestBehavior.opaque,
-    this.useArtboardSize = false,
-    this.antialiasing = true,
-    this.enablePointerEvents = false,
+    this.hitTestBehavior = RiveHitTestBehavior.opaque,
     this.cursor = MouseCursor.defer,
-    this.headers,
+    this.layoutScaleFactor = 1.0,
     this.placeHolder,
     this.splashDuration,
+    this.riveFactory,
+    this.dataBind,
+    this.controller,
   });
 }
