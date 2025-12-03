@@ -101,14 +101,8 @@ Future<void> updateContentOfStoryboard({
     exit(1);
   }
 
-  /// Find the default subViews element in the storyboard
-  final subViews = view.getElement(IOSStrings.subViewsElement);
-  if (subViews == null) {
-    final subview = _createImageSubView(backgroundImage: backgroundImage);
-
-    /// Add subViews element as child in view element
-    view.children.add(subview);
-  }
+  /// Find (or create) subViews element in the storyboard
+  final subViews = _getOrCreateSubViews(view);
 
   if (color != null) {
     /// Update or add a `color` element for the background color
@@ -136,7 +130,7 @@ Future<void> updateContentOfStoryboard({
       ));
     }
   }
-  XmlNode? backgroundImageElement;
+  var shouldAddBackgroundImage = false;
   if (backgroundImage != null) {
     final backgroundImageFile = File(backgroundImage);
     final backgroundImageFileExists = await backgroundImageFile.exists();
@@ -150,70 +144,56 @@ Future<void> updateContentOfStoryboard({
         ),
         backgroundImageFile,
       );
-      backgroundImageElement = getBackgroundImageElement(subViews);
+      shouldAddBackgroundImage = true;
     } else {
       log("$backgroundImage doesn't exists. No background image was set.");
     }
   }
+
   if (imagePath != null) {
-    /// Find the imageView element in subViews element
-    final imageView = subViews?.children.whereType<XmlElement?>().firstWhere(
-      (element) =>
-          element?.name.qualified == IOSStrings.imageViewElement &&
-          element?.getAttribute(IOSStrings.image) == IOSStrings.imageValue,
-      orElse: () {
-        log(
-          'Unable to find default imageView with the LaunchImage',
-        );
-        exit(1);
-      },
-    );
+    /// Keep the storyboard idempotent by recreating the managed image nodes.
+    _removeManagedImageViews(subViews);
 
-    /// Update the fill property
-    imageView?.setAttribute(
-      IOSStrings.contentMode,
-      iosContentMode ?? IOSStrings.contentModeValue,
-    );
+    if (shouldAddBackgroundImage) {
+      subViews.children.add(getImageXMLElement(
+        elementId: IOSStrings.backgroundImageViewIdValue,
+        imageName: IOSStrings.backgroundImage,
+        contentMode: iosBackgroundContentMode ?? IOSStrings.contentModeValue,
+      ));
+    }
 
-    /// Remove existing or old constraints
-    view.children.remove(view.getElement(IOSStrings.constraintsElement));
+    subViews.children.add(getImageXMLElement(
+      elementId: IOSStrings.defaultImageViewIdValue,
+      imageName: IOSStrings.imageValue,
+      contentMode: iosContentMode ?? IOSStrings.contentModeValue,
+    ));
+
+    /// Remove all existing constraints elements to avoid duplicates
+    view.children.removeWhere(
+      (node) =>
+          node is XmlElement &&
+          node.name.qualified == IOSStrings.constraintsElement,
+    );
 
     /// Add constraints in view element
     view.children.add(
-      XmlDocument.parse(backgroundImageElement == null
+      XmlDocument.parse(shouldAddBackgroundImage
               ? SplashScreenContentString.splashAndBackConstraints
               : SplashScreenContentString.splashImageConstraints)
           .rootElement
           .copy(),
     );
-
-    final imageViewCopy = imageView?.copy();
-    imageView?.remove();
-    if (backgroundImageElement == null) {
-      backgroundImageElement = getImageXMLElement(
-        elementId: IOSStrings.backgroundImageViewIdValue,
-        imageName: IOSStrings.backgroundImage,
-        contentMode: iosBackgroundContentMode ?? IOSStrings.contentModeValue,
-      );
-      subViews?.children.add(backgroundImageElement);
-    } else {
-      if (iosBackgroundContentMode != null) {
-        backgroundImageElement.setAttribute(
-          IOSStrings.contentMode,
-          IosContentMode.fromString(iosBackgroundContentMode).mode,
-        );
-      }
-      log("BackgroundImage already exists. Background image wasn't set.");
-    }
-    if (imageViewCopy != null) subViews?.children.add(imageViewCopy);
   } else {
     /// Image is not available then
     ///
-    /// remove constraints
-    view.children.remove(view.getElement(IOSStrings.constraintsElement));
+    /// Remove all existing constraints elements
+    view.children.removeWhere(
+      (node) =>
+          node is XmlElement &&
+          node.name.qualified == IOSStrings.constraintsElement,
+    );
 
-    final subviewsTag =
-        documentData?.findAllElements(IOSStrings.subViewsElement).firstOrNull;
+    final subviewsTag = view.getElement(IOSStrings.subViewsElement);
 
     /// subview element
     subviewsTag?.remove();
@@ -285,20 +265,28 @@ List<XmlAttribute> _buildColorAttributes(String hexColor) {
   ];
 }
 
-/// Create the subviews element.
-/// Create two sub element inside the `subviews` element.
-/// `imageView` and `rect`.
-XmlElement _createImageSubView({String? backgroundImage}) {
-  final element = XmlElement(XmlName(IOSStrings.subViewsElement), [], [
-    if (backgroundImage != null) ...{
-      getImageXMLElement(
-        elementId: IOSStrings.backgroundImageViewIdValue,
-        imageName: IOSStrings.backgroundImage,
-      ),
-    },
-    getImageXMLElement(),
-  ]);
-  return element;
+XmlElement _getOrCreateSubViews(XmlElement view) {
+  final subViews = view.getElement(IOSStrings.subViewsElement);
+  if (subViews != null) {
+    return subViews;
+  }
+
+  final subview = XmlElement(XmlName(IOSStrings.subViewsElement));
+  view.children.add(subview);
+  return subview;
+}
+
+void _removeManagedImageViews(XmlElement subViews) {
+  subViews.children.removeWhere((child) {
+    if (child is! XmlElement ||
+        child.name.qualified != IOSStrings.imageViewElement) {
+      return false;
+    }
+
+    final id = child.getAttribute(IOSStrings.defaultImageViewId);
+    return id == IOSStrings.defaultImageViewIdValue ||
+        id == IOSStrings.backgroundImageViewIdValue;
+  });
 }
 
 /// Convert hex string (e.g., 'FF') to decimal fraction (0.0 - 1.0)
@@ -417,16 +405,11 @@ XmlElement getImageXMLElement({
 }
 
 /// Create element for background element.
-XmlNode? getBackgroundImageElement(XmlElement? subViews) {
-  final backgroundImageElement = subViews?.children.firstWhereOrNull(
-    (child) {
-      final attribute = child.attributes.firstWhereOrNull(
-        (attribute) {
-          return attribute.value == IOSStrings.backgroundImageViewIdValue;
-        },
+XmlElement? getBackgroundImageElement(XmlElement? subViews) {
+  return subViews?.children.whereType<XmlElement>().firstWhereOrNull(
+        (child) =>
+            child.name.qualified == IOSStrings.imageViewElement &&
+            child.getAttribute(IOSStrings.defaultImageViewId) ==
+                IOSStrings.backgroundImageViewIdValue,
       );
-      return attribute != null;
-    },
-  );
-  return backgroundImageElement;
 }
