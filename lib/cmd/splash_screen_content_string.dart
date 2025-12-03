@@ -38,7 +38,6 @@ class SplashScreenContentString {
    <constraint firstAttribute="trailing" secondItem="YRO-k0-Ey4" secondAttribute="trailing" id="TQA-XW-tRk"/>
    <constraint firstItem="YRO-k0-Ey4" firstAttribute="bottom" secondItem="Ze5-6b-2t3" secondAttribute="bottom" id="duK-uY-Gun"/>
    <constraint firstAttribute="bottom" secondItem="edQ-YT-iED" secondAttribute="bottom" id="e2S-gZ-2jl"/>
-   <constraint firstAttribute="bottom" secondItem="edQ-YT-iED" secondAttribute="bottom" id="wnX-KJ-aN5"/>
    <constraint firstItem="YRO-k0-Ey4" firstAttribute="top" secondItem="Ze5-6b-2t3" secondAttribute="top" id="xPn-NY-SIU"/>
    <constraint firstItem="edQ-YT-iED" firstAttribute="leading" secondItem="Ze5-6b-2t3" secondAttribute="leading" id="zVa-1q-mai"/>
 </constraints>''';
