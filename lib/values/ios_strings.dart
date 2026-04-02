@@ -165,7 +165,4 @@ class IOSStrings {
 
   /// `splash_image_dark`
   static const splashImageDark = 'splash_image_dark';
-
-  /// `LaunchImageDark`
-  static const launchImageDark = 'LaunchImageDark';
 }

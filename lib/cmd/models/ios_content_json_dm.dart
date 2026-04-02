@@ -118,7 +118,9 @@ class Image {
 /// The DM used for appearance entries in `contents.json` for dark mode support
 class Appearance {
   const Appearance({
+    /// The appearance type, typically 'luminosity' for brightness-based switching
     required this.appearance,
+    /// The appearance value: 'light' for light mode, 'dark' for dark mode
     required this.value,
   });
 

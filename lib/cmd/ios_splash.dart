@@ -30,8 +30,6 @@ Future<void> generateIosImages({
   String? backgroundImage,
   String? iosBackgroundContentMode,
   String? darkImageSource,
-  String? darkColor,
-  String? iosDarkContentMode,
 }) async {
   const iosAssetsFolder = CmdStrings.iosAssetsDirectory;
 
