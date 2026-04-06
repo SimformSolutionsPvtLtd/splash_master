@@ -23,7 +23,63 @@ flutter:
     - assets/
 
 splash_master:
-  image: 'assets/simform_splash_img.png'
-  ios_content_mode: 'aspectFit'
-  android_gravity: 'center'
+  # ===== Light Mode — Common Configuration =====
+  # Background color for the splash screen (light mode)
   color: '#FFFFFF'
+  
+  # Main splash image (used on both iOS and Android in light mode)
+  image: 'assets/simform_splash_img.png'
+
+  # ===== iOS Light Mode Image Behavior =====
+  # How the splash image should be displayed on iOS
+  # Options: scaleToFill, aspectFit, aspectFill, redraw, center,
+  #          top, bottom, left, right, topLeft, topRight, bottomLeft, bottomRight
+  ios_content_mode: 'center'
+
+  # ===== Android Light Mode Image Behavior =====
+  # How the splash image should be positioned on Android
+  # Options: center, clip_horizontal, clip_vertical, fill_horizontal, fill, 
+  #          center_vertical, bottom, fill_vertical, center_horizontal, top, 
+  #          end, left, right, start
+  android_gravity: 'center'
+
+  # ===== Background Image Configuration =====
+  # Optional background image displayed behind the main splash image
+  background_image: 'assets/background_image.png'
+
+  # Dark mode background image displayed behind the main dark splash image
+  background_image_dark_android: 'assets/background_image_dark.png'
+  
+  # How the background image should be displayed on iOS
+  ios_background_content_mode: 'scaleToFill'
+  
+  # How the background image should be positioned on Android
+  # Options: same as android_gravity
+  android_background_image_gravity: 'fill'
+
+  # ===== Android Dark Mode Configuration =====
+  # Splash image to use when Android device is in dark mode
+  image_dark_android: 'assets/simform_splash_img_dark.png'
+  
+  # How the dark mode splash image should be positioned on Android
+  android_dark_gravity: 'center'
+  
+  # Background color for Android dark mode
+  color_dark_android: '#000000'
+
+  # ===== Android 12+ Specific Configuration =====
+  # Android 12 introduced a new splash screen system with specific requirements
+  android_12_and_above:
+    # Background color for Android 12+ splash screen
+    color: '#FFFFFF'
+    
+    # Custom splash icon (replaces default app icon)
+    # This should be a centered icon, ideally 288x288dp
+    image: 'assets/splash_12.png'
+    
+    # Optional branding image shown at the bottom
+    # Maximum height: 80dp, centered horizontally
+    branding_image: 'assets/branding_image.png'
+
+    # Dark mode: separate branding image for Android 12+ dark splash
+    branding_image_dark: 'assets/branding_image.png'
