@@ -89,6 +89,7 @@ Future<void> generateImageForAndroid12AndAbove({
 
   final image = android12AndAbove[YamlKeys.imageKey];
   final brandingImage = android12AndAbove[YamlKeys.brandingImageKey];
+  final brandingImageDark = android12AndAbove[YamlKeys.brandingImageDarkKey];
 
   if (image != null) {
     final sourceImage = File(android12AndAbove[YamlKeys.imageKey]);
@@ -137,6 +138,31 @@ Future<void> generateImageForAndroid12AndAbove({
       drawableFolder,
       sourceImage,
     );
+  }
+
+  /// Copy dark branding image for Android 12+ dark mode
+  if (brandingImageDark != null) {
+    final sourceImage = File(brandingImageDark);
+
+    /// Checking if provided asset image source exist or not
+    if (!await sourceImage.exists()) {
+      throw SplashMasterException(
+          message: 'Dark branding image path not found: $brandingImageDark.');
+    }
+
+    final drawableFolder = '$androidResDir/$drawable';
+    final directory = Directory(drawableFolder);
+    if (!(await directory.exists())) {
+      log("$drawable folder doesn't exists. Creating it...");
+      await Directory(drawableFolder).create(recursive: true);
+    }
+
+    final imagePath =
+        '$drawableFolder/${AndroidStrings.android12BrandingImageDark}';
+    final file = File(imagePath);
+    if (await file.exists()) await file.delete();
+    await sourceImage.copy(imagePath);
+    log("Dark branding image added to $drawable");
   }
 }
 
@@ -242,15 +268,15 @@ Future<void> updateStylesXml({
           android12AndAbove[YamlKeys.brandingImageKey] != null)) {
     const v31 = CmdStrings.androidValuesV31Directory;
     if (!await Directory(v31).exists()) {
-      Directory(v31).create();
+      await Directory(v31).create();
     }
     const style = '$v31/${AndroidStrings.stylesXml}';
     if (await File(style).exists()) {
-      File(style).delete();
+      await File(style).delete();
     }
     final styleFile = File(style);
 
-    createAndroid12Styles(
+    await createAndroid12Styles(
       styleFile: styleFile,
       color: android12AndAbove[YamlKeys.colorKey],
       imageSource: android12AndAbove[YamlKeys.imageKey],
@@ -285,17 +311,17 @@ Future<void> createAndroid12Styles({
   String? color,
   String? imageSource,
   String? brandingImageSource,
+  bool isDarkBranding = false,
+  bool isDarkImage = false,
 }) async {
   final xml = await styleFile.create();
 
   final builder = XmlBuilder();
   builder.processing(AndroidStrings.xml, AndroidStrings.xmlVersion);
 
-  /// Creating a resources element
   builder.element(
     AndroidStrings.resourcesElement,
     nest: () {
-      /// Creating a style element as child of resources element
       builder.element(
         AndroidStrings.styleElement,
         attributes: {
@@ -303,7 +329,6 @@ Future<void> createAndroid12Styles({
           AndroidStrings.styleParentAttr: AndroidStrings.styleParentAttrVal,
         },
         nest: () {
-          /// Creating a item element for color
           if (color != null) {
             builder.element(
               AndroidStrings.itemElement,
@@ -313,8 +338,6 @@ Future<void> createAndroid12Styles({
               nest: color,
             );
           }
-
-          /// Creating a item element for image
           if (imageSource != null) {
             builder.element(
               AndroidStrings.itemElement,
@@ -322,7 +345,9 @@ Future<void> createAndroid12Styles({
                 AndroidStrings.nameAttr:
                     AndroidStrings.windowSplashScreenAnimatedIcon,
               },
-              nest: AndroidStrings.drawableSplashImage12,
+              nest: isDarkImage
+                  ? AndroidStrings.androidDarkSrcAttrVal
+                  : AndroidStrings.drawableSplashImage12,
             );
           }
           if (brandingImageSource != null) {
@@ -332,7 +357,9 @@ Future<void> createAndroid12Styles({
                 AndroidStrings.nameAttr:
                     AndroidStrings.windowSplashScreenBrandingImage,
               },
-              nest: AndroidStrings.drawableAndroid12BrandingImage,
+              nest: isDarkBranding
+                  ? AndroidStrings.drawableAndroid12BrandingImageDark
+                  : AndroidStrings.drawableAndroid12BrandingImage,
             );
           }
         },
@@ -435,43 +462,74 @@ Future<void> createDarkSplashImageDrawable({
   String? darkImage,
   String? color,
   String? gravity,
+  String? darkBackgroundImageSource,
+  String? backgroundImageGravity,
 }) async {
   log(darkImage ?? '');
-  if (darkImage == null) return;
-  final darkImageFile = File(darkImage);
-  if (await darkImageFile.exists()) {
-    const androidDrawableFolder = CmdStrings.androidDrawableDarkDirectory;
-    const splashImagePath =
-        '$androidDrawableFolder/${AndroidStrings.splashScreenDarkXml}';
-    final file = File(splashImagePath);
+  if (darkImage == null && darkBackgroundImageSource == null && color == null) {
+    return;
+  }
 
-    final xml = await file.create(recursive: true);
+  // Verify dark image exists if provided
+  if (darkImage != null && !await File(darkImage).exists()) {
+    throw SplashMasterException(
+        message: 'Dark splash image not found at $darkImage.');
+  }
 
-    final builder = XmlBuilder();
+  const androidDrawableFolder = CmdStrings.androidDrawableDarkDirectory;
+  const splashImagePath =
+      '$androidDrawableFolder/${AndroidStrings.splashScreenDarkXml}';
+  final file = File(splashImagePath);
 
-    builder.processing(AndroidStrings.xml, AndroidStrings.xmlVersion);
+  final xml = await file.create(recursive: true);
 
-    /// Creating a layer-list element and its attributes
-    builder.element(AndroidStrings.layerListElement, nest: () {
-      builder.attribute(
-        AndroidStrings.xmlnsAndroidAttr,
-        AndroidStrings.xmlnsAndroidAttrValue,
+  final builder = XmlBuilder();
+
+  builder.processing(AndroidStrings.xml, AndroidStrings.xmlVersion);
+
+  /// Creating a layer-list element and its attributes
+  builder.element(AndroidStrings.layerListElement, nest: () {
+    builder.attribute(
+      AndroidStrings.xmlnsAndroidAttr,
+      AndroidStrings.xmlnsAndroidAttrValue,
+    );
+
+    /// Creates item element and attributes for color
+    if (color != null) {
+      builder.element(
+        AndroidStrings.itemElement,
+        nest: () {
+          builder.attribute(
+            AndroidStrings.androidDrawableAttr,
+            AndroidStrings.androidDrawableAttrVal,
+          );
+        },
       );
+    }
 
-      /// Creates item element and attributes for color
-      if (color != null) {
-        builder.element(
-          AndroidStrings.itemElement,
-          nest: () {
-            builder.attribute(
-              AndroidStrings.androidDrawableAttr,
-              AndroidStrings.androidDrawableAttrVal,
-            );
-          },
-        );
-      }
+    /// Creates item element and attributes for dark background image
+    if (darkBackgroundImageSource != null) {
+      builder.element(AndroidStrings.itemElement, nest: () {
+        builder.element(AndroidStrings.bitmapAttrVal, nest: () {
+          builder.attribute(
+            AndroidStrings.androidGravityAttr,
+            backgroundImageGravity ??
+                AndroidStrings.defaultAndroidGravityAttrVal,
+          );
+          builder.attribute(
+            AndroidStrings.androidSrcAttr,
+            AndroidStrings.androidDarkBackgroundSrcAttrVal,
+          );
+          builder.attribute(
+            AndroidStrings.androidTileModeAttr,
+            AndroidStrings.androidTileModeAttrVal,
+          );
+        });
+      });
+    }
 
-      /// Creates item element and attributes for image
+    /// Creates item element and attributes for image (only if dark image exists)
+    if (darkImage != null) {
       builder.element(AndroidStrings.itemElement, nest: () {
         builder.element(AndroidStrings.bitmapAttrVal, nest: () {
           builder.attribute(
@@ -488,41 +546,62 @@ Future<void> createDarkSplashImageDrawable({
           );
         });
       });
-    });
+    }
+  });
 
-    final document = builder.buildDocument();
-    await xml.writeAsString(document.toXmlString(pretty: true));
-  } else {
-    throw SplashMasterException(message: "$darkImage doesn't exists.");
-  }
+  final document = builder.buildDocument();
+  await xml.writeAsString(document.toXmlString(pretty: true));
 }
 
 /// Updates the `values-night/styles.xml` file for the splash screen setup.
 Future<void> updateDarkStylesXml({
   YamlMap? android12AndAbove,
   String? color,
+  String? darkImage,
+  String? darkBrandingImage,
+  String? darkBackgroundImageSource,
 }) async {
   const androidValuesFolder = CmdStrings.androidDarkValuesDirectory;
 
   if (android12AndAbove != null &&
       (android12AndAbove[YamlKeys.colorKey] != null ||
-          android12AndAbove[YamlKeys.imageKey] != null)) {
-    const v31 = CmdStrings.androidValuesV31Directory;
+          android12AndAbove[YamlKeys.imageKey] != null ||
+          android12AndAbove[YamlKeys.brandingImageKey] != null ||
+          darkBrandingImage != null ||
+          color != null ||
+          darkImage != null)) {
+    // Use values-night-v31 for dark mode Android 12+ styles (separate from light values-v31)
+    const v31 = CmdStrings.androidDarkValuesV31Directory;
     if (!await Directory(v31).exists()) {
-      Directory(v31).create();
+      await Directory(v31).create();
     }
     const style = '$v31/${AndroidStrings.stylesXml}';
     if (await File(style).exists()) {
-      File(style).delete();
+      await File(style).delete();
     }
     final styleFile = File(style);
 
-    createAndroid12Styles(
+    await createAndroid12Styles(
       styleFile: styleFile,
-      color: android12AndAbove[YamlKeys.colorKey],
-      imageSource: android12AndAbove[YamlKeys.imageKey],
+      // Prefer explicit dark color; fall back to android_12_and_above color
+      color: color ?? android12AndAbove[YamlKeys.colorKey],
+      // Prefer explicit dark image; fall back to android_12_and_above image
+      imageSource: darkImage ?? android12AndAbove[YamlKeys.imageKey],
+      // Prefer explicit dark branding image; fall back to light branding image
+      brandingImageSource:
+          darkBrandingImage ?? android12AndAbove[YamlKeys.brandingImageKey],
+      isDarkBranding: darkBrandingImage != null,
+      isDarkImage: darkImage != null,
     );
   }
+  // Pre-12 dark styles are optional and independent from Android 12+ (values-night-v31).
+  if (darkImage == null && darkBackgroundImageSource == null && color == null) {
+    log(
+      'Skipping values-night/styles.xml update as no pre-Android 12 dark image, dark background image, or dark color was provided.',
+    );
+    return;
+  }
+
   final xml = File('$androidValuesFolder/${AndroidStrings.stylesXml}');
   final xmlExists = await xml.exists();
   if (!xmlExists) {
