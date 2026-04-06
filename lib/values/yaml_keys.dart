@@ -57,19 +57,33 @@ class YamlKeys {
   /// Specifies color for android dark mode
   static const colorDarkAndroid = 'color_dark_android';
 
-  /// List of supported keys
+  /// Specifies dark background image for android dark mode (pre-Android 12)
+  static const backgroundImageDarkAndroid = 'background_image_dark_android';
+
+  /// Specifies dark branding image for Android 12+ dark mode
+  static const brandingImageDarkKey = 'branding_image_dark';
+
+  /// List of supported top-level keys under `splash_master`.
   static List<String> supportedYamlKeys = [
     imageKey,
     colorKey,
     androidGravityKey,
     iosContentModeKey,
     android12AndAboveKey,
-    brandingImageKey,
     backgroundImage,
     iosBackgroundContentMode,
     androidBackgroundGravity,
     imageDarkAndroid,
     androidDarkGravityKey,
     colorDarkAndroid,
+    backgroundImageDarkAndroid,
+  ];
+
+  /// List of supported nested keys under `android_12_and_above`.
+  static List<String> supportedAndroid12AndAboveYamlKeys = [
+    imageKey,
+    colorKey,
+    brandingImageKey,
+    brandingImageDarkKey,
   ];
 }

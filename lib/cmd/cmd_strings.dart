@@ -37,4 +37,6 @@ class CmdStrings {
       'android/app/src/main/res/drawable';
   static const androidDarkValuesDirectory =
       'android/app/src/main/res/values-night';
+  static const androidDarkValuesV31Directory =
+      'android/app/src/main/res/values-night-v31';
 }

@@ -128,6 +128,21 @@ class AndroidStrings {
   /// `background_image.png`
   static const splashBackgroundImagePng = 'background_image.png';
 
+  /// `background_image_dark.png`
+  static const splashBackgroundImageDarkPng = 'background_image_dark.png';
+
+  /// `@drawable/background_image_dark`
+  static const androidDarkBackgroundSrcAttrVal =
+      '@drawable/background_image_dark';
+
+  /// `android_12_branding_image_dark.png`
+  static const android12BrandingImageDark =
+      'android_12_branding_image_dark.png';
+
+  /// `@drawable/android_12_branding_image_dark`
+  static const drawableAndroid12BrandingImageDark =
+      '@drawable/android_12_branding_image_dark';
+
   /// `@drawable/splash_screen_dark`
   static const androidDarkDrawable = '@drawable/splash_screen_dark';
 

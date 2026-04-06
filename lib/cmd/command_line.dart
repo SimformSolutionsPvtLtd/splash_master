@@ -38,7 +38,6 @@ import 'package:yaml/yaml.dart';
 import 'logging.dart';
 
 part 'android_splash.dart';
-
 part 'ios_splash.dart';
 
 void commandEntry(List<String> arguments) {
@@ -82,12 +81,47 @@ void commandEntry(List<String> arguments) {
 
 /// Setting up the splash screen using the details provided in `pubspec.yaml` file under `splash_master`.
 void setupSplashScreen(YamlMap splashData) {
+  final splashKeys = splashData.keys.map((e) => e.toString()).toSet();
+  final unsupportedTopLevelKeys = splashKeys
+      .where((key) => !YamlKeys.supportedYamlKeys.contains(key))
+      .toList();
+
   /// Checking keys in the `splash_master` section in `pubspec.yaml` file is proper or not.
-  if (YamlKeys.supportedYamlKeys.any(
-    (element) => splashData.keys.any(
-      (e) => e == element,
-    ),
-  )) {
+  if (unsupportedTopLevelKeys.isNotEmpty) {
+    log(
+      'Unsupported key(s) in splash_master: '
+      '${unsupportedTopLevelKeys.join(', ')}. '
+      'Supported keys are: ${YamlKeys.supportedYamlKeys.join(', ')}',
+    );
+    return;
+  }
+
+  final android12AndAbove = splashData[YamlKeys.android12AndAboveKey];
+  if (android12AndAbove != null && android12AndAbove is! YamlMap) {
+    log('Please check the android_12_and_above configuration. All parameters must be nested under the android_12_and_above key.');
+    return;
+  }
+
+  if (android12AndAbove != null) {
+    final android12Keys =
+        android12AndAbove.keys.map((e) => e.toString()).toSet();
+    final unsupportedAndroid12Keys = android12Keys
+        .where(
+          (key) => !YamlKeys.supportedAndroid12AndAboveYamlKeys.contains(key),
+        )
+        .toList();
+    if (unsupportedAndroid12Keys.isNotEmpty) {
+      log(
+        'Unsupported key(s) in android_12_and_above: '
+        '${unsupportedAndroid12Keys.join(', ')}. '
+        'Supported keys are: '
+        '${YamlKeys.supportedAndroid12AndAboveYamlKeys.join(', ')}',
+      );
+      return;
+    }
+  }
+
+  {
     IosContentMode? iosContentMode;
     if (splashData[YamlKeys.iosContentModeKey] != null) {
       iosContentMode =
@@ -123,7 +157,7 @@ void setupSplashScreen(YamlMap splashData) {
             element ==
             SupportedImageExtensions.fromString(imgExtension.toLowerCase()),
       )) {
-        log('Image should be png or jpg');
+        log('Image should be png, jpg, or jpeg.');
         return;
       }
     } else if (splashData[YamlKeys.androidBackgroundGravity] != null &&
@@ -147,8 +181,10 @@ void setupSplashScreen(YamlMap splashData) {
       backgroundImageSource: splashData[YamlKeys.backgroundImage],
       backgroundImageGravity: splashData[YamlKeys.androidBackgroundGravity],
       darkColor: splashData[YamlKeys.colorDarkAndroid],
-      darkGravity: splashData[YamlKeys.androidGravityKey],
+      darkGravity: splashData[YamlKeys.androidDarkGravityKey],
       darkImage: splashData[YamlKeys.imageDarkAndroid],
+      darkBackgroundImageSource:
+          splashData[YamlKeys.backgroundImageDarkAndroid],
     );
   }
 }
@@ -165,28 +201,30 @@ Future<void> applyAndroidSplashImage({
   String? darkImage,
   String? darkColor,
   String? darkGravity,
+  String? darkBackgroundImageSource,
 }) async {
   await generateAndroidImages(
     imageSource: imageSource,
     darkImageSource: darkImage,
   );
   if (backgroundImageSource != null) {
-    generateAndroidImages(
+    await generateAndroidImages(
       imageSource: backgroundImageSource,
       backgroundImageName: AndroidStrings.splashBackgroundImagePng,
+    );
+  }
+  if (darkBackgroundImageSource != null) {
+    await generateAndroidImages(
+      imageSource: darkBackgroundImageSource,
+      backgroundImageName: AndroidStrings.splashBackgroundImageDarkPng,
     );
   }
   await generateImageForAndroid12AndAbove(
     android12AndAbove: android12AndAbove,
   );
-  await createColors(
-    color: color,
-  );
+  await createColors(color: color);
   if (darkColor != null) {
-    await createColors(
-      color: darkColor,
-      isDark: true,
-    );
+    await createColors(color: darkColor, isDark: true);
   }
   await createSplashImageDrawable(
     imageSource: imageSource,
@@ -199,15 +237,24 @@ Future<void> applyAndroidSplashImage({
     darkImage: darkImage,
     color: darkColor,
     gravity: darkGravity,
+    darkBackgroundImageSource: darkBackgroundImageSource,
+    backgroundImageGravity: backgroundImageGravity,
   );
   await updateStylesXml(
     android12AndAbove: android12AndAbove,
     color: color,
   );
-  if (darkImage != null) {
+  final darkBrandingImage = android12AndAbove?[YamlKeys.brandingImageDarkKey];
+  if (darkImage != null ||
+      darkBrandingImage != null ||
+      darkBackgroundImageSource != null ||
+      darkColor != null) {
     await updateDarkStylesXml(
       android12AndAbove: android12AndAbove,
       color: darkColor,
+      darkImage: darkImage,
+      darkBrandingImage: darkBrandingImage,
+      darkBackgroundImageSource: darkBackgroundImageSource,
     );
   }
 }
@@ -226,6 +273,7 @@ Future<void> applySplash({
   String? darkImage,
   String? darkColor,
   String? darkGravity,
+  String? darkBackgroundImageSource,
 }) async {
   await generateIosImages(
     imageSource: imageSource,
@@ -244,5 +292,6 @@ Future<void> applySplash({
     darkImage: darkImage,
     darkColor: darkColor,
     darkGravity: darkGravity,
+    darkBackgroundImageSource: darkBackgroundImageSource,
   );
 }
