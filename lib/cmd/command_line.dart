@@ -180,11 +180,10 @@ void setupSplashScreen(YamlMap splashData) {
       iosBackgroundContentMode: splashData[YamlKeys.iosBackgroundContentMode],
       backgroundImageSource: splashData[YamlKeys.backgroundImage],
       backgroundImageGravity: splashData[YamlKeys.androidBackgroundGravity],
-      darkColor: splashData[YamlKeys.colorDarkAndroid],
+      darkColor: splashData[YamlKeys.colorDarkKey],
       darkGravity: splashData[YamlKeys.androidDarkGravityKey],
-      darkImage: splashData[YamlKeys.imageDarkAndroid],
-      darkBackgroundImageSource:
-          splashData[YamlKeys.backgroundImageDarkAndroid],
+      darkImage: splashData[YamlKeys.imageDarkKey],
+      darkBackgroundImageSource: splashData[YamlKeys.backgroundImageDarkKey],
     );
   }
 }
@@ -236,19 +235,24 @@ Future<void> applyAndroidSplashImage({
   await createDarkSplashImageDrawable(
     darkImage: darkImage,
     color: darkColor,
-    gravity: darkGravity,
+    gravity: darkGravity ?? gravity,
     darkBackgroundImageSource: darkBackgroundImageSource,
     backgroundImageGravity: backgroundImageGravity,
   );
   await updateStylesXml(
     android12AndAbove: android12AndAbove,
     color: color,
+    imageSource: imageSource,
   );
   final darkBrandingImage = android12AndAbove?[YamlKeys.brandingImageDarkKey];
+  final android12DarkImage = android12AndAbove?[YamlKeys.imageDarkKey];
+  final android12DarkColor = android12AndAbove?[YamlKeys.colorDarkKey];
   if (darkImage != null ||
       darkBrandingImage != null ||
       darkBackgroundImageSource != null ||
-      darkColor != null) {
+      darkColor != null ||
+      android12DarkImage != null ||
+      android12DarkColor != null) {
     await updateDarkStylesXml(
       android12AndAbove: android12AndAbove,
       color: darkColor,

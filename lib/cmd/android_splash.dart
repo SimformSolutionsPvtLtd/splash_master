@@ -119,6 +119,33 @@ Future<void> generateImageForAndroid12AndAbove({
     log("Splash image added to $drawable");
   }
 
+  /// Copy dark splash icon for Android 12+ dark mode
+  final imageDark = android12AndAbove[YamlKeys.imageDarkKey];
+  if (imageDark != null) {
+    final sourceDarkImage = File(imageDark);
+
+    /// Checking if provided dark asset image source exists or not
+    if (!await sourceDarkImage.exists()) {
+      throw SplashMasterException(
+          message: 'Android 12+ dark image path not found: $imageDark.');
+    }
+
+    final drawableFolder = '$androidResDir/$drawable';
+    final directory = Directory(drawableFolder);
+    if (!(await directory.exists())) {
+      log("$drawable folder doesn't exist. Creating it...");
+      await Directory(drawableFolder).create(recursive: true);
+    }
+
+    final darkImagePath =
+        '$drawableFolder/${AndroidStrings.splashImage12DarkPng}';
+    final darkFile = File(darkImagePath);
+    if (await darkFile.exists()) await darkFile.delete();
+
+    await sourceDarkImage.copy(darkImagePath);
+    log("Android 12+ dark splash image added to $drawable");
+  }
+
   if (brandingImage != null) {
     final sourceImage = File(brandingImage);
 
@@ -255,17 +282,37 @@ Future<void> createColors({
   }
 }
 
-/// Updates the `styles.xml` file for the splash screen setup.
+/// Updates `values/styles.xml` (pre-Android 12) and writes
+/// `values-v31/styles.xml` whenever Android 12+ splash values can be resolved
+/// (from nested Android 12+ keys and/or top-level common fallbacks).
+///
+/// For the Android 12+ background color, the nested `android_12_and_above.color`
+/// takes priority; if absent, the top-level [color] is used as a fallback.
 Future<void> updateStylesXml({
   YamlMap? android12AndAbove,
   String? color,
+  String? imageSource,
 }) async {
   const androidValuesFolder = CmdStrings.androidValuesDirectory;
 
-  if (android12AndAbove != null &&
-      (android12AndAbove[YamlKeys.colorKey] != null ||
-          android12AndAbove[YamlKeys.imageKey] != null ||
-          android12AndAbove[YamlKeys.brandingImageKey] != null)) {
+  // For Android 12+, nested color takes priority over the top-level common color.
+  final effectiveAndroid12Color =
+      android12AndAbove?[YamlKeys.colorKey] as String? ?? color;
+  // For Android 12+, nested image takes priority over the top-level common image.
+  final effectiveAndroid12Image =
+      android12AndAbove?[YamlKeys.imageKey] as String? ?? imageSource;
+  // Use the common splash drawable reference when Android 12+ light image is not
+  // explicitly provided and we are falling back to the top-level image.
+  final useCommonLightImage =
+      android12AndAbove?[YamlKeys.imageKey] == null && imageSource != null;
+
+  final hasAndroid12Specific = android12AndAbove != null &&
+      (android12AndAbove[YamlKeys.imageKey] != null ||
+          android12AndAbove[YamlKeys.brandingImageKey] != null);
+
+  if (effectiveAndroid12Color != null ||
+      effectiveAndroid12Image != null ||
+      hasAndroid12Specific) {
     const v31 = CmdStrings.androidValuesV31Directory;
     if (!await Directory(v31).exists()) {
       await Directory(v31).create();
@@ -278,9 +325,10 @@ Future<void> updateStylesXml({
 
     await createAndroid12Styles(
       styleFile: styleFile,
-      color: android12AndAbove[YamlKeys.colorKey],
-      imageSource: android12AndAbove[YamlKeys.imageKey],
-      brandingImageSource: android12AndAbove[YamlKeys.brandingImageKey],
+      color: effectiveAndroid12Color,
+      imageSource: effectiveAndroid12Image,
+      brandingImageSource: android12AndAbove?[YamlKeys.brandingImageKey],
+      useCommonImage: useCommonLightImage,
     );
   }
   final xml = File('$androidValuesFolder/${AndroidStrings.stylesXml}');
@@ -305,7 +353,8 @@ Future<void> updateStylesXml({
   log('styles.xml updated.');
 }
 
-/// Updates the `styles.xml` file for the splash screen setup for Android 12+.
+/// Writes the Android 12+ splash screen style to [styleFile] with the provided
+/// background color, splash icon, and optional branding image.
 Future<void> createAndroid12Styles({
   required File styleFile,
   String? color,
@@ -313,6 +362,8 @@ Future<void> createAndroid12Styles({
   String? brandingImageSource,
   bool isDarkBranding = false,
   bool isDarkImage = false,
+  bool isAndroid12DarkImage = false,
+  bool useCommonImage = false,
 }) async {
   final xml = await styleFile.create();
 
@@ -345,9 +396,13 @@ Future<void> createAndroid12Styles({
                 AndroidStrings.nameAttr:
                     AndroidStrings.windowSplashScreenAnimatedIcon,
               },
-              nest: isDarkImage
-                  ? AndroidStrings.androidDarkSrcAttrVal
-                  : AndroidStrings.drawableSplashImage12,
+              nest: isAndroid12DarkImage
+                  ? AndroidStrings.drawableSplashImage12Dark
+                  : isDarkImage
+                      ? AndroidStrings.androidDarkSrcAttrVal
+                      : useCommonImage
+                          ? AndroidStrings.androidSrcAttrVal
+                          : AndroidStrings.drawableSplashImage12,
             );
           }
           if (brandingImageSource != null) {
@@ -553,7 +608,8 @@ Future<void> createDarkSplashImageDrawable({
   await xml.writeAsString(document.toXmlString(pretty: true));
 }
 
-/// Updates the `values-night/styles.xml` file for the splash screen setup.
+/// Generates dark mode splash screen styles for pre-Android 12 (`values-night/styles.xml`)
+/// and Android 12+ (`values-night-v31/styles.xml`).
 Future<void> updateDarkStylesXml({
   YamlMap? android12AndAbove,
   String? color,
@@ -563,13 +619,26 @@ Future<void> updateDarkStylesXml({
 }) async {
   const androidValuesFolder = CmdStrings.androidDarkValuesDirectory;
 
-  if (android12AndAbove != null &&
-      (android12AndAbove[YamlKeys.colorKey] != null ||
-          android12AndAbove[YamlKeys.imageKey] != null ||
-          android12AndAbove[YamlKeys.brandingImageKey] != null ||
-          darkBrandingImage != null ||
-          color != null ||
-          darkImage != null)) {
+  // Resolve the effective Android 12+ dark values using the following priority:
+  // 1. android_12_and_above.image_dark / android_12_and_above.color_dark (Android 12+-specific)
+  // 2. Top-level image_dark / color_dark (common dark keys)
+  // 3. android_12_and_above.image / android_12_and_above.color (Android 12+ light fallback)
+  final android12NativeDarkImage =
+      android12AndAbove?[YamlKeys.imageDarkKey] as String?;
+  final android12NativeDarkColor =
+      android12AndAbove?[YamlKeys.colorDarkKey] as String?;
+  final resolvedDarkColor = android12NativeDarkColor ??
+      color ??
+      android12AndAbove?[YamlKeys.colorKey] as String?;
+  final resolvedDarkImage = android12NativeDarkImage ??
+      darkImage ??
+      android12AndAbove?[YamlKeys.imageKey] as String?;
+  final resolvedBranding = darkBrandingImage ??
+      android12AndAbove?[YamlKeys.brandingImageKey] as String?;
+
+  if (resolvedDarkColor != null ||
+      resolvedDarkImage != null ||
+      resolvedBranding != null) {
     // Use values-night-v31 for dark mode Android 12+ styles (separate from light values-v31)
     const v31 = CmdStrings.androidDarkValuesV31Directory;
     if (!await Directory(v31).exists()) {
@@ -583,18 +652,15 @@ Future<void> updateDarkStylesXml({
 
     await createAndroid12Styles(
       styleFile: styleFile,
-      // Prefer explicit dark color; fall back to android_12_and_above color
-      color: color ?? android12AndAbove[YamlKeys.colorKey],
-      // Prefer explicit dark image; fall back to android_12_and_above image
-      imageSource: darkImage ?? android12AndAbove[YamlKeys.imageKey],
-      // Prefer explicit dark branding image; fall back to light branding image
-      brandingImageSource:
-          darkBrandingImage ?? android12AndAbove[YamlKeys.brandingImageKey],
+      color: resolvedDarkColor,
+      imageSource: resolvedDarkImage,
+      brandingImageSource: resolvedBranding,
       isDarkBranding: darkBrandingImage != null,
-      isDarkImage: darkImage != null,
+      isDarkImage: darkImage != null || android12NativeDarkImage != null,
+      isAndroid12DarkImage: android12NativeDarkImage != null,
     );
   }
-  // Pre-12 dark styles are optional and independent from Android 12+ (values-night-v31).
+  // Pre-Android 12 dark styles live in values-night/styles.xml, separate from values-night-v31.
   if (darkImage == null && darkBackgroundImageSource == null && color == null) {
     log(
       'Skipping values-night/styles.xml update as no pre-Android 12 dark image, dark background image, or dark color was provided.',
