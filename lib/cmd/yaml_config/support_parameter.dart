@@ -113,6 +113,7 @@ enum IosContentMode {
   bottomLeft('bottomLeft'),
   bottomRight('bottomRight');
 
+  /// Native storyboard value written to the iOS launch screen XML.
   final String mode;
 
   const IosContentMode(this.mode);
@@ -121,9 +122,9 @@ enum IosContentMode {
     switch (str) {
       case 'scaleToFill':
         return scaleToFill;
-      case 'aspectFit':
+      case 'scaleAspectFit':
         return scaleAspectFit;
-      case 'aspectFill':
+      case 'scaleAspectFill':
         return scaleAspectFill;
       case 'redraw':
         return redraw;

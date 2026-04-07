@@ -73,74 +73,101 @@ splash_master:
 
   # ===== iOS Light Mode Image Behavior =====
   # How the splash image should be displayed on iOS
-  # iOS content mode options: scaleToFill, aspectFit, aspectFill, redraw, center,
+  # Options: scaleToFill, scaleAspectFit, scaleAspectFill, redraw, center,
   # top, bottom, left, right, topLeft, topRight, bottomLeft, bottomRight
   ios_content_mode: 'center'
 
   # ===== Android Light Mode Image Behavior =====
-  # How the splash image should be positioned on Android
+  # How the splash image should be positioned on Android below API 31
+  # This affects the pre-Android 12 drawable splash only.
+  # Android 12+ uses the system splash screen API and does not support
+  # gravity-based positioning.
   # Android gravity options: center, clip_horizontal, clip_vertical, fill_horizontal,
   # fill, center_vertical, bottom, fill_vertical, center_horizontal, top, end, left,
   # right, start
   android_gravity: 'center'
 
-  # ===== Background Image Configuration =====
   # Optional background image displayed behind the main splash image
   background_image: 'assets/background_image.png'
 
-  # Optional background image displayed in Android dark mode (pre-Android 12)
-  background_image_dark_android: 'assets/background_image_dark.png'
+  # Optional background image to use in dark mode
+  background_image_dark: 'assets/background_image_dark.png'
 
   # How the background image should be displayed on iOS
+  # Options: scaleToFill, scaleAspectFit, scaleAspectFill, redraw, center,
+  # top, bottom, left, right, topLeft, topRight, bottomLeft, bottomRight
+  # Uses the same value set as ios_content_mode
   ios_background_content_mode: 'scaleToFill'
 
   # How the background image should be positioned on Android
   # Options: same as android_gravity
   android_background_image_gravity: 'fill'
 
-  # ===== Android Dark Mode Configuration (pre-Android 12) =====
-  # Splash image to use when Android device is in dark mode
-  image_dark_android: 'assets/splash_dark.png'
+  # ===== Dark Mode — Common Configuration =====
+  # Splash image for dark mode
+  image_dark: 'assets/splash_dark.png'
 
-  # How the dark mode splash image should be positioned on Android
+  # Background color for dark mode
+  color_dark: '#000000'
+
+  # ===== Android Dark Mode Behavior =====
+  # How the dark mode splash image should be positioned on Android below API 31
+  # This affects the pre-Android 12 dark drawable splash only.
+  # Options: same as android_gravity
+  # If omitted, falls back to android_gravity
   android_dark_gravity: 'center'
 
-  # Background color for Android dark mode
-  color_dark_android: '#000000'
-
   # ===== Android 12+ Specific Configuration =====
-  # Android 12 introduced a new splash screen system with specific requirements
+  # Android 12+ uses the system splash screen API.
   android_12_and_above:
-    # Background color for Android 12+ splash screen
+    # Background color for Android 12+ splash screen (light mode)
+    # Fallback order: this key -> top-level color
     color: '#FFFFFF'
 
     # Custom splash icon (replaces default app icon)
     # This should be a centered icon, ideally 288x288dp
+    # Fallback order: this key -> top-level image
     image: 'assets/splash_12.png'
+
+    # Custom splash icon for Android 12+ dark mode
+    # Fallback order: this key -> top-level image_dark -> android_12_and_above.image
+    image_dark: 'assets/splash_12_dark.png'
+
+    # Background color for Android 12+ dark mode
+    # Fallback order: this key -> top-level color_dark -> android_12_and_above.color
+    color_dark: '#000000'
 
     # Optional branding image shown at the bottom
     # Maximum height: 80dp, centered horizontally
+    # Android 12+ only; branding images are not supported on iOS
     branding_image: 'assets/branding_image.png'
 
     # Optional branding image for Android 12+ dark mode
+    # Android 12+ only; branding images are not supported on iOS
     branding_image_dark: 'assets/branding_image_dark.png'
 ```
 
 **Note:** The above configuration demonstrates all available parameters. You only need to include the parameters relevant to your use case.
 
-**Android dark mode details:**
-- `background_image_dark_android`, `image_dark_android`, `android_dark_gravity`, and `color_dark_android` apply to pre-Android 12 drawable-based splash resources.
-- `android_background_image_gravity` is used for both light and dark background images.
-- Inside `android_12_and_above`, `branding_image_dark` lets you provide a separate branding asset for Android 12+ dark mode.
-- For Android 12+ dark mode, if `color_dark_android` or `image_dark_android` is provided, it is used; otherwise Splash Master falls back to `android_12_and_above.color` and `android_12_and_above.image`.
+**Dark mode details:**
+- `image_dark`, `color_dark`, and `background_image_dark` are common cross-platform keys.
+- `android_gravity` and `android_dark_gravity` only affect the pre-Android 12 drawable splash on Android.
+- `android_dark_gravity` is Android-only. If omitted, it falls back to `android_gravity` (not the platform default), so the dark layout stays consistent with light.
+- `android_background_image_gravity` is shared between light and dark background images on Android.
+- Android 12+ ignores gravity because the system splash API centers the icon and does not expose a gravity setting.
+- Inside `android_12_and_above`, light keys `image` and `color` fall back to top-level `image` and `color` when not provided.
+- Inside `android_12_and_above`, `image_dark` and `color_dark` are Android 12+-specific overrides with a three-tier fallback:
+  1. `android_12_and_above.image_dark` / `android_12_and_above.color_dark` (Android 12+-specific dark)
+  2. Top-level `image_dark` / `color_dark` (shared dark)
+  3. `android_12_and_above.image` / `android_12_and_above.color` (Android 12+ light)
+- `branding_image_dark` inside `android_12_and_above` swaps the Android 12+ branding image in dark mode.
+- `branding_image` and `branding_image_dark` are Android 12+-only and are not supported on iOS.
 
 **Validation details:**
-- `branding_image`, `branding_image_dark`, and Android 12 `image`/`color` must be nested under `android_12_and_above`.
-- Putting these keys at the top level under `splash_master` is invalid and will be rejected.
+- `branding_image` and `branding_image_dark` are only valid inside `android_12_and_above` and will be rejected at the top level.
+- `image_dark` and `color_dark` inside `android_12_and_above` act as Android 12+-specific overrides, distinct from the top-level common keys of the same name.
 - Unknown keys at either level are rejected with a validation error.
 - `android_12_and_above` must be a map/object. Non-map values are invalid.
-
-**iOS Dark Mode:** Currently, splash_master does not support iOS-specific dark mode parameters (like `image_dark_ios`, `ios_dark_content_mode`, or `color_dark_ios`). iOS uses the same splash configuration for both light and dark appearance modes. Dark mode support is available only for Android.
 
 ## 2. Generate Native Splash Screen
 
