@@ -121,6 +121,12 @@ class AndroidStrings {
   /// `@drawable/splash_image12`
   static const drawableSplashImage12 = '@drawable/splash_image_12';
 
+  /// `splash_image_12_dark.png`
+  static const splashImage12DarkPng = 'splash_image_12_dark.png';
+
+  /// `@drawable/splash_image_12_dark`
+  static const drawableSplashImage12Dark = '@drawable/splash_image_12_dark';
+
   /// `@drawable/android_12_branding_image`
   static const drawableAndroid12BrandingImage =
       '@drawable/android_12_branding_image';

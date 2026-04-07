@@ -42,47 +42,59 @@ class YamlKeys {
   /// Specifies branding image for the Android 12+
   static const brandingImageKey = 'branding_image';
 
+  /// Specifies the background image for the splash screen.
   static const backgroundImage = 'background_image';
 
+  /// Specifies the content mode for the background image in iOS.
   static const iosBackgroundContentMode = 'ios_background_content_mode';
 
+  /// Specifies the gravity for the background image in Android.
   static const androidBackgroundGravity = 'android_background_image_gravity';
 
-  /// Specifies image for android dark mode
-  static const imageDarkAndroid = 'image_dark_android';
+  /// Specifies the dark mode splash image.
+  static const imageDarkKey = 'image_dark';
 
-  /// Specifies gravity for android dark mode
+  /// Specifies the dark mode splash screen color.
+  static const colorDarkKey = 'color_dark';
+
+  /// Specifies the dark mode background image.
+  static const backgroundImageDarkKey = 'background_image_dark';
+
+  /// Specifies the gravity for the Android dark mode splash image.
   static const androidDarkGravityKey = 'android_dark_gravity';
 
-  /// Specifies color for android dark mode
-  static const colorDarkAndroid = 'color_dark_android';
-
-  /// Specifies dark background image for android dark mode (pre-Android 12)
-  static const backgroundImageDarkAndroid = 'background_image_dark_android';
-
-  /// Specifies dark branding image for Android 12+ dark mode
+  /// Specifies the dark branding image for Android 12+ dark mode.
   static const brandingImageDarkKey = 'branding_image_dark';
+
+  // ---------------------------------------------------------------------------
 
   /// List of supported top-level keys under `splash_master`.
   static List<String> supportedYamlKeys = [
+    // Common keys
     imageKey,
     colorKey,
-    androidGravityKey,
-    iosContentModeKey,
-    android12AndAboveKey,
     backgroundImage,
-    iosBackgroundContentMode,
+    imageDarkKey,
+    colorDarkKey,
+    backgroundImageDarkKey,
+
+    // Android-only keys
+    androidGravityKey,
     androidBackgroundGravity,
-    imageDarkAndroid,
     androidDarkGravityKey,
-    colorDarkAndroid,
-    backgroundImageDarkAndroid,
+    android12AndAboveKey,
+
+    // iOS-only keys
+    iosContentModeKey,
+    iosBackgroundContentMode,
   ];
 
   /// List of supported nested keys under `android_12_and_above`.
   static List<String> supportedAndroid12AndAboveYamlKeys = [
     imageKey,
     colorKey,
+    imageDarkKey,
+    colorDarkKey,
     brandingImageKey,
     brandingImageDarkKey,
   ];
