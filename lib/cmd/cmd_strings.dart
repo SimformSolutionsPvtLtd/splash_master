@@ -29,6 +29,7 @@ class CmdStrings {
   static const androidResDirectory = 'android/app/src/main/res';
   static const iosAssetsDirectory =
       'ios/Runner/Assets.xcassets/LaunchImage.imageset';
+  static const iosAssetCatalogDirectory = 'ios/Runner/Assets.xcassets';
   static const iosBackgroundImageDirectory =
       'ios/Runner/Assets.xcassets/BackgroundImage.imageset';
 
