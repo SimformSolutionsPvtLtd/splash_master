@@ -26,7 +26,6 @@ import 'dart:io';
 import 'package:splash_master/cmd/cmd_strings.dart';
 import 'package:splash_master/cmd/cmd_utils.dart';
 import 'package:splash_master/cmd/models/ios_content_json_dm.dart';
-import 'package:splash_master/cmd/splash_screen_content_string.dart';
 import 'package:splash_master/cmd/yaml_config/support_parameter.dart';
 import 'package:splash_master/core/utils.dart';
 import 'package:splash_master/values/android_strings.dart';
@@ -122,11 +121,11 @@ void setupSplashScreen(YamlMap splashData) {
   }
 
   {
-    IosContentMode? iosContentMode;
-    if (splashData[YamlKeys.iosContentModeKey] != null) {
-      iosContentMode =
-          IosContentMode.fromString(splashData[YamlKeys.iosContentModeKey]);
-    }
+    final iosContentMode =
+        _tryParseIosContentMode(splashData[YamlKeys.iosContentModeKey]);
+    final iosBackgroundContentMode = _tryParseIosContentMode(
+      splashData[YamlKeys.iosBackgroundContentMode],
+    );
 
     /// Checking if provided android gravity is valid or not
     if (splashData[YamlKeys.androidGravityKey] != null &&
@@ -145,6 +144,15 @@ void setupSplashScreen(YamlMap splashData) {
           (element) => element == iosContentMode,
         )) {
       log('Please check the ios_content_mode');
+      return;
+    }
+
+    /// Checking if provided background content mode is valid or not
+    else if (splashData[YamlKeys.iosBackgroundContentMode] != null &&
+        !IosContentMode.values.any(
+          (element) => element == iosBackgroundContentMode,
+        )) {
+      log('Please check the ios_background_content_mode');
       return;
     }
 
@@ -177,7 +185,7 @@ void setupSplashScreen(YamlMap splashData) {
       iosContentMode: iosContentMode?.mode,
       backgroundImage: splashData[YamlKeys.backgroundImage],
       android12AndAbove: splashData[YamlKeys.android12AndAboveKey],
-      iosBackgroundContentMode: splashData[YamlKeys.iosBackgroundContentMode],
+      iosBackgroundContentMode: iosBackgroundContentMode?.mode,
       backgroundImageSource: splashData[YamlKeys.backgroundImage],
       backgroundImageGravity: splashData[YamlKeys.androidBackgroundGravity],
       darkColor: splashData[YamlKeys.colorDarkKey],
@@ -298,4 +306,19 @@ Future<void> applySplash({
     darkGravity: darkGravity,
     darkBackgroundImageSource: darkBackgroundImageSource,
   );
+}
+
+IosContentMode? _tryParseIosContentMode(dynamic mode) {
+  if (mode == null) {
+    return null;
+  }
+
+  final modeString = mode.toString();
+  for (final supportedMode in IosContentMode.values) {
+    if (supportedMode.mode == modeString) {
+      return supportedMode;
+    }
+  }
+
+  return null;
 }

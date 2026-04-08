@@ -175,17 +175,16 @@ Future<void> updateContentOfStoryboard({
           node.name.qualified == IOSStrings.constraintsElement,
     );
 
-    /// Add constraints in view element
+    /// Add constraints in view element based on requested content modes.
     view.children.add(
-      XmlDocument.parse(shouldAddBackgroundImage
-              ? SplashScreenContentString.splashAndBackConstraints
-              : SplashScreenContentString.splashImageConstraints)
-          .rootElement
-          .copy(),
+      _buildConstraintsElement(
+        splashContentMode: iosContentMode ?? IOSStrings.contentModeValue,
+        includeBackgroundImage: shouldAddBackgroundImage,
+        backgroundContentMode:
+            iosBackgroundContentMode ?? IOSStrings.contentModeValue,
+      ),
     );
   } else {
-    /// Image is not available then
-    ///
     /// Remove all existing constraints elements
     view.children.removeWhere(
       (node) =>
@@ -412,4 +411,146 @@ XmlElement? getBackgroundImageElement(XmlElement? subViews) {
             child.getAttribute(IOSStrings.defaultImageViewId) ==
                 IOSStrings.backgroundImageViewIdValue,
       );
+}
+
+XmlElement _buildConstraintsElement({
+  required String splashContentMode,
+  required bool includeBackgroundImage,
+  required String backgroundContentMode,
+}) {
+  final constraints = <XmlNode>[
+    ..._constraintsForImage(
+      imageViewId: IOSStrings.defaultImageViewIdValue,
+      contentMode: splashContentMode,
+      verticalIds: const ['xPn-NY-SIU', 'duK-uY-Gun', 'sYI-sP-v01'],
+      horizontalIds: const ['3T2-ad-Qdv', 'TQA-XW-tRk', 'sYI-sP-h01'],
+    ),
+  ];
+
+  if (includeBackgroundImage) {
+    constraints.addAll(
+      _constraintsForImage(
+        imageViewId: IOSStrings.backgroundImageViewIdValue,
+        contentMode: backgroundContentMode,
+        verticalIds: const ['B02-Ap-adr', 'e2S-gZ-2jl', 'sYI-sP-v02'],
+        horizontalIds: const ['zVa-1q-mai', 'T4v-vm-VRP', 'sYI-sP-h02'],
+      ),
+    );
+  }
+
+  return XmlElement(
+    XmlName(IOSStrings.constraintsElement),
+    const [],
+    constraints,
+  );
+}
+
+List<XmlElement> _constraintsForImage({
+  required String imageViewId,
+  required String contentMode,
+  required List<String> verticalIds,
+  required List<String> horizontalIds,
+}) {
+  if (_fillsContainer(contentMode)) {
+    return [
+      _constraint(
+        id: horizontalIds[0],
+        firstItem: imageViewId,
+        firstAttribute: 'leading',
+      ),
+      _constraint(
+        id: horizontalIds[1],
+        firstItem: imageViewId,
+        firstAttribute: 'trailing',
+      ),
+      _constraint(
+        id: verticalIds[0],
+        firstItem: imageViewId,
+        firstAttribute: 'top',
+      ),
+      _constraint(
+        id: verticalIds[1],
+        firstItem: imageViewId,
+        firstAttribute: 'bottom',
+      ),
+    ];
+  }
+
+  final vertical = _verticalConstraintAttribute(contentMode);
+  final horizontal = _horizontalConstraintAttribute(contentMode);
+
+  return [
+    _constraint(
+      id: vertical == 'top'
+          ? verticalIds[0]
+          : vertical == 'bottom'
+              ? verticalIds[1]
+              : verticalIds[2],
+      firstItem: imageViewId,
+      firstAttribute: vertical,
+    ),
+    _constraint(
+      id: horizontal == 'leading'
+          ? horizontalIds[0]
+          : horizontal == 'trailing'
+              ? horizontalIds[1]
+              : horizontalIds[2],
+      firstItem: imageViewId,
+      firstAttribute: horizontal,
+    ),
+  ];
+}
+
+XmlElement _constraint({
+  required String id,
+  required String firstItem,
+  required String firstAttribute,
+}) {
+  return XmlElement(
+    XmlName('constraint'),
+    [
+      XmlAttribute(XmlName('firstItem'), firstItem),
+      XmlAttribute(XmlName('firstAttribute'), firstAttribute),
+      XmlAttribute(XmlName('secondItem'), IOSStrings.defaultViewId),
+      XmlAttribute(XmlName('secondAttribute'), firstAttribute),
+      XmlAttribute(XmlName('id'), id),
+    ],
+  );
+}
+
+bool _fillsContainer(String contentMode) {
+  return contentMode == IosContentMode.scaleToFill.mode ||
+      contentMode == IosContentMode.scaleAspectFit.mode ||
+      contentMode == IosContentMode.scaleAspectFill.mode ||
+      contentMode == IosContentMode.redraw.mode;
+}
+
+String _verticalConstraintAttribute(String contentMode) {
+  switch (contentMode) {
+    case 'top':
+    case 'topLeft':
+    case 'topRight':
+      return 'top';
+    case 'bottom':
+    case 'bottomLeft':
+    case 'bottomRight':
+      return 'bottom';
+    default:
+      return 'centerY';
+  }
+}
+
+String _horizontalConstraintAttribute(String contentMode) {
+  switch (contentMode) {
+    case 'left':
+    case 'topLeft':
+    case 'bottomLeft':
+      return 'leading';
+    case 'right':
+    case 'topRight':
+    case 'bottomRight':
+      return 'trailing';
+    default:
+      return 'centerX';
+  }
 }
