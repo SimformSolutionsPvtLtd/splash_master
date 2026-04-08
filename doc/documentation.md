@@ -13,6 +13,7 @@ Splash Master is a Flutter plugin designed to make adding splash screens to your
 ## Features
 
 - Native Integration: Automatically sets up native splash screens for Android and iOS.
+- Dark Mode Support: Configure light and dark splash assets for both Android and iOS.
 - Multiple Media Support: Use videos, Lottie, Rive, images, or custom widgets.
 - Easy Configuration: Define splash details in your pubspec.yaml.
 - Smooth Transition: Ensures seamless transition from native splash to Flutter app.
@@ -95,16 +96,16 @@ All parameters, their purpose, platform support, validity, and fallback behavior
 | Parameter | Type | Platforms | Description | Fallback Behavior | Valid Values |
 |-----------|------|-----------|-------------|-------------------|--------------|
 | **LIGHT MODE** |
-| `color` | String | Android, iOS | Background color (hex code) | **None** — no background applied | Hex color code, e.g., `#FFFFFF` |
+| `color` | String | Android, iOS | Background color (hex code) | **iOS:** Defaults to `#FFFFFF` when omitted. **Android:** No color resource is generated unless provided. | Hex color code, e.g., `#FFFFFF` |
 | `image` | String | Android, iOS | Splash image path | **None** — no image generated | Asset path, e.g., `assets/splash.png` |
 | `background_image` | String | Android, iOS | Optional background image behind splash | **None** — no background layer | Asset path |
 | **DARK MODE** |
-| `color_dark` | String | Android, iOS | Dark mode background color | **None** — no dark background applied | Hex color code |
-| `image_dark` | String | Android, iOS | Dark mode splash image | **None** — no dark image generated | Asset path |
-| `background_image_dark` | String | Android, iOS | Dark mode background image | **None** — no dark background layer | Asset path |
+| `color_dark` | String | Android, iOS | Dark mode background color | **No dark-specific override** — light/default background behavior remains | Hex color code |
+| `image_dark` | String | Android, iOS | Dark mode splash image | **No dark-specific override** — light image behavior remains | Asset path |
+| `background_image_dark` | String | Android, iOS | Dark mode background image | **No dark-specific override** — light background-image behavior remains | Asset path |
 | **iOS POSITIONING** |
 | `ios_content_mode` | String | iOS only | How to display splash image | Defaults to `scaleToFill` | `scaleToFill`, `scaleAspectFit`, `scaleAspectFill`, `redraw`, `center`, `top`, `bottom`, `left`, `right`, `topLeft`, `topRight`, `bottomLeft`, `bottomRight` |
-| `ios_background_content_mode` | String | iOS only | How to display background image | Defaults to `scaleToFill` (same as `ios_content_mode`) | Same as `ios_content_mode` |
+| `ios_background_content_mode` | String | iOS only | How to display background image | Defaults to `scaleToFill` (independent of `ios_content_mode`) | Same as `ios_content_mode` |
 | **ANDROID PRE-12 POSITIONING** |
 | `android_gravity` | String | Android (pre-API 31) | Splash image position | Defaults to `fill` | `center`, `clip_horizontal`, `clip_vertical`, `fill_horizontal`, `fill`, `center_vertical`, `bottom`, `fill_vertical`, `center_horizontal`, `top`, `end`, `left`, `right`, `start` |
 | `android_dark_gravity` | String | Android (pre-API 31) | Dark splash image position | **Falls back to `android_gravity`** | Same as `android_gravity` |
@@ -120,8 +121,10 @@ All parameters, their purpose, platform support, validity, and fallback behavior
 ### Key Points
 
 - **Only valid inside `android_12_and_above`:** `branding_image`, `branding_image_dark` (will be rejected at top level)
+- **Top-level dark keys are cross-platform:** `image_dark`, `color_dark`, and `background_image_dark` apply to both Android and iOS.
 - **No cross-version fallback:** Android 12+ parameters do NOT fall back to top-level parameters (independent namespaces)
 - **Gravity ignored on Android 12+:** System splash API centers all content; gravity settings are not used
+- **iOS dark appearance uses paired assets:** when using dark variants (`image_dark`, `background_image_dark`), also provide the corresponding light variants (`image`, `background_image`) for Any appearance.
 - **Within-namespace fallback only:** Dark mode can fall back to light mode within the same version, but never across versions
 
 ## 2. Generate Native Splash Screen

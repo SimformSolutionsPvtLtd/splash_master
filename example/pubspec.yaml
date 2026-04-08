@@ -30,20 +30,31 @@ splash_master:
   # Main splash image (used on both iOS and Android in light mode)
   image: 'assets/simform_splash_img.png'
 
-  # ===== iOS Light Mode Image Behavior =====
+  # ===== Dark Mode — Common Configuration =====
+  # Background color for dark mode
+  color_dark: '#000000'
+
+  # Splash image for dark mode
+  image_dark: 'assets/simform_splash_img_dark.png'
+
+  # ===== iOS Common Image Behavior  =====
   # How the splash image should be displayed on iOS
   # Options: scaleToFill, scaleAspectFit, scaleAspectFill, redraw, center,
   # top, bottom, left, right, topLeft, topRight, bottomLeft, bottomRight
   ios_content_mode: 'center'
 
   # ===== Android Light Mode Image Behavior =====
-  # How the splash image should be positioned on Android below API 31
-  # This affects the pre-Android 12 drawable splash only.
-
+  # How the splash image should be positioned on Android below API 31 (pre-Android 12)
   # Options: center, clip_horizontal, clip_vertical, fill_horizontal, fill,
   # center_vertical, bottom, fill_vertical, center_horizontal, top,
   # end, left, right, start
   android_gravity: 'center'
+
+  # ===== Android Dark Mode Behavior =====
+  # Android-specific dark mode positioning below API 31 (pre-Android 12)
+  # Options: same as android_gravity
+  # If omitted, falls back to android_gravity
+  android_dark_gravity: 'center'
 
   # ===== Background Image Configuration =====
   # Optional background image displayed behind the main splash image
@@ -61,27 +72,16 @@ splash_master:
   # Options: same as android_gravity
   android_background_image_gravity: 'fill'
 
-  # ===== Dark Mode — Common Configuration =====
-  # Splash image for dark mode
-  image_dark: 'assets/simform_splash_img_dark.png'
-  
-  # Background color for dark mode
-  color_dark: '#000000'
-
-  # ===== Android Dark Mode Behavior =====
-  # How the dark mode splash image should be positioned on Android below API 31
-  # This affects the pre-Android 12 dark drawable splash only.
-
-  # Options: same as android_gravity
-  # If omitted, falls back to android_gravity
-  android_dark_gravity: 'center'
-
   # ===== Android 12+ Specific Configuration =====
   # Android 12+ uses the system splash screen API.
   android_12_and_above:
     # Background color for Android 12+ splash screen (light mode)
     # Fallback: None — if omitted, no background color is applied (system default).
     color: '#FFFFFF'
+
+    # Background color for Android 12+ dark mode
+    # Fallback: None — if omitted, no dark background color is applied (system default).
+    color_dark: '#000000'
     
     # Custom splash icon (replaces default app icon)
     # This should be a centered icon, ideally 288x288dp
@@ -91,10 +91,6 @@ splash_master:
     # Custom splash icon for Android 12+ dark mode
     # Fallback: Falls back to android_12_and_above.image if omitted.
     image_dark: 'assets/splash_12_dark.png'
-
-    # Background color for Android 12+ dark mode
-    # Fallback: None — if omitted, no dark background color is applied (system default).
-    color_dark: '#000000'
 
     # Optional branding image shown at the bottom
     # Maximum height: 80dp, centered horizontally

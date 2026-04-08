@@ -29,7 +29,24 @@ Future<void> generateIosImages({
   String? iosContentMode,
   String? backgroundImage,
   String? iosBackgroundContentMode,
+  String? darkImageSource,
+  String? darkColor,
+  String? darkBackgroundImage,
 }) async {
+  if (darkImageSource != null && imageSource == null) {
+    throw SplashMasterException(
+      message:
+          'For iOS, image is required when image_dark is provided. Add image to provide the base Any appearance asset.',
+    );
+  }
+
+  if (darkBackgroundImage != null && backgroundImage == null) {
+    throw SplashMasterException(
+      message:
+          'For iOS, background_image is required when background_image_dark is provided. Add background_image to provide the base Any appearance asset.',
+    );
+  }
+
   const iosAssetsFolder = CmdStrings.iosAssetsDirectory;
 
   final directory = Directory(iosAssetsFolder);
@@ -37,6 +54,13 @@ Future<void> generateIosImages({
     log("$iosAssetsFolder path doesn't exists. Creating it...");
     await directory.create(recursive: true);
   }
+
+  await _removeLegacyLaunchImageFiles(iosAssetsFolder);
+  await _cleanupGeneratedLaunchImageFiles(
+    iosAssetsFolder,
+    keepLightAssets: imageSource != null,
+    keepDarkAssets: darkImageSource != null,
+  );
 
   final List<Image> images = [];
 
@@ -64,12 +88,45 @@ Future<void> generateIosImages({
       ));
     }
   }
-  updateContentOfStoryboard(
+
+  if (darkImageSource != null) {
+    final darkSourceImage = File(darkImageSource);
+    if (!await darkSourceImage.exists()) {
+      throw SplashMasterException(message: 'Asset not found. $darkImageSource');
+    }
+
+    for (final scale in IosScale.values) {
+      final fileName = '${IOSStrings.splashImageDark}${scale.fileEndWith}.png';
+      final imagePath = '$iosAssetsFolder/$fileName';
+
+      await _replaceFileFromSource(
+        source: darkSourceImage,
+        destinationPath: imagePath,
+      );
+
+      log('Generated $fileName.');
+      images.add(Image(
+        idiom: IOSStrings.iOSContentJsonIdiom,
+        filename: fileName,
+        scale: scale.scale,
+        appearances: [
+          {
+            IOSStrings.appearanceKey: IOSStrings.appearanceLuminosity,
+            IOSStrings.appearanceValueKey: IOSStrings.appearanceDark,
+          }
+        ],
+      ));
+    }
+  }
+
+  await updateContentOfStoryboard(
     imagePath: imageSource,
     color: color,
     iosContentMode: iosContentMode,
     backgroundImage: backgroundImage,
     iosBackgroundContentMode: iosBackgroundContentMode,
+    darkColor: darkColor,
+    darkBackgroundImage: darkBackgroundImage,
   );
 
   await updateContentJson(images);
@@ -83,6 +140,8 @@ Future<void> updateContentOfStoryboard({
   String? iosContentMode,
   String? backgroundImage,
   String? iosBackgroundContentMode,
+  String? darkColor,
+  String? darkBackgroundImage,
 }) async {
   final file = File(CmdStrings.storyboardPath);
   final xmlDocument = XmlDocument.parse(file.readAsStringSync());
@@ -91,19 +150,33 @@ Future<void> updateContentOfStoryboard({
   );
 
   /// Find the default view in the storyboard
-  final view =
-      documentData?.descendants.whereType<XmlElement>().firstWhere((element) {
+  final view = documentData?.descendants
+      .whereType<XmlElement>()
+      .firstWhereOrNull((element) {
     return element.name.qualified == IOSStrings.viewElement &&
         element.getAttribute(IOSStrings.viewIdAttr) == IOSStrings.defaultViewId;
   });
   if (view == null) {
-    log(
-      'Default Flutter view with ${IOSStrings.defaultViewId} ID not found.',
+    throw SplashMasterException(
+      message:
+          'Default Flutter view with ${IOSStrings.defaultViewId} ID not found.',
     );
-    exit(1);
   }
 
-  if (color != null) {
+  final resolvedColor = color ?? IOSStrings.defaultColor;
+
+  // Dark mode requires an Asset Catalog color set (.colorset);
+  // an inline storyboard color cannot express appearance variants.
+  // resolvedColor serves as the light variant.
+  if (darkColor != null) {
+    await createLaunchBackgroundColorSet(
+      lightColor: resolvedColor,
+      darkColor: darkColor,
+    );
+    _setNamedBackgroundColor(view);
+  } else if (color != null) {
+    await _removeLaunchBackgroundColorSet();
+
     /// Update or add a `color` element for the background color
     final colorElement = view.getElement(IOSStrings.colorElement);
     if (colorElement != null) {
@@ -117,6 +190,7 @@ Future<void> updateContentOfStoryboard({
       ));
     }
   } else {
+    await _removeLaunchBackgroundColorSet();
     final colorElement = view.getElement(IOSStrings.colorElement);
     if (colorElement != null) {
       /// Update existing color to white background
@@ -129,12 +203,26 @@ Future<void> updateContentOfStoryboard({
       ));
     }
   }
+
   var shouldAddBackgroundImage = false;
   if (backgroundImage != null) {
     final backgroundImageFile = File(backgroundImage);
     final backgroundImageFileExists = await backgroundImageFile.exists();
 
     if (backgroundImageFileExists) {
+      // Per Apple's Asset Catalog spec, a Dark appearance variant requires a base
+      // "Any" appearance asset. Both are resolved here together before writing the image set.
+      File? darkBackgroundImageFile;
+      if (darkBackgroundImage != null) {
+        final file = File(darkBackgroundImage);
+        if (await file.exists()) {
+          darkBackgroundImageFile = file;
+        } else {
+          throw SplashMasterException(
+            message: 'Asset not found. $darkBackgroundImage',
+          );
+        }
+      }
       await createBackgroundImage(
         const Image(
           scale: '3x',
@@ -142,14 +230,19 @@ Future<void> updateContentOfStoryboard({
           idiom: 'universal',
         ),
         backgroundImageFile,
+        darkImageFile: darkBackgroundImageFile,
       );
       shouldAddBackgroundImage = true;
     } else {
-      log("$backgroundImage doesn't exists. No background image was set.");
+      throw SplashMasterException(message: 'Asset not found. $backgroundImage');
     }
+  } else {
+    await _removeBackgroundImageSet();
   }
 
-  if (imagePath != null) {
+  final shouldRenderImageViews = imagePath != null || shouldAddBackgroundImage;
+
+  if (shouldRenderImageViews) {
     /// Find (or create) subViews element in the storyboard only when needed.
     final subViews = _getOrCreateSubViews(view);
 
@@ -164,11 +257,13 @@ Future<void> updateContentOfStoryboard({
       ));
     }
 
-    subViews.children.add(getImageXMLElement(
-      elementId: IOSStrings.defaultImageViewIdValue,
-      imageName: IOSStrings.imageValue,
-      contentMode: iosContentMode ?? IOSStrings.contentModeValue,
-    ));
+    if (imagePath != null) {
+      subViews.children.add(getImageXMLElement(
+        elementId: IOSStrings.defaultImageViewIdValue,
+        imageName: IOSStrings.imageValue,
+        contentMode: iosContentMode ?? IOSStrings.contentModeValue,
+      ));
+    }
 
     /// Remove all existing constraints elements to avoid duplicates
     view.children.removeWhere(
@@ -178,14 +273,16 @@ Future<void> updateContentOfStoryboard({
     );
 
     /// Add constraints in view element based on requested content modes.
-    view.children.add(
-      _buildConstraintsElement(
-        splashContentMode: iosContentMode ?? IOSStrings.contentModeValue,
-        includeBackgroundImage: shouldAddBackgroundImage,
-        backgroundContentMode:
-            iosBackgroundContentMode ?? IOSStrings.contentModeValue,
-      ),
+    final constraintsElement = _buildConstraintsElement(
+      includeSplashImage: imagePath != null,
+      splashContentMode: iosContentMode ?? IOSStrings.contentModeValue,
+      includeBackgroundImage: shouldAddBackgroundImage,
+      backgroundContentMode:
+          iosBackgroundContentMode ?? IOSStrings.contentModeValue,
     );
+    if (constraintsElement != null) {
+      view.children.add(constraintsElement);
+    }
   } else {
     /// Remove all existing constraints elements
     view.children.removeWhere(
@@ -206,33 +303,100 @@ Future<void> updateContentOfStoryboard({
   );
 }
 
+Future<void> createLaunchBackgroundColorSet({
+  required String lightColor,
+  required String darkColor,
+}) async {
+  const directoryPath =
+      '${CmdStrings.iosAssetCatalogDirectory}/${IOSStrings.launchBackgroundColorSetDirectory}';
+  final directory = Directory(directoryPath);
+  if (!await directory.exists()) {
+    await directory.create(recursive: true);
+  }
+
+  final file = File('$directoryPath/${IOSStrings.iosContentJson}');
+
+  final json = {
+    'info': {
+      'author': 'xcode',
+      'version': 1,
+    },
+    'colors': [
+      {
+        'idiom': 'universal',
+        'color': {
+          'color-space': 'srgb',
+          'components': {
+            'red': _hexToDecimal(lightColor.substring(1, 3)),
+            'green': _hexToDecimal(lightColor.substring(3, 5)),
+            'blue': _hexToDecimal(lightColor.substring(5, 7)),
+            'alpha': '1.000',
+          },
+        },
+      },
+      {
+        'idiom': 'universal',
+        'appearances': [
+          {
+            IOSStrings.appearanceKey: IOSStrings.appearanceLuminosity,
+            IOSStrings.appearanceValueKey: IOSStrings.appearanceDark,
+          }
+        ],
+        'color': {
+          'color-space': 'srgb',
+          'components': {
+            'red': _hexToDecimal(darkColor.substring(1, 3)),
+            'green': _hexToDecimal(darkColor.substring(3, 5)),
+            'blue': _hexToDecimal(darkColor.substring(5, 7)),
+            'alpha': '1.000',
+          },
+        },
+      },
+    ],
+  };
+
+  await file.writeAsString(encoder.convert(json));
+}
+
+void _setNamedBackgroundColor(XmlElement view) {
+  final colorElement = view.getElement(IOSStrings.colorElement);
+  if (colorElement != null) {
+    colorElement.attributes
+      ..clear()
+      ..addAll([
+        XmlAttribute(
+            XmlName(IOSStrings.colorKeyAttr), IOSStrings.colorKeyAttrVal),
+        XmlAttribute(
+          XmlName(IOSStrings.nameAttr),
+          IOSStrings.launchBackgroundColorAssetName,
+        ),
+      ]);
+    colorElement.children.clear();
+    return;
+  }
+
+  view.children.add(
+    XmlElement(
+      XmlName(IOSStrings.colorElement),
+      [
+        XmlAttribute(
+            XmlName(IOSStrings.colorKeyAttr), IOSStrings.colorKeyAttrVal),
+        XmlAttribute(
+          XmlName(IOSStrings.nameAttr),
+          IOSStrings.launchBackgroundColorAssetName,
+        ),
+      ],
+    ),
+  );
+}
+
 /// Update color attributes for a color element
 void _updateColorAttributes(XmlElement colorElement, String hexColor) {
-  /// Set attributes of color element
-  colorElement.setAttribute(
-    IOSStrings.colorKeyAttr,
-    IOSStrings.colorKeyAttrVal,
-  );
-  colorElement.setAttribute(
-    IOSStrings.customColorAttr,
-    IOSStrings.customColorAttrVal,
-  );
-  colorElement.setAttribute(
-    IOSStrings.redColorAttr,
-    _hexToDecimal(hexColor.substring(1, 3)),
-  );
-  colorElement.setAttribute(
-    IOSStrings.greenColorAttr,
-    _hexToDecimal(hexColor.substring(3, 5)),
-  );
-  colorElement.setAttribute(
-    IOSStrings.blueColorAttr,
-    _hexToDecimal(hexColor.substring(5, 7)),
-  );
-  colorElement.setAttribute(
-    IOSStrings.colorAlphaAttr,
-    IOSStrings.defaultAlphaAttrVal,
-  );
+  /// Reset attributes to avoid retaining stale named-color references.
+  colorElement.attributes
+    ..clear()
+    ..addAll(_buildColorAttributes(hexColor));
+  colorElement.children.clear();
 }
 
 /// Build attributes for a new color element
@@ -300,16 +464,21 @@ String _hexToDecimal(String hex) {
 Future<void> updateContentJson(
   List<Image> images,
 ) async {
-  if (images.isEmpty) {
-    log('No images were generated. Skipping Updating Contents.json.');
-    return;
-  }
   const iosAssetsFolder = CmdStrings.iosAssetsDirectory;
 
   final file = File('$iosAssetsFolder/${IOSStrings.iosContentJson}');
-  final jsonString = await file.readAsString();
-  final json = jsonDecode(jsonString);
-  final iosContentJsonDm = IosContentJsonDm.fromJson(json);
+  IosContentJsonDm iosContentJsonDm;
+
+  if (await file.exists()) {
+    final jsonString = await file.readAsString();
+    final json = jsonDecode(jsonString);
+    iosContentJsonDm = IosContentJsonDm.fromJson(json);
+  } else {
+    iosContentJsonDm = const IosContentJsonDm(
+      images: [],
+      info: Info(author: 'xcode', version: 1),
+    );
+  }
 
   final updatedIosContentJson = iosContentJsonDm.copyWith(images: images);
   final encodedContentJson = encoder.convert(updatedIosContentJson);
@@ -317,21 +486,129 @@ Future<void> updateContentJson(
   log('Updated Contents.json.');
 }
 
-Future<void> createBackgroundImage(Image image, File imageFile) async {
+Future<void> createBackgroundImage(
+  Image? image,
+  File? imageFile, {
+  File? darkImageFile,
+}) async {
   const iosAssetsFolder = CmdStrings.iosBackgroundImageDirectory;
   final file = await File('$iosAssetsFolder/${IOSStrings.iosContentJson}')
       .create(recursive: true);
 
+  final List<Image> images = [];
+  if (image != null) {
+    images.add(image);
+  }
+  if (darkImageFile != null) {
+    images.add(const Image(
+      scale: '3x',
+      filename: '${IOSStrings.backgroundImageDarkSnakeCase}.png',
+      idiom: 'universal',
+      appearances: [
+        {
+          IOSStrings.appearanceKey: IOSStrings.appearanceLuminosity,
+          IOSStrings.appearanceValueKey: IOSStrings.appearanceDark,
+        }
+      ],
+    ));
+  }
+
   final iosContent = IosContentJsonDm(
-    images: [image],
+    images: images,
     info: const Info(author: 'xcode', version: 1),
   );
   final iosContentJson = iosContent.toJson();
-  file.writeAsString(encoder.convert(iosContentJson));
-  final backgroundImage =
-      File('$iosAssetsFolder/${IOSStrings.backgroundImageSnakeCase}.png');
+  await file.writeAsString(encoder.convert(iosContentJson));
 
-  await backgroundImage.writeAsBytes(await imageFile.readAsBytes());
+  if (imageFile != null) {
+    final backgroundImage =
+        File('$iosAssetsFolder/${IOSStrings.backgroundImageSnakeCase}.png');
+    await backgroundImage.writeAsBytes(await imageFile.readAsBytes());
+  }
+
+  if (darkImageFile != null) {
+    final backgroundImageDark =
+        File('$iosAssetsFolder/${IOSStrings.backgroundImageDarkSnakeCase}.png');
+    await backgroundImageDark.writeAsBytes(await darkImageFile.readAsBytes());
+  }
+}
+
+Future<void> _removeLegacyLaunchImageFiles(String iosAssetsFolder) async {
+  final legacyFiles = <String>[
+    '${IOSStrings.imageValue}.png',
+    '${IOSStrings.imageValue}@2x.png',
+    '${IOSStrings.imageValue}@3x.png',
+  ];
+
+  for (final fileName in legacyFiles) {
+    final file = File('$iosAssetsFolder/$fileName');
+    if (await file.exists()) {
+      await file.delete();
+      log('Removed stale iOS launch asset: $fileName');
+    }
+  }
+}
+
+Future<void> _cleanupGeneratedLaunchImageFiles(
+  String iosAssetsFolder, {
+  required bool keepLightAssets,
+  required bool keepDarkAssets,
+}) async {
+  final fileNames = <String>[
+    '${IOSStrings.splashImage}.png',
+    '${IOSStrings.splashImage}@2x.png',
+    '${IOSStrings.splashImage}@3x.png',
+  ];
+
+  if (!keepDarkAssets) {
+    fileNames.addAll([
+      '${IOSStrings.splashImageDark}.png',
+      '${IOSStrings.splashImageDark}@2x.png',
+      '${IOSStrings.splashImageDark}@3x.png',
+    ]);
+  }
+
+  if (!keepLightAssets) {
+    for (final lightFile in [
+      '${IOSStrings.splashImage}.png',
+      '${IOSStrings.splashImage}@2x.png',
+      '${IOSStrings.splashImage}@3x.png',
+    ]) {
+      if (!fileNames.contains(lightFile)) {
+        fileNames.add(lightFile);
+      }
+    }
+  }
+
+  for (final fileName in fileNames) {
+    final file = File('$iosAssetsFolder/$fileName');
+    if (await file.exists()) {
+      final isDarkAsset = fileName.startsWith(IOSStrings.splashImageDark);
+      final shouldDelete = isDarkAsset ? !keepDarkAssets : !keepLightAssets;
+      if (shouldDelete) {
+        await file.delete();
+        log('Removed stale generated iOS launch asset: $fileName');
+      }
+    }
+  }
+}
+
+Future<void> _removeBackgroundImageSet() async {
+  final directory = Directory(CmdStrings.iosBackgroundImageDirectory);
+  if (await directory.exists()) {
+    await directory.delete(recursive: true);
+    log('Removed stale iOS background image set.');
+  }
+}
+
+Future<void> _removeLaunchBackgroundColorSet() async {
+  final directory = Directory(
+    '${CmdStrings.iosAssetCatalogDirectory}/${IOSStrings.launchBackgroundColorSetDirectory}',
+  );
+  if (await directory.exists()) {
+    await directory.delete(recursive: true);
+    log('Removed stale iOS launch background color set.');
+  }
 }
 
 XmlElement getImageXMLElement({
@@ -414,19 +691,24 @@ XmlElement? getBackgroundImageElement(XmlElement? subViews) {
       );
 }
 
-XmlElement _buildConstraintsElement({
+XmlElement? _buildConstraintsElement({
+  required bool includeSplashImage,
   required String splashContentMode,
   required bool includeBackgroundImage,
   required String backgroundContentMode,
 }) {
-  final constraints = <XmlNode>[
-    ..._constraintsForImage(
-      imageViewId: IOSStrings.defaultImageViewIdValue,
-      contentMode: splashContentMode,
-      verticalIds: const ['xPn-NY-SIU', 'duK-uY-Gun', 'sYI-sP-v01'],
-      horizontalIds: const ['3T2-ad-Qdv', 'TQA-XW-tRk', 'sYI-sP-h01'],
-    ),
-  ];
+  final constraints = <XmlNode>[];
+
+  if (includeSplashImage) {
+    constraints.addAll(
+      _constraintsForImage(
+        imageViewId: IOSStrings.defaultImageViewIdValue,
+        contentMode: splashContentMode,
+        verticalIds: const ['xPn-NY-SIU', 'duK-uY-Gun', 'sYI-sP-v01'],
+        horizontalIds: const ['3T2-ad-Qdv', 'TQA-XW-tRk', 'sYI-sP-h01'],
+      ),
+    );
+  }
 
   if (includeBackgroundImage) {
     constraints.addAll(
@@ -437,6 +719,10 @@ XmlElement _buildConstraintsElement({
         horizontalIds: const ['zVa-1q-mai', 'T4v-vm-VRP', 'sYI-sP-h02'],
       ),
     );
+  }
+
+  if (constraints.isEmpty) {
+    return null;
   }
 
   return XmlElement(

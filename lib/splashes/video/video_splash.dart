@@ -56,16 +56,25 @@ class _VideoSplashState extends State<VideoSplash> {
   void initState() {
     super.initState();
     videoController = _getVideoControllerFromSource();
-    videoController.initialize().then(
-      (_) {
-        if (mounted) setState(() {});
-        videoConfig.onVideoControllerInitialised?.call(videoController);
-        widget.onSplashDuration?.call(videoController.value.duration);
-        if (videoConfig.playImmediately) {
-          videoController.play();
-        }
-      },
-    );
+    videoController.initialize().then((_) {
+      if (mounted) setState(() {});
+      videoConfig.onVideoControllerInitialised?.call(videoController);
+      widget.onSplashDuration?.call(videoController.value.duration);
+      if (videoConfig.playImmediately) {
+        videoController.play();
+      }
+    }).catchError((Object error, StackTrace stackTrace) {
+      // Ensure app can progress even if the video cannot be initialized.
+      widget.onSplashDuration?.call(Duration.zero);
+      FlutterError.reportError(
+        FlutterErrorDetails(
+          exception: error,
+          stack: stackTrace,
+          library: 'splash_master',
+          context: ErrorDescription('while initializing video splash'),
+        ),
+      );
+    });
   }
 
   @override
@@ -85,7 +94,10 @@ class _VideoSplashState extends State<VideoSplash> {
                 ? SafeArea(child: Center(child: mediaWidget))
                 : Center(child: mediaWidget),
           )
-        : const SizedBox.shrink();
+        : ColoredBox(
+            color: widget.backGroundColor ?? Colors.transparent,
+            child: const SizedBox.expand(),
+          );
   }
 
   Widget get mediaWidget {

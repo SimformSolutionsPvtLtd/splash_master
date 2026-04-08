@@ -60,6 +60,7 @@ class Image {
     required this.idiom,
     required this.filename,
     required this.scale,
+    this.appearances,
   });
 
   factory Image.fromJson(Map<String, dynamic> json) {
@@ -67,6 +68,13 @@ class Image {
       idiom: json['idiom'],
       filename: json['filename'],
       scale: json['scale'],
+      appearances: json['appearances'] != null
+          ? List<Map<String, dynamic>>.from(
+              (json['appearances'] as List).map(
+                (e) => Map<String, dynamic>.from(e as Map),
+              ),
+            )
+          : null,
     );
   }
 
@@ -74,23 +82,33 @@ class Image {
   final String filename;
   final String scale;
 
+  /// Optional list of appearance descriptors (e.g., dark mode).
+  /// Each entry is a map like `{"appearance": "luminosity", "value": "dark"}`.
+  final List<Map<String, dynamic>>? appearances;
+
   Map<String, dynamic> toJson() {
-    return {
+    final map = <String, dynamic>{
       'idiom': idiom,
       'filename': filename,
       'scale': scale,
     };
+    if (appearances != null) {
+      map['appearances'] = appearances;
+    }
+    return map;
   }
 
   Image copyWith({
     String? idiom,
     String? filename,
     String? scale,
+    List<Map<String, dynamic>>? appearances,
   }) =>
       Image(
         idiom: idiom ?? this.idiom,
         filename: filename ?? this.filename,
         scale: scale ?? this.scale,
+        appearances: appearances ?? this.appearances,
       );
 }
 
