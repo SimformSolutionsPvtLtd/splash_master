@@ -28,14 +28,12 @@
                         </subviews>
                         <color key="backgroundColor" red="1.000" green="1.000" blue="1.000" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
-                            <constraint firstItem="YRO-k0-Ey4" firstAttribute="leading" secondItem="Ze5-6b-2t3" secondAttribute="leading" id="3T2-ad-Qdv"/>
-                            <constraint firstItem="edQ-YT-iED" firstAttribute="top" secondItem="Ze5-6b-2t3" secondAttribute="top" id="B02-Ap-adr"/>
-                            <constraint firstAttribute="trailing" secondItem="edQ-YT-iED" secondAttribute="trailing" id="T4v-vm-VRP"/>
-                            <constraint firstAttribute="trailing" secondItem="YRO-k0-Ey4" secondAttribute="trailing" id="TQA-XW-tRk"/>
-                            <constraint firstItem="YRO-k0-Ey4" firstAttribute="bottom" secondItem="Ze5-6b-2t3" secondAttribute="bottom" id="duK-uY-Gun"/>
-                            <constraint firstAttribute="bottom" secondItem="edQ-YT-iED" secondAttribute="bottom" id="e2S-gZ-2jl"/>
-                            <constraint firstItem="YRO-k0-Ey4" firstAttribute="top" secondItem="Ze5-6b-2t3" secondAttribute="top" id="xPn-NY-SIU"/>
+                            <constraint firstItem="YRO-k0-Ey4" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="sYI-sP-v01"/>
+                            <constraint firstItem="YRO-k0-Ey4" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="sYI-sP-h01"/>
                             <constraint firstItem="edQ-YT-iED" firstAttribute="leading" secondItem="Ze5-6b-2t3" secondAttribute="leading" id="zVa-1q-mai"/>
+                            <constraint firstItem="edQ-YT-iED" firstAttribute="trailing" secondItem="Ze5-6b-2t3" secondAttribute="trailing" id="T4v-vm-VRP"/>
+                            <constraint firstItem="edQ-YT-iED" firstAttribute="top" secondItem="Ze5-6b-2t3" secondAttribute="top" id="B02-Ap-adr"/>
+                            <constraint firstItem="edQ-YT-iED" firstAttribute="bottom" secondItem="Ze5-6b-2t3" secondAttribute="bottom" id="e2S-gZ-2jl"/>
                         </constraints>
                     </view>
                 </viewController>
