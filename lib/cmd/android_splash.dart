@@ -262,10 +262,11 @@ Future<void> updateStylesXml({
 }) async {
   const androidValuesFolder = CmdStrings.androidValuesDirectory;
 
-  if (android12AndAbove != null &&
-      (android12AndAbove[YamlKeys.colorKey] != null ||
-          android12AndAbove[YamlKeys.imageKey] != null ||
-          android12AndAbove[YamlKeys.brandingImageKey] != null)) {
+  if ((android12AndAbove != null &&
+          (android12AndAbove[YamlKeys.colorKey] != null ||
+              android12AndAbove[YamlKeys.imageKey] != null ||
+              android12AndAbove[YamlKeys.brandingImageKey] != null)) ||
+      color != null) {
     const v31 = CmdStrings.androidValuesV31Directory;
     if (!await Directory(v31).exists()) {
       await Directory(v31).create();
@@ -278,9 +279,9 @@ Future<void> updateStylesXml({
 
     await createAndroid12Styles(
       styleFile: styleFile,
-      color: android12AndAbove[YamlKeys.colorKey],
-      imageSource: android12AndAbove[YamlKeys.imageKey],
-      brandingImageSource: android12AndAbove[YamlKeys.brandingImageKey],
+      color: android12AndAbove?[YamlKeys.colorKey] ?? color,
+      imageSource: android12AndAbove?[YamlKeys.imageKey],
+      brandingImageSource: android12AndAbove?[YamlKeys.brandingImageKey],
     );
   }
   final xml = File('$androidValuesFolder/${AndroidStrings.stylesXml}');
@@ -563,13 +564,13 @@ Future<void> updateDarkStylesXml({
 }) async {
   const androidValuesFolder = CmdStrings.androidDarkValuesDirectory;
 
-  if (android12AndAbove != null &&
-      (android12AndAbove[YamlKeys.colorKey] != null ||
-          android12AndAbove[YamlKeys.imageKey] != null ||
-          android12AndAbove[YamlKeys.brandingImageKey] != null ||
-          darkBrandingImage != null ||
-          color != null ||
-          darkImage != null)) {
+  if ((android12AndAbove != null &&
+          (android12AndAbove[YamlKeys.colorKey] != null ||
+              android12AndAbove[YamlKeys.imageKey] != null ||
+              android12AndAbove[YamlKeys.brandingImageKey] != null)) ||
+      darkBrandingImage != null ||
+      color != null ||
+      darkImage != null) {
     // Use values-night-v31 for dark mode Android 12+ styles (separate from light values-v31)
     const v31 = CmdStrings.androidDarkValuesV31Directory;
     if (!await Directory(v31).exists()) {
@@ -584,12 +585,12 @@ Future<void> updateDarkStylesXml({
     await createAndroid12Styles(
       styleFile: styleFile,
       // Prefer explicit dark color; fall back to android_12_and_above color
-      color: color ?? android12AndAbove[YamlKeys.colorKey],
+      color: color ?? android12AndAbove?[YamlKeys.colorKey],
       // Prefer explicit dark image; fall back to android_12_and_above image
-      imageSource: darkImage ?? android12AndAbove[YamlKeys.imageKey],
+      imageSource: darkImage ?? android12AndAbove?[YamlKeys.imageKey],
       // Prefer explicit dark branding image; fall back to light branding image
       brandingImageSource:
-          darkBrandingImage ?? android12AndAbove[YamlKeys.brandingImageKey],
+          darkBrandingImage ?? android12AndAbove?[YamlKeys.brandingImageKey],
       isDarkBranding: darkBrandingImage != null,
       isDarkImage: darkImage != null,
     );
