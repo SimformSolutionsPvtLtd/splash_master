@@ -43,6 +43,9 @@ class IOSStrings {
   /// `key`
   static const colorKeyAttr = 'key';
 
+  /// `name`
+  static const nameAttr = 'name';
+
   /// `backgroundColor`
   static const colorKeyAttrVal = 'backgroundColor';
 
@@ -162,4 +165,29 @@ class IOSStrings {
 
   /// `background_image`
   static const backgroundImageSnakeCase = 'background_image';
+
+  /// `splash_image_dark`
+  static const splashImageDark = 'splash_image_dark';
+
+  /// `background_image_dark`
+  static const backgroundImageDarkSnakeCase = 'background_image_dark';
+
+  /// Appearance key used in Contents.json for dark mode
+  static const appearanceKey = 'appearance';
+
+  /// Appearance attribute value: `luminosity`
+  static const appearanceLuminosity = 'luminosity';
+
+  /// Appearance value attribute key
+  static const appearanceValueKey = 'value';
+
+  /// Appearance value for dark mode: `dark`
+  static const appearanceDark = 'dark';
+
+  /// `LaunchBackgroundColor`
+  static const launchBackgroundColorAssetName = 'LaunchBackgroundColor';
+
+  /// `LaunchBackgroundColor.colorset`
+  static const launchBackgroundColorSetDirectory =
+      'LaunchBackgroundColor.colorset';
 }

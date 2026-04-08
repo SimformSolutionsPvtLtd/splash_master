@@ -39,7 +39,7 @@ import 'logging.dart';
 part 'android_splash.dart';
 part 'ios_splash.dart';
 
-void commandEntry(List<String> arguments) {
+Future<void> commandEntry(List<String> arguments) async {
   if (arguments.isEmpty) {
     log('Usage: dart run splash_master <command>');
     log('Command:');
@@ -68,7 +68,7 @@ void commandEntry(List<String> arguments) {
           }
 
           /// [splashData] is data that is being extracted from the YAML file.
-          setupSplashScreen(splashData);
+          await setupSplashScreen(splashData);
         } catch (e) {
           log(e.toString());
         }
@@ -79,7 +79,7 @@ void commandEntry(List<String> arguments) {
 }
 
 /// Setting up the splash screen using the details provided in `pubspec.yaml` file under `splash_master`.
-void setupSplashScreen(YamlMap splashData) {
+Future<void> setupSplashScreen(YamlMap splashData) async {
   final splashKeys = splashData.keys.map((e) => e.toString()).toSet();
   final unsupportedTopLevelKeys = splashKeys
       .where((key) => !YamlKeys.supportedYamlKeys.contains(key))
@@ -143,7 +143,7 @@ void setupSplashScreen(YamlMap splashData) {
   }
 
   /// Checking if provided content mode is valid or not
-  else if (splashData[YamlKeys.iosContentModeKey] != null &&
+  if (splashData[YamlKeys.iosContentModeKey] != null &&
       !IosContentMode.values.any(
         (element) => element == iosContentMode,
       )) {
@@ -152,7 +152,7 @@ void setupSplashScreen(YamlMap splashData) {
   }
 
   /// Checking if provided background content mode is valid or not
-  else if (splashData[YamlKeys.iosBackgroundContentMode] != null &&
+  if (splashData[YamlKeys.iosBackgroundContentMode] != null &&
       !IosContentMode.values.any(
         (element) => element == iosBackgroundContentMode,
       )) {
@@ -160,19 +160,80 @@ void setupSplashScreen(YamlMap splashData) {
     return;
   }
 
-  /// Checking if provided image has supported extension or not
-  else if (splashData[YamlKeys.imageKey] != null) {
-    final imgExtension =
-        splashData[YamlKeys.imageKey].toString().split('.').last;
-    if (!SupportedImageExtensions.values.any(
-      (element) =>
-          element ==
-          SupportedImageExtensions.fromString(imgExtension.toLowerCase()),
+  // iOS launch image assets should have a base Any variant when Dark is used.
+  if (splashData[YamlKeys.imageDarkKey] != null &&
+      splashData[YamlKeys.imageKey] == null) {
+    log(
+      'For iOS, image is required when image_dark is provided. '
+      'Add image to provide the base Any appearance asset.',
+    );
+    return;
+  }
+
+  // iOS background assets should have a base Any variant when Dark is used.
+  if (splashData[YamlKeys.backgroundImageDarkKey] != null &&
+      splashData[YamlKeys.backgroundImage] == null) {
+    log(
+      'For iOS, background_image is required when background_image_dark is provided. '
+      'Add background_image to provide the base Any appearance asset.',
+    );
+    return;
+  }
+
+  if (!_validateImageExtensionIfProvided(
+    splashData[YamlKeys.imageKey],
+    keyName: YamlKeys.imageKey,
+  )) {
+    return;
+  }
+  if (!_validateImageExtensionIfProvided(
+    splashData[YamlKeys.imageDarkKey],
+    keyName: YamlKeys.imageDarkKey,
+  )) {
+    return;
+  }
+  if (!_validateImageExtensionIfProvided(
+    splashData[YamlKeys.backgroundImage],
+    keyName: YamlKeys.backgroundImage,
+  )) {
+    return;
+  }
+  if (!_validateImageExtensionIfProvided(
+    splashData[YamlKeys.backgroundImageDarkKey],
+    keyName: YamlKeys.backgroundImageDarkKey,
+  )) {
+    return;
+  }
+
+  if (android12AndAbove != null) {
+    if (!_validateImageExtensionIfProvided(
+      android12AndAbove[YamlKeys.imageKey],
+      keyName: '${YamlKeys.android12AndAboveKey}.${YamlKeys.imageKey}',
     )) {
-      log('Image should be png, jpg, or jpeg.');
       return;
     }
-  } else if (splashData[YamlKeys.androidBackgroundGravity] != null &&
+    if (!_validateImageExtensionIfProvided(
+      android12AndAbove[YamlKeys.imageDarkKey],
+      keyName: '${YamlKeys.android12AndAboveKey}.${YamlKeys.imageDarkKey}',
+    )) {
+      return;
+    }
+    if (!_validateImageExtensionIfProvided(
+      android12AndAbove[YamlKeys.brandingImageKey],
+      keyName: '${YamlKeys.android12AndAboveKey}.${YamlKeys.brandingImageKey}',
+    )) {
+      return;
+    }
+    if (!_validateImageExtensionIfProvided(
+      android12AndAbove[YamlKeys.brandingImageDarkKey],
+      keyName:
+          '${YamlKeys.android12AndAboveKey}.${YamlKeys.brandingImageDarkKey}',
+    )) {
+      return;
+    }
+  }
+
+  if (splashData[YamlKeys.androidBackgroundGravity] != null &&
       !(AndroidGravity.values.any(
         (element) =>
             element ==
@@ -182,20 +243,25 @@ void setupSplashScreen(YamlMap splashData) {
     log('Please check the android_background_image_gravity');
     return;
   }
-  applySplash(
-    imageSource: splashData[YamlKeys.imageKey],
-    color: splashData[YamlKeys.colorKey],
-    gravity: splashData[YamlKeys.androidGravityKey],
-    iosContentMode: iosContentMode?.mode,
-    android12AndAbove: android12AndAbove,
-    iosBackgroundContentMode: iosBackgroundContentMode?.mode,
-    backgroundImageSource: splashData[YamlKeys.backgroundImage],
-    backgroundImageGravity: splashData[YamlKeys.androidBackgroundGravity],
-    darkColor: splashData[YamlKeys.colorDarkKey],
-    darkGravity: splashData[YamlKeys.androidDarkGravityKey],
-    darkImage: splashData[YamlKeys.imageDarkKey],
-    darkBackgroundImageSource: splashData[YamlKeys.backgroundImageDarkKey],
-  );
+
+  try {
+    await applySplash(
+      imageSource: splashData[YamlKeys.imageKey],
+      color: splashData[YamlKeys.colorKey],
+      gravity: splashData[YamlKeys.androidGravityKey],
+      iosContentMode: iosContentMode?.mode,
+      android12AndAbove: android12AndAbove,
+      iosBackgroundContentMode: iosBackgroundContentMode?.mode,
+      backgroundImageSource: splashData[YamlKeys.backgroundImage],
+      backgroundImageGravity: splashData[YamlKeys.androidBackgroundGravity],
+      darkColor: splashData[YamlKeys.colorDarkKey],
+      darkGravity: splashData[YamlKeys.androidDarkGravityKey],
+      darkImage: splashData[YamlKeys.imageDarkKey],
+      darkBackgroundImageSource: splashData[YamlKeys.backgroundImageDarkKey],
+    );
+  } on SplashMasterException catch (e) {
+    log(e.message);
+  }
 }
 
 /// Generates Android splash assets and updates Android resource files.
@@ -296,6 +362,9 @@ Future<void> applySplash({
     backgroundImage: backgroundImageSource,
     iosContentMode: iosContentMode,
     iosBackgroundContentMode: iosBackgroundContentMode,
+    darkImageSource: darkImage,
+    darkColor: darkColor,
+    darkBackgroundImage: darkBackgroundImageSource,
   );
   await applyAndroidSplashImage(
     imageSource: imageSource,
@@ -324,4 +393,32 @@ IosContentMode? _tryParseIosContentMode(dynamic mode) {
   }
 
   return null;
+}
+
+bool _validateImageExtensionIfProvided(
+  dynamic imagePath, {
+  required String keyName,
+}) {
+  if (imagePath == null) {
+    return true;
+  }
+
+  final path = imagePath.toString().trim();
+  final parts = path.split('.');
+  if (parts.length < 2 || parts.last.isEmpty) {
+    log('$keyName should point to a png, jpg, or jpeg asset.');
+    return false;
+  }
+
+  final extension = parts.last.toLowerCase();
+  final isSupported = SupportedImageExtensions.values.any(
+    (supported) => supported.name == extension,
+  );
+
+  if (!isSupported) {
+    log('$keyName should point to a png, jpg, or jpeg asset.');
+    return false;
+  }
+
+  return true;
 }

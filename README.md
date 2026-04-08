@@ -19,6 +19,7 @@ _Check out other amazing open-source [Flutter libraries](https://simform-flutter
 ## Features
 
 - Native Integration: Automatically sets up native splash screens for Android and iOS.
+- Dark Mode Support: Configure dark appearance splash assets for both Android and iOS.
 - Multiple Media Support: Use videos, Lottie, Rive, images, or custom widgets.
 - Easy Configuration: Define splash details in your pubspec.yaml.
 - Smooth Transition: Ensures seamless transition from native splash to Flutter app.
