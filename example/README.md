@@ -49,8 +49,8 @@ Android 12+ uses the system splash screen API, so icon positioning is system-con
 
 ```yaml
   android_12_and_above:
-    color: '#FFFFFF'                                  # Android 12+ background color (fallback: top-level color)
-    image: 'assets/splash_12.png'                     # Custom splash icon (288x288dp, fallback: top-level image)
+    color: '#FFFFFF'                                  # Android 12+ background color
+    image: 'assets/splash_12.png'                     # Android 12+ splash icon (288x288dp)
     image_dark: 'assets/splash_12_dark.png'           # Android 12+ dark splash icon (optional)
     color_dark: '#000000'                             # Android 12+ dark background color (optional)
     branding_image: 'assets/branding_image.png'       # Android 12+-only bottom branding image (max 80dp)
@@ -93,11 +93,10 @@ It does not affect Android 12+, where the splash icon is positioned by the syste
 - `image_dark` swaps the main splash image in dark mode.
 - `background_image_dark` swaps the background image for the pre-Android 12 drawable splash.
 - `android_background_image_gravity` controls both light and dark background image placement on Android.
-- Inside `android_12_and_above`, light keys `image` and `color` fall back to top-level `image` and `color` when not provided.
-- Inside `android_12_and_above`, `image_dark` and `color_dark` are Android 12+-specific overrides with a three-tier fallback:
-  1. `android_12_and_above.image_dark` / `android_12_and_above.color_dark`
-  2. Top-level `image_dark` / `color_dark`
-  3. `android_12_and_above.image` / `android_12_and_above.color`
+- Inside `android_12_and_above`: light keys `image` and `color` are **isolated** from top-level parameters—they do not fall back and must be explicitly set if needed for Android 12+.
+- Inside `android_12_and_above`, dark mode keys follow this fallback hierarchy:
+    - `image_dark` → falls back to `android_12_and_above.image` only (no fallback to top-level)
+    - `color_dark` → no fallback; must be explicitly set if needed
 - `branding_image_dark` inside `android_12_and_above` swaps the Android 12+ branding image in dark mode.
 - `branding_image` and `branding_image_dark` are Android 12+-only and are not supported on iOS.
 

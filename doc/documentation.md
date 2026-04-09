@@ -20,10 +20,11 @@ Splash Master is a Flutter plugin designed to make adding splash screens to your
 
 ## Key Components
 
-- SplashMediaType.lottie: Renders a Lottie animation as the splash screen.
-- SplashMediaType.video: Plays a video splash screen.
-- SplashMediaType.rive: Displays a Rive animation splash screen.
-- Custom Widget: Allows integration of a custom Flutter widget as the splash screen for full flexibility.
+- SplashMediaType.image: Uses a static image as the splash screen (requires manual `SplashMaster.resume()` call).
+- SplashMediaType.lottie: Renders a Lottie animation as the splash screen (auto-resumes when loaded).
+- SplashMediaType.video: Plays a video splash screen (auto-resumes when loaded).
+- SplashMediaType.rive: Displays a Rive animation splash screen (auto-resumes when loaded).
+- SplashMediaType.custom: Allows integration of a custom Flutter widget as the splash screen for full flexibility.
 
 # Installation
 
@@ -60,114 +61,68 @@ This section guides you through the essential steps to implement Splash Master i
 
 ## 1. Configure Splash Master in `pubspec.yaml`
 
-Add a `splash_master` section to your `pubspec.yaml` file. The following example includes all currently supported configuration keys:
+Add a `splash_master` section to your `pubspec.yaml` file. Here's the structure:
 
 ```yaml
 splash_master:
-  # ===== Light Mode — Common Configuration =====
-  # Background color for the splash screen (light mode)
   color: '#FFFFFF'
-
-  # Main splash image (used on both iOS and Android in light mode)
   image: 'assets/splash.png'
-
-  # ===== iOS Light Mode Image Behavior =====
-  # How the splash image should be displayed on iOS
-  # Options: scaleToFill, scaleAspectFit, scaleAspectFill, redraw, center,
-  # top, bottom, left, right, topLeft, topRight, bottomLeft, bottomRight
-  ios_content_mode: 'center'
-
-  # ===== Android Light Mode Image Behavior =====
-  # How the splash image should be positioned on Android below API 31
-  # This affects the pre-Android 12 drawable splash only.
-  # Android 12+ uses the system splash screen API and does not support
-  # gravity-based positioning.
-  # Android gravity options: center, clip_horizontal, clip_vertical, fill_horizontal,
-  # fill, center_vertical, bottom, fill_vertical, center_horizontal, top, end, left,
-  # right, start
-  android_gravity: 'center'
-
-  # Optional background image displayed behind the main splash image
-  background_image: 'assets/background_image.png'
-
-  # Optional background image to use in dark mode
-  background_image_dark: 'assets/background_image_dark.png'
-
-  # How the background image should be displayed on iOS
-  # Options: scaleToFill, scaleAspectFit, scaleAspectFill, redraw, center,
-  # top, bottom, left, right, topLeft, topRight, bottomLeft, bottomRight
-  # Uses the same value set as ios_content_mode
-  ios_background_content_mode: 'scaleToFill'
-
-  # How the background image should be positioned on Android
-  # Options: same as android_gravity
-  android_background_image_gravity: 'fill'
-
-  # ===== Dark Mode — Common Configuration =====
-  # Splash image for dark mode
-  image_dark: 'assets/splash_dark.png'
-
-  # Background color for dark mode
   color_dark: '#000000'
-
-  # ===== Android Dark Mode Behavior =====
-  # How the dark mode splash image should be positioned on Android below API 31
-  # This affects the pre-Android 12 dark drawable splash only.
-  # Options: same as android_gravity
-  # If omitted, falls back to android_gravity
+  image_dark: 'assets/splash_dark.png'
+  background_image: 'assets/background.png'
+  background_image_dark: 'assets/background_dark.png'
+  ios_content_mode: 'center'
+  ios_background_content_mode: 'scaleToFill'
+  android_gravity: 'center'
   android_dark_gravity: 'center'
-
-  # ===== Android 12+ Specific Configuration =====
-  # Android 12+ uses the system splash screen API.
+  android_background_image_gravity: 'fill'
+  
   android_12_and_above:
-    # Background color for Android 12+ splash screen (light mode)
-    # Fallback order: this key -> top-level color
     color: '#FFFFFF'
-
-    # Custom splash icon (replaces default app icon)
-    # This should be a centered icon, ideally 288x288dp
-    # Fallback order: this key -> top-level image
     image: 'assets/splash_12.png'
-
-    # Custom splash icon for Android 12+ dark mode
-    # Fallback order: this key -> top-level image_dark -> android_12_and_above.image
-    image_dark: 'assets/splash_12_dark.png'
-
-    # Background color for Android 12+ dark mode
-    # Fallback order: this key -> top-level color_dark -> android_12_and_above.color
     color_dark: '#000000'
-
-    # Optional branding image shown at the bottom
-    # Maximum height: 80dp, centered horizontally
-    # Android 12+ only; branding images are not supported on iOS
-    branding_image: 'assets/branding_image.png'
-
-    # Optional branding image for Android 12+ dark mode
-    # Android 12+ only; branding images are not supported on iOS
-    branding_image_dark: 'assets/branding_image_dark.png'
+    image_dark: 'assets/splash_12_dark.png'
+    branding_image: 'assets/branding.png'
+    branding_image_dark: 'assets/branding_dark.png'
 ```
 
-**Note:** The above configuration demonstrates all available parameters. You only need to include the parameters relevant to your use case.
+**Note:** You only need to include parameters relevant to your use case.
 
-**Dark mode details:**
-- `image_dark`, `color_dark`, and `background_image_dark` are common cross-platform keys.
-- `android_gravity` and `android_dark_gravity` only affect the pre-Android 12 drawable splash on Android.
-- `android_dark_gravity` is Android-only. If omitted, it falls back to `android_gravity` (not the platform default), so the dark layout stays consistent with light.
-- `android_background_image_gravity` is shared between light and dark background images on Android.
-- Android 12+ ignores gravity because the system splash API centers the icon and does not expose a gravity setting.
-- Inside `android_12_and_above`, light keys `image` and `color` fall back to top-level `image` and `color` when not provided.
-- Inside `android_12_and_above`, `image_dark` and `color_dark` are Android 12+-specific overrides with a three-tier fallback:
-  1. `android_12_and_above.image_dark` / `android_12_and_above.color_dark` (Android 12+-specific dark)
-  2. Top-level `image_dark` / `color_dark` (shared dark)
-  3. `android_12_and_above.image` / `android_12_and_above.color` (Android 12+ light)
-- `branding_image_dark` inside `android_12_and_above` swaps the Android 12+ branding image in dark mode.
-- `branding_image` and `branding_image_dark` are Android 12+-only and are not supported on iOS.
+## Configuration Reference
 
-**Validation details:**
-- `branding_image` and `branding_image_dark` are only valid inside `android_12_and_above` and will be rejected at the top level.
-- `image_dark` and `color_dark` inside `android_12_and_above` act as Android 12+-specific overrides, distinct from the top-level common keys of the same name.
-- Unknown keys at either level are rejected with a validation error.
-- `android_12_and_above` must be a map/object. Non-map values are invalid.
+All parameters, their purpose, platform support, validity, and fallback behavior:
+
+| Parameter | Type | Platforms | Description | Fallback Behavior | Valid Values |
+|-----------|------|-----------|-------------|-------------------|--------------|
+| **LIGHT MODE** |
+| `color` | String | Android, iOS | Background color (hex code) | **None** — no background applied | Hex color code, e.g., `#FFFFFF` |
+| `image` | String | Android, iOS | Splash image path | **None** — no image generated | Asset path, e.g., `assets/splash.png` |
+| `background_image` | String | Android, iOS | Optional background image behind splash | **None** — no background layer | Asset path |
+| **DARK MODE** |
+| `color_dark` | String | Android, iOS | Dark mode background color | **None** — no dark background applied | Hex color code |
+| `image_dark` | String | Android, iOS | Dark mode splash image | **None** — no dark image generated | Asset path |
+| `background_image_dark` | String | Android, iOS | Dark mode background image | **None** — no dark background layer | Asset path |
+| **iOS POSITIONING** |
+| `ios_content_mode` | String | iOS only | How to display splash image | Defaults to `scaleToFill` | `scaleToFill`, `scaleAspectFit`, `scaleAspectFill`, `redraw`, `center`, `top`, `bottom`, `left`, `right`, `topLeft`, `topRight`, `bottomLeft`, `bottomRight` |
+| `ios_background_content_mode` | String | iOS only | How to display background image | Defaults to `scaleToFill` (same as `ios_content_mode`) | Same as `ios_content_mode` |
+| **ANDROID PRE-12 POSITIONING** |
+| `android_gravity` | String | Android (pre-API 31) | Splash image position | Defaults to `fill` | `center`, `clip_horizontal`, `clip_vertical`, `fill_horizontal`, `fill`, `center_vertical`, `bottom`, `fill_vertical`, `center_horizontal`, `top`, `end`, `left`, `right`, `start` |
+| `android_dark_gravity` | String | Android (pre-API 31) | Dark splash image position | **Falls back to `android_gravity`** | Same as `android_gravity` |
+| `android_background_image_gravity` | String | Android (pre-API 31) | Background image position | Defaults to `fill` | Same as `android_gravity` |
+| **ANDROID 12+ (inside `android_12_and_above`)** |
+| `color` | String | Android 12+ (API 31+) | Background color for system splash | **None** — does NOT fall back to top-level `color` | Hex color code |
+| `image` | String | Android 12+ (API 31+) | Icon for system splash (replaces app icon) | **None** — uses system default app icon | Asset path (ideally 288x288dp) |
+| `color_dark` | String | Android 12+ (API 31+) | Dark mode background color | **None** — no dark background applied | Hex color code |
+| `image_dark` | String | Android 12+ (API 31+) | Dark mode icon | **Falls back to `android_12_and_above.image`** | Asset path |
+| `branding_image` | String | Android 12+ only | Branding image at bottom (max 80dp height) | **None** — no branding shown | Asset path |
+| `branding_image_dark` | String | Android 12+ only | Dark mode branding image | **Falls back to `android_12_and_above.branding_image`** | Asset path |
+
+### Key Points
+
+- **Only valid inside `android_12_and_above`:** `branding_image`, `branding_image_dark` (will be rejected at top level)
+- **No cross-version fallback:** Android 12+ parameters do NOT fall back to top-level parameters (independent namespaces)
+- **Gravity ignored on Android 12+:** System splash API centers all content; gravity settings are not used
+- **Within-namespace fallback only:** Dark mode can fall back to light mode within the same version, but never across versions
 
 ## 2. Generate Native Splash Screen
 
@@ -186,7 +141,22 @@ splash_master create
 
 ## 3. Integrate Splash Master in Flutter
 
-Splash Master supports video, Lottie, Rive, and image splash screens. Video, Lottie, and Rive are handled on the Flutter side; images are managed natively.
+Splash Master supports video, Lottie, Rive, image, and custom widget splash screens.
+
+**Image Splash Example:**
+```dart
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  SplashMaster.initialize();
+  // Perform any setup/configuration before resuming
+  SplashMaster.resume(); // Manual resume required for image splash
+  runApp(
+    MaterialApp(
+      home: YourFirstScreen(), // Your first screen
+    ),
+  );
+}
+```
 
 **Video Splash Example:**
 ```dart
@@ -272,10 +242,19 @@ void main() {
 - To resume Flutter frames, call `SplashMaster.resume()`. Until then, the app remains on the native splash screen.
 
 **Usage Notes:**
-- For `SplashMaster.video()`, `SplashMaster.lottie()`, and `SplashMaster.rive()`, you **do not** need to call `resume()` manually; it resumes automatically when the media is loaded.
+- For `SplashMaster.image()`: You **must** call `resume()` manually to transition from native splash to Flutter.
+- For `SplashMaster.video()`, `SplashMaster.lottie()`, and `SplashMaster.rive()`: You **do not** need to call `resume()` manually; it resumes automatically when the media finishes loading/playing.
 - If you provide a custom `onSourceLoaded` callback in your config, you are responsible for calling `resume()`.
 
-Once the setup command completes, your splash screen is ready on the native side.
+## Supported Media Types
+
+| Type | Auto-Resume | Manual Resume | Notes |
+|------|-------------|---------------|-------|
+| Image | ❌ No | ✅ Required | Managed natively; requires explicit `resume()` call |
+| Video | ✅ Yes | ❌ Not needed | Auto-resumes when video finishes |
+| Lottie | ✅ Yes | ❌ Not needed | Auto-resumes when animation loads and completes |
+| Rive | ✅ Yes | ❌ Not needed | Auto-resumes when animation loads and completes |
+| Custom | ❌ No | ✅ Custom logic | Handled by your custom widget/callback |
 
 ## Properties:
 
@@ -288,15 +267,23 @@ Rive animations have an additional property called `splashDuration` that allows 
 
 | Name                           | Description                                                                                                   |
 |--------------------------------|---------------------------------------------------------------------------------------------------------------|
-| source                         | Media source for assets.                                                                                      |
-| videoConfig                    | To handle the video's configuration.                                                                          |
-| lottieConfig                   | To handle the lottie's configuration.                                                                         |
-| riveConfig                     | Configuration for the Rive animation (appearance, behavior, animations to play).                              |
-| backGroundColor                | To handle the background color of the splash screen.                                                          |
-| nextScreen                     | Screen to navigate once splash finished.                                                                      |
-| customNavigation               | Callback to handle the logic when the splash is completed.                                                    |
-| onSourceLoaded                 | Called when provided media is loaded.                                                                         |
-| splashDuration (rive only) | Optional explicit duration for the splash screen (overrides automatic calculation based on animation length). |
+| source                         | Media source for assets (Asset, File, Network, or RiveArtboardSource).                                       |
+| videoConfig                    | Configuration for video playback (VideoConfig). Controls playback behavior and visibility.                    |
+| lottieConfig                   | Configuration for Lottie animations (LottieConfig). Controls animation properties and visibility.            |
+| riveConfig                     | Configuration for the Rive animation (RiveConfig). Controls animations, appearance, and behavior.             |
+| backGroundColor                | Background color of the splash screen behind the media.                                                       |
+| nextScreen                     | Widget to navigate to after splash finishes.                                                                  |
+| customNavigation               | Callback to handle custom navigation logic when splash completes.                                             |
+| onSourceLoaded                 | Called when provided media is loaded. You must call `SplashMaster.resume()` if you provide this callback.    |
+| splashDuration (rive only)     | Optional explicit duration for the Rive splash screen (overrides automatic calculation based on animation).  |
+
+### VisibilityEnum Values
+
+Used by `videoConfig` and `lottieConfig` to control how media is displayed:
+
+- `VisibilityEnum.useFullScreen`: Display media in full screen, maintaining aspect ratio with letterboxing if needed (default).
+- `VisibilityEnum.useAspectRatio`: Display media according to its aspect ratio within available space.
+- `VisibilityEnum.none`: No special visibility handling.
 
 
 # Contributors
