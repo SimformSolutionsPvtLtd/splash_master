@@ -84,6 +84,8 @@ void setupSplashScreen(YamlMap splashData) {
   final unsupportedTopLevelKeys = splashKeys
       .where((key) => !YamlKeys.supportedYamlKeys.contains(key))
       .toList();
+  final hasAndroid12Section =
+      splashKeys.contains(YamlKeys.android12AndAboveKey);
 
   /// Checking keys in the `splash_master` section in `pubspec.yaml` file is proper or not.
   if (unsupportedTopLevelKeys.isNotEmpty) {
@@ -95,11 +97,20 @@ void setupSplashScreen(YamlMap splashData) {
     return;
   }
 
-  final android12AndAbove = splashData[YamlKeys.android12AndAboveKey];
+  final android12AndAboveRaw = splashData[YamlKeys.android12AndAboveKey];
+  final android12AndAbove = hasAndroid12Section && android12AndAboveRaw == null
+      ? (loadYaml('{}') as YamlMap)
+      : android12AndAboveRaw;
   if (android12AndAbove != null && android12AndAbove is! YamlMap) {
     log('Please check the android_12_and_above configuration. All parameters must be nested under the android_12_and_above key.');
     return;
   }
+
+  final iosContentMode =
+      _tryParseIosContentMode(splashData[YamlKeys.iosContentModeKey]);
+  final iosBackgroundContentMode = _tryParseIosContentMode(
+    splashData[YamlKeys.iosBackgroundContentMode],
+  );
 
   if (android12AndAbove != null) {
     final android12Keys =
@@ -120,89 +131,84 @@ void setupSplashScreen(YamlMap splashData) {
     }
   }
 
-  {
-    final iosContentMode =
-        _tryParseIosContentMode(splashData[YamlKeys.iosContentModeKey]);
-    final iosBackgroundContentMode = _tryParseIosContentMode(
-      splashData[YamlKeys.iosBackgroundContentMode],
-    );
-
-    /// Checking if provided android gravity is valid or not
-    if (splashData[YamlKeys.androidGravityKey] != null &&
-        !(AndroidGravity.values.any(
-          (element) =>
-              element ==
-              AndroidGravity.fromString(splashData[YamlKeys.androidGravityKey]),
-        ))) {
-      log('Please check the android_gravity');
-      return;
-    }
-
-    /// Checking if provided content mode is valid or not
-    else if (splashData[YamlKeys.iosContentModeKey] != null &&
-        !IosContentMode.values.any(
-          (element) => element == iosContentMode,
-        )) {
-      log('Please check the ios_content_mode');
-      return;
-    }
-
-    /// Checking if provided background content mode is valid or not
-    else if (splashData[YamlKeys.iosBackgroundContentMode] != null &&
-        !IosContentMode.values.any(
-          (element) => element == iosBackgroundContentMode,
-        )) {
-      log('Please check the ios_background_content_mode');
-      return;
-    }
-
-    /// Checking if provided image has supported extension or not
-    else if (splashData[YamlKeys.imageKey] != null) {
-      final imgExtension =
-          splashData[YamlKeys.imageKey].toString().split('.').last;
-      if (!SupportedImageExtensions.values.any(
+  /// Checking if provided android gravity is valid or not
+  if (splashData[YamlKeys.androidGravityKey] != null &&
+      !(AndroidGravity.values.any(
         (element) =>
             element ==
-            SupportedImageExtensions.fromString(imgExtension.toLowerCase()),
+            AndroidGravity.fromString(splashData[YamlKeys.androidGravityKey]),
+      ))) {
+    log('Please check the android_gravity');
+    return;
+  }
+
+  /// Checking if provided content mode is valid or not
+  else if (splashData[YamlKeys.iosContentModeKey] != null &&
+      !IosContentMode.values.any(
+        (element) => element == iosContentMode,
       )) {
-        log('Image should be png, jpg, or jpeg.');
-        return;
-      }
-    } else if (splashData[YamlKeys.androidBackgroundGravity] != null &&
-        !(AndroidGravity.values.any(
-          (element) =>
-              element ==
-              AndroidGravity.fromString(
-                  splashData[YamlKeys.androidBackgroundGravity]),
-        ))) {
-      log('Please check the android_background_image_gravity');
+    log('Please check the ios_content_mode');
+    return;
+  }
+
+  /// Checking if provided background content mode is valid or not
+  else if (splashData[YamlKeys.iosBackgroundContentMode] != null &&
+      !IosContentMode.values.any(
+        (element) => element == iosBackgroundContentMode,
+      )) {
+    log('Please check the ios_background_content_mode');
+    return;
+  }
+
+  /// Checking if provided image has supported extension or not
+  else if (splashData[YamlKeys.imageKey] != null) {
+    final imgExtension =
+        splashData[YamlKeys.imageKey].toString().split('.').last;
+    if (!SupportedImageExtensions.values.any(
+      (element) =>
+          element ==
+          SupportedImageExtensions.fromString(imgExtension.toLowerCase()),
+    )) {
+      log('Image should be png, jpg, or jpeg.');
       return;
     }
-    applySplash(
-      imageSource: splashData[YamlKeys.imageKey],
-      color: splashData[YamlKeys.colorKey],
-      gravity: splashData[YamlKeys.androidGravityKey],
-      iosContentMode: iosContentMode?.mode,
-      backgroundImage: splashData[YamlKeys.backgroundImage],
-      android12AndAbove: splashData[YamlKeys.android12AndAboveKey],
-      iosBackgroundContentMode: iosBackgroundContentMode?.mode,
-      backgroundImageSource: splashData[YamlKeys.backgroundImage],
-      backgroundImageGravity: splashData[YamlKeys.androidBackgroundGravity],
-      darkColor: splashData[YamlKeys.colorDarkKey],
-      darkGravity: splashData[YamlKeys.androidDarkGravityKey],
-      darkImage: splashData[YamlKeys.imageDarkKey],
-      darkBackgroundImageSource: splashData[YamlKeys.backgroundImageDarkKey],
-    );
+  } else if (splashData[YamlKeys.androidBackgroundGravity] != null &&
+      !(AndroidGravity.values.any(
+        (element) =>
+            element ==
+            AndroidGravity.fromString(
+                splashData[YamlKeys.androidBackgroundGravity]),
+      ))) {
+    log('Please check the android_background_image_gravity');
+    return;
   }
+  applySplash(
+    imageSource: splashData[YamlKeys.imageKey],
+    color: splashData[YamlKeys.colorKey],
+    gravity: splashData[YamlKeys.androidGravityKey],
+    iosContentMode: iosContentMode?.mode,
+    android12AndAbove: android12AndAbove,
+    iosBackgroundContentMode: iosBackgroundContentMode?.mode,
+    backgroundImageSource: splashData[YamlKeys.backgroundImage],
+    backgroundImageGravity: splashData[YamlKeys.androidBackgroundGravity],
+    darkColor: splashData[YamlKeys.colorDarkKey],
+    darkGravity: splashData[YamlKeys.androidDarkGravityKey],
+    darkImage: splashData[YamlKeys.imageDarkKey],
+    darkBackgroundImageSource: splashData[YamlKeys.backgroundImageDarkKey],
+  );
 }
 
-/// Apply the splash images to Android
+/// Generates Android splash assets and updates Android resource files.
+///
+/// It creates splash images (including optional dark/background variants),
+/// generates Android 12+ assets from `android12AndAbove`, writes color resources,
+/// builds splash drawable XMLs for light and dark themes, updates `styles.xml`,
+/// and updates dark styles when any dark-mode input is provided.
 Future<void> applyAndroidSplashImage({
   String? imageSource,
   String? color,
   String? gravity,
   YamlMap? android12AndAbove,
-  String? backgroundImage,
   String? backgroundImageSource,
   String? backgroundImageGravity,
   String? darkImage,
@@ -249,8 +255,6 @@ Future<void> applyAndroidSplashImage({
   );
   await updateStylesXml(
     android12AndAbove: android12AndAbove,
-    color: color,
-    imageSource: imageSource,
   );
   final darkBrandingImage = android12AndAbove?[YamlKeys.brandingImageDarkKey];
   final android12DarkImage = android12AndAbove?[YamlKeys.imageDarkKey];
@@ -263,7 +267,7 @@ Future<void> applyAndroidSplashImage({
       android12DarkColor != null) {
     await updateDarkStylesXml(
       android12AndAbove: android12AndAbove,
-      color: darkColor,
+      darkColor: darkColor,
       darkImage: darkImage,
       darkBrandingImage: darkBrandingImage,
       darkBackgroundImageSource: darkBackgroundImageSource,
@@ -277,7 +281,6 @@ Future<void> applySplash({
   String? color,
   String? gravity,
   String? iosContentMode,
-  String? backgroundImage,
   String? iosBackgroundContentMode,
   YamlMap? android12AndAbove,
   String? backgroundImageSource,
@@ -290,7 +293,7 @@ Future<void> applySplash({
   await generateIosImages(
     imageSource: imageSource,
     color: color,
-    backgroundImage: backgroundImage,
+    backgroundImage: backgroundImageSource,
     iosContentMode: iosContentMode,
     iosBackgroundContentMode: iosBackgroundContentMode,
   );

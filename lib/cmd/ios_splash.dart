@@ -35,24 +35,26 @@ Future<void> generateIosImages({
   final directory = Directory(iosAssetsFolder);
   if (!await directory.exists()) {
     log("$iosAssetsFolder path doesn't exists. Creating it...");
-    directory.create(recursive: true);
+    await directory.create(recursive: true);
   }
 
   final List<Image> images = [];
 
   if (imageSource != null) {
+    final sourceImage = File(imageSource);
+    if (!await sourceImage.exists()) {
+      throw SplashMasterException(message: 'Asset not found. $imageSource');
+    }
+
     for (final scale in IosScale.values) {
       final fileName = '${IOSStrings.splashImage}${scale.fileEndWith}.png';
       final imagePath = '$iosAssetsFolder/$fileName';
-      final file = File(imagePath);
-      if (await file.exists()) {
-        await file.delete();
-      }
-
-      final sourceImage = File(imageSource);
 
       /// Creating a splash image from the provided asset source
-      sourceImage.copySync(imagePath);
+      await _replaceFileFromSource(
+        source: sourceImage,
+        destinationPath: imagePath,
+      );
 
       log('Generated $fileName.');
       images.add(Image(
@@ -101,9 +103,6 @@ Future<void> updateContentOfStoryboard({
     exit(1);
   }
 
-  /// Find (or create) subViews element in the storyboard
-  final subViews = _getOrCreateSubViews(view);
-
   if (color != null) {
     /// Update or add a `color` element for the background color
     final colorElement = view.getElement(IOSStrings.colorElement);
@@ -151,6 +150,9 @@ Future<void> updateContentOfStoryboard({
   }
 
   if (imagePath != null) {
+    /// Find (or create) subViews element in the storyboard only when needed.
+    final subViews = _getOrCreateSubViews(view);
+
     /// Keep the storyboard idempotent by recreating the managed image nodes.
     _removeManagedImageViews(subViews);
 
@@ -325,7 +327,6 @@ Future<void> createBackgroundImage(Image image, File imageFile) async {
     info: const Info(author: 'xcode', version: 1),
   );
   final iosContentJson = iosContent.toJson();
-  encoder.convert(iosContentJson);
   file.writeAsString(encoder.convert(iosContentJson));
   final backgroundImage =
       File('$iosAssetsFolder/${IOSStrings.backgroundImageSnakeCase}.png');
