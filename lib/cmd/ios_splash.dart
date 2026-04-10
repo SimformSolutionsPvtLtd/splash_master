@@ -297,9 +297,90 @@ Future<void> updateContentOfStoryboard({
     subviewsTag?.remove();
   }
 
+  _syncStoryboardImageResources(
+    documentData,
+    includeLaunchImage: imagePath != null,
+    includeBackgroundImage: shouldAddBackgroundImage,
+  );
+
   /// Write the updated storyboard content to the file.
   file.writeAsStringSync(
     '${xmlDocument.toXmlString(pretty: true, indent: '    ')}\n',
+  );
+}
+
+void _syncStoryboardImageResources(
+  XmlElement? documentData, {
+  required bool includeLaunchImage,
+  required bool includeBackgroundImage,
+}) {
+  if (documentData == null) {
+    return;
+  }
+
+  final resources = _getOrCreateResourcesElement(documentData);
+
+  resources.children.removeWhere((child) {
+    if (child is! XmlElement ||
+        child.name.qualified != IOSStrings.imageResourceElement) {
+      return false;
+    }
+
+    final imageName = child.getAttribute(IOSStrings.nameAttr);
+    return imageName == IOSStrings.imageValue ||
+        imageName == IOSStrings.backgroundImage;
+  });
+
+  if (includeLaunchImage) {
+    resources.children.add(
+      _createStoryboardImageResource(
+        IOSStrings.imageValue,
+      ),
+    );
+  }
+
+  if (includeBackgroundImage) {
+    resources.children.add(
+      _createStoryboardImageResource(
+        IOSStrings.backgroundImage,
+      ),
+    );
+  }
+
+  final hasImageResources = resources.children.whereType<XmlElement>().any(
+        (child) => child.name.qualified == IOSStrings.imageResourceElement,
+      );
+
+  if (!hasImageResources) {
+    resources.remove();
+  }
+}
+
+XmlElement _getOrCreateResourcesElement(XmlElement documentData) {
+  final resources = documentData.getElement(IOSStrings.resourcesElement);
+  if (resources != null) {
+    return resources;
+  }
+
+  final resourcesElement = XmlElement(XmlName(IOSStrings.resourcesElement));
+  documentData.children.add(resourcesElement);
+  return resourcesElement;
+}
+
+XmlElement _createStoryboardImageResource(String imageName) {
+  return XmlElement(
+    XmlName(IOSStrings.imageResourceElement),
+    [
+      XmlAttribute(XmlName(IOSStrings.nameAttr), imageName),
+      XmlAttribute(
+        XmlName(IOSStrings.rectElementWidthAttr),
+        IOSStrings.storyboardImageResourceWidth,
+      ),
+      XmlAttribute(
+        XmlName(IOSStrings.rectElementHeightAttr),
+        IOSStrings.storyboardImageResourceHeight,
+      ),
+    ],
   );
 }
 
@@ -406,6 +487,10 @@ List<XmlAttribute> _buildColorAttributes(String hexColor) {
     XmlAttribute(
       XmlName(IOSStrings.colorKeyAttr),
       IOSStrings.colorKeyAttrVal,
+    ),
+    XmlAttribute(
+      XmlName('colorSpace'),
+      'custom',
     ),
     XmlAttribute(
       XmlName(IOSStrings.customColorAttr),

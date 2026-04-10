@@ -49,7 +49,7 @@ Future<void> generateAndroidImages({
   String? backgroundImageName,
   String? darkImageSource,
 }) async {
-  if (imageSource == null) {
+  if (imageSource == null && darkImageSource == null) {
     log('No images were provided. Skipping generating Android images');
     return;
   }
@@ -64,17 +64,19 @@ Future<void> generateAndroidImages({
     logMessage: "$drawable folder doesn't exists. Creating it...",
   );
 
-  final imagePath =
-      '$drawableFolder/${backgroundImageName ?? AndroidStrings.splashImagePng}';
-  final sourceImage = File(imageSource);
-  if (await sourceImage.exists()) {
-    /// Creating a splash image from the provided asset source
-    await _replaceFileFromSource(
-      source: sourceImage,
-      destinationPath: imagePath,
-    );
-  } else {
-    throw SplashMasterException(message: 'Asset not found. $imagePath');
+  if (imageSource != null) {
+    final imagePath =
+        '$drawableFolder/${backgroundImageName ?? AndroidStrings.splashImagePng}';
+    final sourceImage = File(imageSource);
+    if (await sourceImage.exists()) {
+      /// Creating a splash image from the provided asset source
+      await _replaceFileFromSource(
+        source: sourceImage,
+        destinationPath: imagePath,
+      );
+    } else {
+      throw SplashMasterException(message: 'Asset not found. $imagePath');
+    }
   }
 
   if (darkImageSource != null) {
