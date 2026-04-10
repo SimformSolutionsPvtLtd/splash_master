@@ -288,6 +288,129 @@ Used by `videoConfig` and `lottieConfig` to control how media is displayed:
 - `VisibilityEnum.useAspectRatio`: Display media according to its aspect ratio within available space.
 - `VisibilityEnum.none`: No special visibility handling.
 
+# Migration Guides
+This document provides guidance for migrating between different versions of the Splash Master package.
+
+## Migrating from 0.0.3 to 1.0.0
+
+This version standardizes dark-mode keys, enforces strict config validation, introduces clearer Android 12\+ behavior and dark mode in iOS.
+
+## Breaking Changes Summary
+
+| Area | 0.0.3 behavior | 1.0.0 behavior |
+| --- | --- | --- |
+| Dark-mode key names | Platform-specific `_android` suffix keys were used | Cross-platform keys are required |
+| Android 12+ configuration | Android 12+ values existed as nested config but without strict nested-key enforcement | `android_12_and_above` is treated as an explicit nested block and validated independently |
+| `android_dark_gravity` fallback | Could independently default to `fill` | Falls back to `android_gravity` when omitted |
+| Validation strictness | Legacy/unknown keys could still exist in configs | Unsupported keys are rejected with a validation error |
+| iOS content mode aliases | `aspectFit` and `aspectFill` were accepted aliases | Use `scaleAspectFit` and `scaleAspectFill` |
+
+## 1) Dark Mode Key Renames
+
+The following key names changed and old names are no longer accepted:
+
+| Old key (master) | New key (1.0.0) |
+| --- | --- |
+| `image_dark_android` | `image_dark` |
+| `color_dark_android` | `color_dark` |
+
+### Before (0.0.3)
+
+```yaml
+splash_master:
+  image: 'assets/splash.png'
+  color: '#FFFFFF'
+  image_dark_android: 'assets/splash_dark.png'
+  color_dark_android: '#000000'
+```
+
+### After (1.0.0)
+
+```yaml
+splash_master:
+  image: 'assets/splash.png'
+  color: '#FFFFFF'
+  image_dark: 'assets/splash_dark.png'
+  color_dark: '#000000'
+```
+
+If you keep old keys, validation fails with an unsupported key error.
+
+## 2) Android 12+ Configuration Rules
+
+Android 12+ values must be provided inside `android_12_and_above`, and nested
+keys are validated strictly.
+
+In 1.0.0:
+
+- If `android_12_and_above.color` is omitted, no Android 12+ background color is applied.
+- If `android_12_and_above.image` is omitted, the system default app icon is used.
+- If `android_12_and_above.color_dark` is omitted, no Android 12+ dark background color is applied.
+- If `android_12_and_above.image_dark` is omitted, it falls back only to `android_12_and_above.image`.
+
+### Recommended explicit config
+
+```yaml
+splash_master:
+  # Pre-Android 12
+  image: 'assets/splash_pre12.png'
+  color: '#FFFFFF'
+  image_dark: 'assets/splash_pre12_dark.png'
+  color_dark: '#111111'
+
+  # Android 12+ (independent)
+  android_12_and_above:
+    image: 'assets/splash_12.png'
+    color: '#FFFFFF'
+    image_dark: 'assets/splash_12_dark.png'
+    color_dark: '#000000'
+    branding_image: 'assets/branding.png'
+    branding_image_dark: 'assets/branding_dark.png'
+```
+
+## 3) android_dark_gravity Fallback Change
+
+Compared to 0.0.3, omitting `android_dark_gravity` no longer implies an
+independent default behavior. In 1.0.0, it falls back to `android_gravity`.
+
+If you relied on dark mode using `fill` while light mode used a different
+gravity, set `android_dark_gravity` explicitly.
+
+```yaml
+splash_master:
+  android_gravity: 'center'
+  android_dark_gravity: 'fill'
+```
+
+## 4) iOS Content Mode Alias Update
+
+In 0.0.3, `aspectFit` and `aspectFill` were accepted aliases.
+In 1.0.0, use `scaleAspectFit` and `scaleAspectFill`.
+
+```yaml
+splash_master:
+  ios_content_mode: 'scaleAspectFit'
+  ios_background_content_mode: 'scaleAspectFill'
+```
+
+## 5) Newly Added Dark-Mode Keys in 1.0.0
+
+The following are new additions in 1.0.0 (not renames from 0.0.3):
+
+- `background_image_dark` (top-level dark background image)
+- `android_12_and_above.image_dark`
+- `android_12_and_above.color_dark`
+- `android_12_and_above.branding_image_dark`
+
+Also, `android_background_image_gravity` now applies to dark background images
+when `background_image_dark` is used on Android.
+
+## 6) Validation is Stricter
+
+1.0.0 validates config keys strictly. Remove legacy keys and keep only supported
+keys, including supported nested keys under `android_12_and_above`.
+
+#### For a complete list of changes and new features in each version, please refer to [CHANGELOG.md](https://github.com/SimformSolutionsPvtLtd/splash_master/blob/master/CHANGELOG.md) on Github.
 
 # Contributors
 
