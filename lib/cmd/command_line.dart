@@ -160,26 +160,6 @@ Future<void> setupSplashScreen(YamlMap splashData) async {
     return;
   }
 
-  // iOS launch image assets should have a base Any variant when Dark is used.
-  if (splashData[YamlKeys.imageDarkKey] != null &&
-      splashData[YamlKeys.imageKey] == null) {
-    log(
-      'For iOS, image is required when image_dark is provided. '
-      'Add image to provide the base Any appearance asset.',
-    );
-    return;
-  }
-
-  // iOS background assets should have a base Any variant when Dark is used.
-  if (splashData[YamlKeys.backgroundImageDarkKey] != null &&
-      splashData[YamlKeys.backgroundImage] == null) {
-    log(
-      'For iOS, background_image is required when background_image_dark is provided. '
-      'Add background_image to provide the base Any appearance asset.',
-    );
-    return;
-  }
-
   if (!_validateImageExtensionIfProvided(
     splashData[YamlKeys.imageKey],
     keyName: YamlKeys.imageKey,
@@ -301,13 +281,13 @@ Future<void> applyAndroidSplashImage({
   await generateImageForAndroid12AndAbove(
     android12AndAbove: android12AndAbove,
   );
-  await createColors(color: color);
+  await createColors(color: color ?? '#FFFFFF');
   if (darkColor != null) {
     await createColors(color: darkColor, isDark: true);
   }
   await createSplashImageDrawable(
     imageSource: imageSource,
-    color: color,
+    color: color ?? '#FFFFFF',
     gravity: gravity,
     backgroundImageSource: backgroundImageSource,
     backgroundImageGravity: backgroundImageGravity,
@@ -356,16 +336,38 @@ Future<void> applySplash({
   String? darkGravity,
   String? darkBackgroundImageSource,
 }) async {
-  await generateIosImages(
-    imageSource: imageSource,
-    color: color,
-    backgroundImage: backgroundImageSource,
-    iosContentMode: iosContentMode,
-    iosBackgroundContentMode: iosBackgroundContentMode,
-    darkImageSource: darkImage,
-    darkColor: darkColor,
-    darkBackgroundImage: darkBackgroundImageSource,
-  );
+  final iosSkipReasons = <String>[];
+
+  if (darkImage != null && imageSource == null) {
+    iosSkipReasons.add(
+      'For iOS, image is required when image_dark is provided. '
+      'Add image to provide the base Any appearance asset.',
+    );
+  }
+
+  if (darkBackgroundImageSource != null && backgroundImageSource == null) {
+    iosSkipReasons.add(
+      'For iOS, background_image is required when background_image_dark is provided. '
+      'Add background_image to provide the base Any appearance asset.',
+    );
+  }
+
+  if (iosSkipReasons.isNotEmpty) {
+    log('Skipping iOS splash generation: ${iosSkipReasons.join(' ')}');
+    log('Continuing with Android generation.');
+  } else {
+    await generateIosImages(
+      imageSource: imageSource,
+      color: color,
+      backgroundImage: backgroundImageSource,
+      iosContentMode: iosContentMode,
+      iosBackgroundContentMode: iosBackgroundContentMode,
+      darkImageSource: darkImage,
+      darkColor: darkColor,
+      darkBackgroundImage: darkBackgroundImageSource,
+    );
+  }
+
   await applyAndroidSplashImage(
     imageSource: imageSource,
     color: color,

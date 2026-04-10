@@ -28,6 +28,12 @@ class IOSStrings {
   /// `constraints`
   static const constraintsElement = 'constraints';
 
+  /// `resources`
+  static const resourcesElement = 'resources';
+
+  /// `image` storyboard resource element
+  static const imageResourceElement = 'image';
+
   /// Element ID
   /// `Ze5-6b-2t3`
   static const defaultViewId = 'Ze5-6b-2t3';
@@ -159,6 +165,16 @@ class IOSStrings {
 
   /// `1280`
   static const rectElementHeightAttrVal = '1280';
+
+  /// Default storyboard image resource width metadata.
+  ///
+  /// This is metadata for LaunchScreen.storyboard resources and not a layout size.
+  static const storyboardImageResourceWidth = '720';
+
+  /// Default storyboard image resource height metadata.
+  ///
+  /// This is metadata for LaunchScreen.storyboard resources and not a layout size.
+  static const storyboardImageResourceHeight = '1280';
 
   /// `BackgroundImage`
   static const backgroundImage = 'BackgroundImage';
