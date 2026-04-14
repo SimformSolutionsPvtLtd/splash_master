@@ -304,8 +304,11 @@ Future<void> createColors({
 ///
 /// If `android_12_and_above` is present, this recreates
 /// `values-v31/styles.xml` using only values from that block.
+/// If `hasDarkDrawable` is false, this also ensures any existing night
+/// styles don't reference the dark drawable
 Future<void> updateStylesXml({
   YamlMap? android12AndAbove,
+  bool hasDarkDrawable = false,
 }) async {
   const androidValuesFolder = CmdStrings.androidValuesDirectory;
 
@@ -348,6 +351,40 @@ Future<void> updateStylesXml({
 
   await xml.writeAsString(xmlDoc.toXmlString(pretty: true));
   log('styles.xml updated.');
+
+  // Ensure any existing pre-Android 12 night styles don't reference the
+  // dark drawable when the user hasn't provided dark-mode pre-Android 12
+  // assets in pubspec. This prevents references to missing
+  // `@drawable/splash_screen_dark` and points night styles to the light
+  // drawable instead so resource linking succeeds.
+  if (!hasDarkDrawable) {
+    try {
+      const nightValuesPath =
+          '${CmdStrings.androidDarkValuesDirectory}/${AndroidStrings.stylesXml}';
+      final nightFile = File(nightValuesPath);
+      if (await nightFile.exists()) {
+        final nightDoc = XmlDocument.parse(nightFile.readAsStringSync());
+        var changed = false;
+        for (final itemElement
+            in nightDoc.findAllElements(AndroidStrings.itemElement)) {
+          if (itemElement.getAttribute(AndroidStrings.nameAttr) ==
+              AndroidStrings.itemNameAttrValue) {
+            if (itemElement.innerText.trim() ==
+                AndroidStrings.androidDarkDrawable) {
+              itemElement.innerText = AndroidStrings.drawableSplashScreen;
+              changed = true;
+            }
+          }
+        }
+        if (changed) {
+          await nightFile.writeAsString(nightDoc.toXmlString(pretty: true));
+          log('values-night/styles.xml updated to reference light drawable.');
+        }
+      }
+    } catch (e) {
+      log('Error updating values-night/styles.xml: $e');
+    }
+  }
 }
 
 /// Writes the Android 12+ splash screen style to [styleFile] with the provided
@@ -621,6 +658,28 @@ Future<void> updateDarkStylesXml({
       darkColor != null;
 
   if (!hasPreAndroid12DarkConfig && android12AndAbove == null) {
+    // No dark configuration provided. Ensure any previously generated
+    // dark-style files are removed so they don't reference missing drawables.
+    try {
+      const preAndroid12Path =
+          '${CmdStrings.androidDarkValuesDirectory}/${AndroidStrings.stylesXml}';
+      final preFile = File(preAndroid12Path);
+      if (await preFile.exists()) {
+        await preFile.delete();
+        log('Removed $preAndroid12Path because no dark config provided.');
+      }
+
+      const v31Path =
+          '${CmdStrings.androidDarkValuesV31Directory}/${AndroidStrings.stylesXml}';
+      final v31File = File(v31Path);
+      if (await v31File.exists()) {
+        await v31File.delete();
+        log('Removed $v31Path because no dark config provided.');
+      }
+    } catch (e) {
+      log('Error removing old dark styles: $e');
+    }
+
     log('Skipping dark styles update: no dark configuration provided.');
     return;
   }
@@ -651,33 +710,77 @@ Future<void> updateDarkStylesXml({
     );
   }
 
-  // Handle pre-Android 12 dark styles
+  // Handle pre-Android 12 dark styles.
+  // If no pre-Android 12 dark configuration is provided, ensure any
+  // existing `values-night/styles.xml` doesn't reference the missing
+  // dark drawable. Prefer updating it to reference the light drawable so
+  // builds don't fail.
   if (!hasPreAndroid12DarkConfig) {
-    return;
-  }
+    const androidValuesFolder = CmdStrings.androidDarkValuesDirectory;
+    const xmlPath = '$androidValuesFolder/${AndroidStrings.stylesXml}';
+    final xmlFile = File(xmlPath);
 
-  const androidValuesFolder = CmdStrings.androidDarkValuesDirectory;
-  const xmlPath = '$androidValuesFolder/${AndroidStrings.stylesXml}';
-  final xmlFile = File(xmlPath);
-
-  if (!await xmlFile.exists()) {
-    log('Pre-Android 12 values-night/styles.xml not found. Skipping update.');
-    return;
-  }
-
-  try {
-    final xmlDoc = XmlDocument.parse(xmlFile.readAsStringSync());
-    for (final itemElement
-        in xmlDoc.findAllElements(AndroidStrings.itemElement)) {
-      if (itemElement.getAttribute(AndroidStrings.nameAttr) ==
-          AndroidStrings.itemNameAttrValue) {
-        itemElement.innerText = AndroidStrings.androidDarkDrawable;
-        break;
-      }
+    if (!await xmlFile.exists()) {
+      log('Pre-Android 12 values-night/styles.xml not found. Skipping update.');
+      return;
     }
-    await xmlFile.writeAsString(xmlDoc.toXmlString(pretty: true));
-    log('Pre-Android 12 values-night/styles.xml updated.');
-  } catch (e) {
-    log('Error updating values-night/styles.xml: $e');
+
+    try {
+      final xmlDoc = XmlDocument.parse(xmlFile.readAsStringSync());
+      for (final itemElement
+          in xmlDoc.findAllElements(AndroidStrings.itemElement)) {
+        if (itemElement.getAttribute(AndroidStrings.nameAttr) ==
+            AndroidStrings.itemNameAttrValue) {
+          // Point night styles to the light splash drawable instead of the
+          // missing dark drawable so resource linking succeeds.
+          itemElement.innerText = AndroidStrings.drawableSplashScreen;
+        }
+      }
+      await xmlFile.writeAsString(xmlDoc.toXmlString(pretty: true));
+      log('Pre-Android 12 values-night/styles.xml updated to reference light drawable.');
+    } catch (e) {
+      log('Error updating values-night/styles.xml: $e');
+    }
+    return;
+  }
+  // If we have pre-Android 12 dark configuration, create or update
+  // values-night/styles.xml to reference the dark drawable.
+  else {
+    // Read parent style from existing light styles.xml so we don't hardcode it
+    final lightStylesFile = File(
+        '${CmdStrings.androidValuesDirectory}/${AndroidStrings.stylesXml}');
+    final lightDoc = XmlDocument.parse(lightStylesFile.readAsStringSync());
+    final parentAttr = lightDoc
+            .findAllElements(AndroidStrings.styleElement)
+            .firstWhere((e) =>
+                e.getAttribute(AndroidStrings.nameAttr) ==
+                AndroidStrings.styleNameAttrVal)
+            .getAttribute(AndroidStrings.styleParentAttr) ??
+        '';
+
+    const nightDir = CmdStrings.androidDarkValuesDirectory;
+    await Directory(nightDir).create(recursive: true);
+    final nightFile = File('$nightDir/${AndroidStrings.stylesXml}');
+    if (await nightFile.exists()) await nightFile.delete();
+
+    final builder = XmlBuilder();
+    builder.processing(AndroidStrings.xml, AndroidStrings.xmlVersion);
+    builder.element(AndroidStrings.resourcesElement, nest: () {
+      builder.element(AndroidStrings.styleElement, attributes: {
+        AndroidStrings.nameAttr: AndroidStrings.styleNameAttrVal,
+        AndroidStrings.styleParentAttr: parentAttr,
+      }, nest: () {
+        builder.element(
+          AndroidStrings.itemElement,
+          attributes: {
+            AndroidStrings.nameAttr: AndroidStrings.itemNameAttrValue
+          },
+          nest: AndroidStrings.androidDarkDrawable,
+        );
+      });
+    });
+    await nightFile
+        .writeAsString(builder.buildDocument().toXmlString(pretty: true));
+    log('Created values-night/styles.xml referencing dark drawable.');
   }
 }
