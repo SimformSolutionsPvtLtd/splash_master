@@ -281,13 +281,13 @@ Future<void> applyAndroidSplashImage({
   await generateImageForAndroid12AndAbove(
     android12AndAbove: android12AndAbove,
   );
-  await createColors(color: color ?? '#FFFFFF');
+  await createColors(color: color ?? AndroidStrings.defaultLightColor);
   if (darkColor != null) {
     await createColors(color: darkColor, isDark: true);
   }
   await createSplashImageDrawable(
     imageSource: imageSource,
-    color: color ?? '#FFFFFF',
+    color: color ?? AndroidStrings.defaultLightColor,
     gravity: gravity,
     backgroundImageSource: backgroundImageSource,
     backgroundImageGravity: backgroundImageGravity,
@@ -301,24 +301,20 @@ Future<void> applyAndroidSplashImage({
   );
   await updateStylesXml(
     android12AndAbove: android12AndAbove,
+    hasDarkDrawable: darkImage != null ||
+        darkColor != null ||
+        darkBackgroundImageSource != null,
   );
   final darkBrandingImage = android12AndAbove?[YamlKeys.brandingImageDarkKey];
-  final android12DarkImage = android12AndAbove?[YamlKeys.imageDarkKey];
-  final android12DarkColor = android12AndAbove?[YamlKeys.colorDarkKey];
-  if (darkImage != null ||
-      darkBrandingImage != null ||
-      darkBackgroundImageSource != null ||
-      darkColor != null ||
-      android12DarkImage != null ||
-      android12DarkColor != null) {
-    await updateDarkStylesXml(
-      android12AndAbove: android12AndAbove,
-      darkColor: darkColor,
-      darkImage: darkImage,
-      darkBrandingImage: darkBrandingImage,
-      darkBackgroundImageSource: darkBackgroundImageSource,
-    );
-  }
+  // Always call updateDarkStylesXml — it will remove existing dark-style files
+  // when no dark configuration is provided, avoiding stale references.
+  await updateDarkStylesXml(
+    android12AndAbove: android12AndAbove,
+    darkColor: darkColor,
+    darkImage: darkImage,
+    darkBrandingImage: darkBrandingImage,
+    darkBackgroundImageSource: darkBackgroundImageSource,
+  );
 }
 
 /// Applies the splash screen on Android and iOS using details from the YAML file.

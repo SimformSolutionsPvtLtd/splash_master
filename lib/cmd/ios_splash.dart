@@ -309,6 +309,8 @@ Future<void> updateContentOfStoryboard({
   );
 }
 
+/// Keep the storyboard image resource definitions in sync with the current
+/// image usage in the storyboard.
 void _syncStoryboardImageResources(
   XmlElement? documentData, {
   required bool includeLaunchImage,
@@ -356,6 +358,8 @@ void _syncStoryboardImageResources(
   }
 }
 
+/// Get the `resources` element from the storyboard XML, or create
+/// it if it doesn't exist.
 XmlElement _getOrCreateResourcesElement(XmlElement documentData) {
   final resources = documentData.getElement(IOSStrings.resourcesElement);
   if (resources != null) {
@@ -367,6 +371,7 @@ XmlElement _getOrCreateResourcesElement(XmlElement documentData) {
   return resourcesElement;
 }
 
+/// Create a storyboard image resource element with the given image name.
 XmlElement _createStoryboardImageResource(String imageName) {
   return XmlElement(
     XmlName(IOSStrings.imageResourceElement),
@@ -384,6 +389,8 @@ XmlElement _createStoryboardImageResource(String imageName) {
   );
 }
 
+/// Create a color set for the launch screen background color with light
+/// and dark variants.
 Future<void> createLaunchBackgroundColorSet({
   required String lightColor,
   required String darkColor,

@@ -52,6 +52,9 @@ class AndroidStrings {
   /// `splashBgColor`
   static const nameAttrValue = 'splashBgColor';
 
+  /// `#FFFFFF`
+  static const defaultLightColor = '#FFFFFF';
+
   /// `android:windowBackground`
   static const itemNameAttrValue = 'android:windowBackground';
 
