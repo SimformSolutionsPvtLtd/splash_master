@@ -2,6 +2,8 @@
 
 ## [1.0.0]
 
+- Improvement - Added dedicated example(s) for each package to make integration and issue reproduction easier.
+- [Breaking] - Split Flutter animation widgets into dedicated packages: `splash_master_rive`, `splash_master_lottie`, and `splash_master_video`, while keeping `splash_master` focused on CLI/native generation and shared types.
 - [Breaking] - Renamed `image_dark_android` to `image_dark` for consistency across platforms.
 - [Breaking] - Renamed `color_dark_android` to `color_dark` for consistency across platforms.
 - [Breaking] - Android 12+ configuration is treated as an explicit nested block under `android_12_and_above` and validated independently.
