@@ -1,0 +1,18 @@
+name: splash_master_lottie_example
+description: "Example app demonstrating the splash_master_lottie package."
+publish_to: none
+
+environment:
+  sdk: '>=3.4.3 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  splash_master_lottie:
+    path: ../
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/

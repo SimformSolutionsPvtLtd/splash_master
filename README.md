@@ -32,13 +32,102 @@ Visit our [documentation](https://simform-flutter-packages.web.app/splashMaster)
 
 ## Installation
 
-Add `splash_master` as a dependency in your pubspec.yaml
-from [pub.dev](https://pub.dev/packages/splash_master/install).
+### Image / Color splash only (no animation library required)
+
+Add only `splash_master`:
 
 ```yaml
 dependencies:
-  splash_master: <Latest Version>
+  splash_master: ^1.0.0
 ```
+
+### With animation widgets
+
+Add the sub-package for the renderer you need:
+
+```yaml
+dependencies:
+  splash_master: ^1.0.0         # always needed for the CLI / shared types
+
+  # pick one or more:
+  splash_master_rive: ^0.0.1        # Rive animations
+  splash_master_video: ^0.0.1       # Video splash
+  splash_master_lottie: ^0.0.1      # Lottie animations
+```
+
+## Package structure
+
+| Package                  | Contents                                                                  |
+|--------------------------|---------------------------------------------------------------------------|
+| `splash_master`          | CLI tool, native splash generation (Android/iOS), shared types (`Source`, `SplashMediaType`, `VisibilityEnum`) |
+| `splash_master_rive`     | `RiveSplash` widget + `RiveConfig` + `RiveArtboardSource`                 |
+| `splash_master_video`    | `VideoSplash` widget + `VideoConfig`                                      |
+| `splash_master_lottie`   | `LottieSplash` widget + `LottieConfig`                                    |
+
+All sub-packages re-export `splash_master` so you only need to import one package in your Dart code.
+
+## Usage — animation splash screens
+
+### Rive
+
+```dart
+import 'package:splash_master_rive/splash_master_rive.dart';
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  RiveSplash.initialize();
+  runApp(MaterialApp(home: RiveSplash(
+    source: AssetSource('assets/animation.riv'),
+    nextScreen: const MyApp(),
+  )));
+}
+```
+
+### Video
+
+```dart
+import 'package:splash_master_video/splash_master_video.dart';
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  VideoSplash.initialize();
+  runApp(MaterialApp(home: VideoSplash(
+    source: AssetSource('assets/splash.mp4'),
+    nextScreen: const MyApp(),
+  )));
+}
+```
+
+### Lottie
+
+```dart
+import 'package:splash_master_lottie/splash_master_lottie.dart';
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  LottieSplash.initialize();
+  runApp(MaterialApp(home: LottieSplash(
+    source: AssetSource('assets/animation.json'),
+    nextScreen: const MyApp(),
+  )));
+}
+```
+
+## Migration from 1.x
+
+**Breaking change**: `SplashMaster.rive(...)`, `SplashMaster.video(...)`, and `SplashMaster.lottie(...)` have been removed from the `splash_master` package. Add the relevant sub-package and rename the widget:
+
+| Before (1.x)                | After (2.x)              | New package              |
+|-----------------------------|--------------------------|--------------------------|
+| `SplashMaster.rive(...)`    | `RiveSplash(...)`        | `splash_master_rive`     |
+| `SplashMaster.video(...)`   | `VideoSplash(...)`       | `splash_master_video`    |
+| `SplashMaster.lottie(...)`  | `LottieSplash(...)`      | `splash_master_lottie`   |
+| `SplashMaster.initialize()` | `<Widget>.initialize()`  | same sub-package widget  |
+| `SplashMaster.resume()`     | `<Widget>.resume()`      | same sub-package widget  |
+
+Apps that use **only** the native image/color splash (CLI only, no Flutter animation widget) are **not affected** — continue using `splash_master` alone with no code changes.
+
+`RiveArtboardSource` has moved to `splash_master_rive`. Import `package:splash_master_rive/splash_master_rive.dart` to access it.
 
 ## Support
 
