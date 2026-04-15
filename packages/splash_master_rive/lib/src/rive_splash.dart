@@ -30,10 +30,12 @@ import 'package:splash_master_rive/src/rive_source.dart';
 
 /// A widget that displays a Rive animation as a splash screen.
 ///
+/// This implementation uses Rive 0.14.x APIs with [RiveWidgetBuilder].
+///
 /// ```dart
 /// RiveSplash(
 ///   source: AssetSource('assets/animation.riv'),
-///   riveConfig: const RiveConfig(autoplay: true),
+///   riveConfig: const RiveConfig(),
 ///   nextScreen: const MyApp(),
 /// )
 /// ```
@@ -41,7 +43,7 @@ class RiveSplash extends StatefulWidget {
   /// Creates a Rive splash screen that loads from [source].
   ///
   /// [source] must be a [Source] (e.g. [AssetSource], [NetworkFileSource],
-  /// [DeviceFileSource], [BytesSource]) or a [RiveArtboardSource].
+  /// [DeviceFileSource], [BytesSource]) or a [RiveFileSource].
   const RiveSplash({
     super.key,
     required this.source,
@@ -51,14 +53,14 @@ class RiveSplash extends StatefulWidget {
     this.onSourceLoaded,
     this.backGroundColor,
   }) : assert(
-          source is Source || source is RiveArtboardSource,
-          'source must be a Source or RiveArtboardSource',
+          source is Source || source is RiveFileSource,
+          'source must be a Source or RiveFileSource',
         );
 
   /// The source of the Rive animation.
   ///
   /// Accepts a [Source] subtype ([AssetSource], [NetworkFileSource],
-  /// [DeviceFileSource], [BytesSource]) or a [RiveArtboardSource].
+  /// [DeviceFileSource], [BytesSource]) or a [RiveFileSource].
   final RiveSource source;
 
   /// Configuration for the Rive animation.
@@ -97,63 +99,77 @@ class _RiveSplashState extends State<RiveSplash> {
   static const _defaultDuration = Duration(seconds: 3);
 
   Timer? _timer;
-  late final VoidCallback _onSourceLoaded;
+  FileLoader? _fileLoader;
+  bool _hasNotifiedDuration = false;
+  bool _fallbackScheduled = false;
 
   RiveConfig get _riveConfig => widget.riveConfig;
+  VoidCallback get _onSourceLoaded => widget.onSourceLoaded ?? RiveSplash.resume;
 
   @override
   void initState() {
     super.initState();
-    _onSourceLoaded = widget.onSourceLoaded ?? RiveSplash.resume;
+    _initFileLoader();
+  }
+
+  @override
+  void didUpdateWidget(covariant RiveSplash oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.source != oldWidget.source ||
+        widget.riveConfig.riveFactory != oldWidget.riveConfig.riveFactory) {
+      _fileLoader?.dispose();
+      _fileLoader = null;
+      _resetDurationState();
+      _initFileLoader();
+    }
   }
 
   @override
   void dispose() {
     _timer?.cancel();
+    _fileLoader?.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final body = _riveConfig.useSafeArea
+        ? SafeArea(child: Center(child: _buildRiveWidget()))
+        : Center(child: _buildRiveWidget());
+
     return Scaffold(
       backgroundColor: widget.backGroundColor,
-      body: Center(child: _riveWidget),
+      body: body,
     );
   }
 
-  Widget get _riveWidget => _buildFromSource();
-
-  void _onInit(Artboard artboard) {
-    if (artboard.animations.isNotEmpty) {
-      final animation = artboard.animations.first;
-      Duration duration;
-
-      if (_riveConfig.autoplay &&
-          _riveConfig.animations.isEmpty &&
-          _riveConfig.stateMachineName.isEmpty) {
-        final controller = SimpleAnimation(animation.name);
-        artboard.addController(controller);
-      }
-
-      if (_riveConfig.splashDuration != null) {
-        duration = _riveConfig.splashDuration!;
-      } else if (animation is LinearAnimation) {
-        final secs = animation.durationSeconds;
-        duration = Duration(milliseconds: (secs * 1000).round());
-      } else {
-        duration = _defaultDuration;
-      }
-      _notifyDuration(duration);
-      _riveConfig.onInit?.call(artboard);
-    } else {
-      _notifyDuration(_riveConfig.splashDuration ?? _defaultDuration);
-    }
+  void _resetDurationState() {
+    _timer?.cancel();
+    _hasNotifiedDuration = false;
+    _fallbackScheduled = false;
   }
 
   void _notifyDuration(Duration duration) {
+    if (_hasNotifiedDuration) {
+      return;
+    }
+    _hasNotifiedDuration = true;
     _onSourceLoaded.call();
     _timer?.cancel();
     _timer = Timer(duration, _onSplashComplete);
+  }
+
+  void _scheduleFallbackDuration() {
+    if (_fallbackScheduled) {
+      return;
+    }
+    _fallbackScheduled = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+      _notifyDuration(_riveConfig.splashDuration ?? _defaultDuration);
+    });
   }
 
   void _onSplashComplete() {
@@ -168,115 +184,82 @@ class _RiveSplashState extends State<RiveSplash> {
     );
   }
 
-  Widget _buildFromSource() {
-    final src = widget.source;
-
-    // Pre-loaded artboard case
-    if (src is RiveArtboardSource) {
-      return Rive(
-        artboard: src.artboard.instance(),
-        fit: _riveConfig.fit,
-        alignment: _riveConfig.alignment,
-        antialiasing: _riveConfig.antialiasing,
-        useArtboardSize: _riveConfig.useArtboardSize,
-        enablePointerEvents: _riveConfig.enablePointerEvents,
-        cursor: _riveConfig.cursor,
-        behavior: _riveConfig.behavior,
-        clipRect: _riveConfig.clipRect,
-        speedMultiplier: _riveConfig.speedMultiplier,
-        isTouchScrollEnabled: _riveConfig.isTouchScrollEnabled,
-      );
-    }
-
-    // Standard Source cases
-    final List<String> animations =
-        _riveConfig.autoplay ? _riveConfig.animations : [];
-    final List<String> stateMachines =
-        _riveConfig.autoplay ? _riveConfig.stateMachineName : [];
-
-    switch (src as Source) {
+  void _initFileLoader() {
+    final source = widget.source;
+    final factory = _riveConfig.riveFactory ?? Factory.rive;
+    switch (source) {
       case AssetSource assetSource:
-        return RiveAnimation.asset(
+        _fileLoader = FileLoader.fromAsset(
           assetSource.path,
-          artboard: _riveConfig.artboardName,
-          animations: animations,
-          stateMachines: stateMachines,
-          fit: _riveConfig.fit,
-          alignment: _riveConfig.alignment,
-          controllers: _riveConfig.controllers,
-          onInit: _onInit,
-          antialiasing: _riveConfig.antialiasing,
-          placeHolder: _riveConfig.placeHolder,
-          clipRect: _riveConfig.clipRect,
-          isTouchScrollEnabled: _riveConfig.isTouchScrollEnabled,
-          speedMultiplier: _riveConfig.speedMultiplier,
-          behavior: _riveConfig.behavior,
-          useArtboardSize: _riveConfig.useArtboardSize,
-          objectGenerator: _riveConfig.objectGenerator,
+          riveFactory: factory,
         );
-      case DeviceFileSource deviceFileSource:
-        return RiveAnimation.file(
-          deviceFileSource.path,
-          artboard: _riveConfig.artboardName,
-          animations: animations,
-          stateMachines: stateMachines,
-          fit: _riveConfig.fit,
-          alignment: _riveConfig.alignment,
-          controllers: _riveConfig.controllers,
-          onInit: _onInit,
-          antialiasing: _riveConfig.antialiasing,
-          placeHolder: _riveConfig.placeHolder,
-          clipRect: _riveConfig.clipRect,
-          isTouchScrollEnabled: _riveConfig.isTouchScrollEnabled,
-          speedMultiplier: _riveConfig.speedMultiplier,
-          behavior: _riveConfig.behavior,
-          useArtboardSize: _riveConfig.useArtboardSize,
-          objectGenerator: _riveConfig.objectGenerator,
+      case NetworkFileSource networkSource:
+        _fileLoader = FileLoader.fromUrl(
+          networkSource.url.toString(),
+          riveFactory: factory,
         );
-      case NetworkFileSource networkFileSource:
-        return RiveAnimation.network(
-          networkFileSource.url.toString(),
-          artboard: _riveConfig.artboardName,
-          animations: animations,
-          stateMachines: stateMachines,
-          fit: _riveConfig.fit,
-          alignment: _riveConfig.alignment,
-          controllers: _riveConfig.controllers,
-          onInit: _onInit,
-          antialiasing: _riveConfig.antialiasing,
-          placeHolder: _riveConfig.placeHolder,
-          clipRect: _riveConfig.clipRect,
-          isTouchScrollEnabled: _riveConfig.isTouchScrollEnabled,
-          speedMultiplier: _riveConfig.speedMultiplier,
-          behavior: _riveConfig.behavior,
-          useArtboardSize: _riveConfig.useArtboardSize,
-          headers: _riveConfig.headers,
-          objectGenerator: _riveConfig.objectGenerator,
+      case RiveFileSource riveFileSource:
+        _fileLoader = FileLoader.fromFile(
+          riveFileSource.file,
+          riveFactory: factory,
         );
-      case BytesSource bytesSource:
-        final riveFile = RiveFile.import(
-          bytesSource.bytes.buffer.asByteData(),
-          assetLoader: _riveConfig.assetLoader,
-          loadCdnAssets: _riveConfig.loadCdnAssets,
-          objectGenerator: _riveConfig.objectGenerator,
-        );
-        return RiveAnimation.direct(
-          riveFile,
-          artboard: _riveConfig.artboardName,
-          animations: animations,
-          stateMachines: stateMachines,
-          fit: _riveConfig.fit,
-          alignment: _riveConfig.alignment,
-          controllers: _riveConfig.controllers,
-          onInit: _onInit,
-          antialiasing: _riveConfig.antialiasing,
-          placeHolder: _riveConfig.placeHolder,
-          clipRect: _riveConfig.clipRect,
-          isTouchScrollEnabled: _riveConfig.isTouchScrollEnabled,
-          speedMultiplier: _riveConfig.speedMultiplier,
-          behavior: _riveConfig.behavior,
-          useArtboardSize: _riveConfig.useArtboardSize,
-        );
+      case DeviceFileSource _:
+      case BytesSource _:
+        _fileLoader = null;
+      default:
+        _fileLoader = null;
     }
+  }
+
+  void _onLoaded(RiveLoaded state) {
+    final duration = _riveConfig.splashDuration ?? _defaultDuration;
+    _notifyDuration(duration);
+    _riveConfig.onInit?.call(state.controller);
+  }
+
+  void _onFailed(Object error, StackTrace _) {
+    _notifyDuration(_riveConfig.splashDuration ?? _defaultDuration);
+  }
+
+  Widget _buildRiveWidget() {
+    final loader = _fileLoader;
+    if (loader == null) {
+      _scheduleFallbackDuration();
+      return _riveConfig.placeHolder ??
+          const Center(
+            child: Text(
+              'Unsupported source type for Rive 0.14.x.\n'
+              'Use AssetSource, NetworkFileSource, or RiveFileSource instead.',
+              textAlign: TextAlign.center,
+            ),
+          );
+    }
+
+    return RiveWidgetBuilder(
+      fileLoader: loader,
+      artboardSelector: _riveConfig.artboardSelector,
+      stateMachineSelector: _riveConfig.stateMachineSelector,
+      dataBind: _riveConfig.dataBind,
+      controller: _riveConfig.controller,
+      onLoaded: _onLoaded,
+      onFailed: _onFailed,
+      builder: (context, state) {
+        return switch (state) {
+          RiveLoading() =>
+            _riveConfig.placeHolder ?? const CircularProgressIndicator(),
+          RiveLoaded(:final controller) => RiveWidget(
+              controller: controller,
+              fit: _riveConfig.fit,
+              alignment: _riveConfig.alignment,
+              hitTestBehavior: _riveConfig.hitTestBehavior,
+              cursor: _riveConfig.cursor,
+              layoutScaleFactor: _riveConfig.layoutScaleFactor,
+            ),
+          RiveFailed(:final error) => Center(
+              child: Text('Failed to load Rive: $error'),
+            ),
+        };
+      },
+    );
   }
 }
