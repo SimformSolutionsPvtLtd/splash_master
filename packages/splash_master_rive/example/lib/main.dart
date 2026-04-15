@@ -19,7 +19,7 @@ class RiveSplashScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return RiveSplash(
       source: AssetSource('assets/sample_rive.riv'),
-      riveConfig: const RiveConfig(autoplay: true),
+      riveConfig: const RiveConfig(),
       backGroundColor: Colors.white,
       nextScreen: const _HomeScreen(),
     );

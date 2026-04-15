@@ -42,7 +42,9 @@ final class AssetSource extends Source {
 
 final class DeviceFileSource extends Source {
   /// Provides the device file for the splash screen
-  DeviceFileSource(this.path);
+  DeviceFileSource(this.path) {
+    setSource();
+  }
 
   final String path;
 

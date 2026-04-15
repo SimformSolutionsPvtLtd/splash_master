@@ -20,22 +20,22 @@
  * SOFTWARE.
  */
 
-import 'package:rive/rive.dart';
+import 'package:rive/rive.dart' as rive;
 import 'package:splash_master/splash_master.dart';
 
-/// Provides a pre-loaded Rive [Artboard] instance as a splash source.
+/// Provides a pre-loaded Rive [rive.File] instance as a splash source.
 ///
-/// Use this when you have already loaded and initialized the artboard yourself
-/// and want to pass it directly to [RiveSplash].
-class RiveArtboardSource {
-  const RiveArtboardSource(this.artboard);
+/// Use this when you have already loaded a Rive file and want to pass it
+/// directly to [RiveSplash].
+class RiveFileSource {
+  const RiveFileSource(this.file);
 
-  /// The pre-loaded Rive artboard instance to display.
-  final Artboard artboard;
+  /// The pre-loaded Rive file instance to display.
+  final rive.File file;
 }
 
 /// Type alias for the splash source accepted by [RiveSplash].
 ///
 /// Either a [Source] (for asset / file / network / bytes loading) or a
-/// [RiveArtboardSource] (for a pre-loaded artboard).
+/// [RiveFileSource] (for a pre-loaded Rive file).
 typedef RiveSource = Object;

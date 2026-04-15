@@ -3,7 +3,7 @@ description: "Example app demonstrating the splash_master_rive package."
 publish_to: none
 
 environment:
-  sdk: '>=3.4.3 <4.0.0'
+  sdk: '>=3.6.0 <4.0.0'
 
 dependencies:
   flutter:

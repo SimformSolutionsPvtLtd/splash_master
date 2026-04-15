@@ -270,15 +270,15 @@ Rive animations have an additional property called `splashDuration` that allows 
 
 | Name                           | Description                                                                                                   |
 |--------------------------------|---------------------------------------------------------------------------------------------------------------|
-| source                         | Media source for assets (Asset, File, Network, or RiveArtboardSource).                                       |
+| source                         | Media source for assets (Asset, Network, or RiveFileSource).                                                  |
 | videoConfig                    | Configuration for video playback (VideoConfig). Controls playback behavior and visibility.                    |
 | lottieConfig                   | Configuration for Lottie animations (LottieConfig). Controls animation properties and visibility.            |
-| riveConfig                     | Configuration for the Rive animation (RiveConfig). Controls animations, appearance, and behavior.             |
+| riveConfig                     | Configuration for the Rive animation (appearance, behavior, artboard and state machine selection via `artboardSelector`/`stateMachineSelector`). |
 | backGroundColor                | Background color of the splash screen behind the media.                                                       |
 | nextScreen                     | Widget to navigate to after splash finishes.                                                                  |
 | customNavigation               | Callback to handle custom navigation logic when splash completes.                                             |
 | onSourceLoaded                 | Called when provided media is loaded. You must call `SplashMaster.resume()` if you provide this callback.    |
-| splashDuration (rive only)     | Optional explicit duration for the Rive splash screen (overrides automatic calculation based on animation).  |
+| splashDuration (rive only)     | Optional explicit duration for the Rive splash screen. If provided, uses this value; otherwise defaults to 3 seconds. |
 
 ### VisibilityEnum Values
 

@@ -60,7 +60,7 @@ dependencies:
 | Package                  | Contents                                                                  |
 |--------------------------|---------------------------------------------------------------------------|
 | `splash_master`          | CLI tool, native splash generation (Android/iOS), shared types (`Source`, `SplashMediaType`, `VisibilityEnum`) |
-| `splash_master_rive`     | `RiveSplash` widget + `RiveConfig` + `RiveArtboardSource`                 |
+| `splash_master_rive`     | `RiveSplash` widget + `RiveConfig` + `RiveFileSource`                     |
 | `splash_master_video`    | `VideoSplash` widget + `VideoConfig`                                      |
 | `splash_master_lottie`   | `LottieSplash` widget + `LottieConfig`                                    |
 
@@ -127,7 +127,7 @@ void main() {
 
 Apps that use **only** the native image/color splash (CLI only, no Flutter animation widget) are **not affected** — continue using `splash_master` alone with no code changes.
 
-`RiveArtboardSource` has moved to `splash_master_rive`. Import `package:splash_master_rive/splash_master_rive.dart` to access it.
+`RiveFileSource` is available in `splash_master_rive`. Import `package:splash_master_rive/splash_master_rive.dart` to access it.
 
 ## Support
 
