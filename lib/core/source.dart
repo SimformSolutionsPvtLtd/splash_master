@@ -23,7 +23,6 @@
 import 'dart:io';
 
 import 'package:flutter/services.dart';
-import 'package:rive/rive.dart';
 import 'package:splash_master/core/utils.dart';
 
 /// Holds the source file
@@ -81,18 +80,6 @@ final class BytesSource extends Source {
   BytesSource(this.bytes);
 
   final Uint8List bytes;
-
-  @override
-  void setSource() {}
-}
-
-/// Provides a pre-loaded Rive artboard instance for the splash screen
-final class RiveArtboardSource extends Source {
-  /// Provides a pre-loaded Rive artboard instance for the splash screen
-  RiveArtboardSource(this.artboard);
-
-  /// The Rive artboard instance to display
-  final Artboard artboard;
 
   @override
   void setSource() {}
