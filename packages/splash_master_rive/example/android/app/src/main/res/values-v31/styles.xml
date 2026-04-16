@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <style name="LaunchTheme" parent="@android:style/Theme.Light.NoTitleBar">
+    <item name="android:windowSplashScreenBackground">#FFFFFF</item>
+    <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_image_12</item>
+    <item name="android:windowSplashScreenBrandingImage">@drawable/android_12_branding_image</item>
+  </style>
+</resources>

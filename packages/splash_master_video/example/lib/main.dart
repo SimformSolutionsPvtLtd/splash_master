@@ -18,7 +18,7 @@ class VideoSplashScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return VideoSplash(
-      source: AssetSource('assets/sample_video.mp4'),
+      source: AssetSource('assets/simform_splash_video.mp4'),
       videoConfig: const VideoConfig(
         videoVisibilityEnum: VisibilityEnum.useAspectRatio,
       ),

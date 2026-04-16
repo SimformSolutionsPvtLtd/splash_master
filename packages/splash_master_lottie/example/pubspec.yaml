@@ -11,8 +11,94 @@ dependencies:
   splash_master_lottie:
     path: ../
 
+dev_dependencies:
+  flutter_lints: ^3.0.0
+  splash_master:
+    path: ../../../
+
 flutter:
   uses-material-design: true
 
   assets:
     - assets/
+
+splash_master:
+  # ===== Light Mode — Common Configuration =====
+  # Background color for the splash screen (light mode)
+  color: '#FFFFFF'
+  
+  # Main splash image (used on both iOS and Android in light mode)
+  image: 'assets/simform_splash_img.png'
+
+  # ===== Dark Mode — Common Configuration =====
+  # Background color for dark mode
+  color_dark: '#000000'
+
+  # Splash image for dark mode
+  image_dark: 'assets/simform_splash_img_dark.png'
+
+  # ===== iOS Common Image Behavior  =====
+  # How the splash image should be displayed on iOS
+  # Options: scaleToFill, scaleAspectFit, scaleAspectFill, redraw, center,
+  # top, bottom, left, right, topLeft, topRight, bottomLeft, bottomRight
+  ios_content_mode: 'center'
+
+  # ===== Android Light Mode Image Behavior =====
+  # How the splash image should be positioned on Android below API 31 (pre-Android 12)
+  # Options: center, clip_horizontal, clip_vertical, fill_horizontal, fill,
+  # center_vertical, bottom, fill_vertical, center_horizontal, top,
+  # end, left, right, start
+  android_gravity: 'center'
+
+  # ===== Android Dark Mode Behavior =====
+  # Android-specific dark mode positioning below API 31 (pre-Android 12)
+  # Options: same as android_gravity
+  # If omitted, falls back to android_gravity
+  android_dark_gravity: 'center'
+
+  # ===== Background Image Configuration =====
+  # Optional background image displayed behind the main splash image
+  background_image: 'assets/background_image.png'
+
+  # Dark mode background image displayed behind the main dark splash image
+  background_image_dark: 'assets/background_image_dark.png'
+  
+  # How the background image should be displayed on iOS
+  # Options: scaleToFill, scaleAspectFit, scaleAspectFill, redraw, center,
+  # top, bottom, left, right, topLeft, topRight, bottomLeft, bottomRight
+  ios_background_content_mode: 'scaleToFill'
+  
+  # How the background image should be positioned on Android
+  # Options: same as android_gravity
+  android_background_image_gravity: 'fill'
+
+  # ===== Android 12+ Specific Configuration =====
+  # Android 12+ uses the system splash screen API.
+  android_12_and_above:
+    # Background color for Android 12+ splash screen (light mode)
+    # Fallback: None — if omitted, no background color is applied (system default).
+    color: '#FFFFFF'
+
+    # Background color for Android 12+ dark mode
+    # Fallback: None — if omitted, no dark background color is applied (system default).
+    color_dark: '#000000'
+    
+    # Custom splash icon (replaces default app icon)
+    # This should be a centered icon, ideally 288x288dp
+    # Fallback: None — if omitted, system default app icon is used (system default).
+    image: 'assets/splash_12.png'
+
+    # Custom splash icon for Android 12+ dark mode
+    # Fallback: Falls back to android_12_and_above.image if omitted.
+    image_dark: 'assets/splash_12_dark.png'
+
+    # Optional branding image shown at the bottom
+    # Maximum height: 80dp, centered horizontally
+    # Android 12+ only; branding images are not supported on iOS
+    # Fallback: None — if omitted, no branding image is shown.
+    branding_image: 'assets/branding_image.png'
+
+    # Dark mode: separate branding image for Android 12+ dark splash
+    # Android 12+ only; this example intentionally reuses the light branding asset
+    # Fallback: Falls back to android_12_and_above.branding_image if omitted.
+    branding_image_dark: 'assets/branding_image.png'
