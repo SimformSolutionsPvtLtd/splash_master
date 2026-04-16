@@ -23,7 +23,7 @@ Please provide versions for the package(s) you selected above.
 
 Example:
 - `splash_master: 1.0.0`
-- `splash_master_rive: 2.0.0`
+- `splash_master_rive: 1.0.0`
 
 **To Reproduce**
 Steps to reproduce the behavior:

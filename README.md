@@ -1,4 +1,4 @@
-![Banner](https://raw.githubusercontent.com/SimformSolutionsPvtLtd/splash_master/master/preview/banner.png)
+![Banner](preview/banner.png)
 
 # Splash Master
 
@@ -12,9 +12,9 @@ _Check out other amazing open-source [Flutter libraries](https://simform-flutter
 
 ## Preview
 
-| Android                                                                                                                                                                                                                                                | iOS                                                                                                                                                                                                                                                     |
-|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| <a href="https://raw.githubusercontent.com/SimformSolutionsPvtLtd/splash_master/master/preview/android_preview.gif"><img src="https://raw.githubusercontent.com/SimformSolutionsPvtLtd/splash_master/master/preview/android_preview.gif"  height="600px;"/></a> | <a href="https://raw.githubusercontent.com/SimformSolutionsPvtLtd/splash_master/master/preview/ios_preview.gif"><img src="https://raw.githubusercontent.com/SimformSolutionsPvtLtd/splash_master/master/preview/ios_preview.gif" height="600px;"/></a> |
+| Android                                                                                                                                                                                                                                                | iOS                                                                                                                                                                                                                                                            |
+|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| <a href="https://raw.githubusercontent.com/SimformSolutionsPvtLtd/splash_master/master/preview/android_image_splash.gif"><img src="https://raw.githubusercontent.com/SimformSolutionsPvtLtd/splash_master/master/preview/android_image_splash.gif"  height="600px;"/></a> | <a href="https://raw.githubusercontent.com/SimformSolutionsPvtLtd/splash_master/master/preview/ios_image_splash.gif"><img src="https://raw.githubusercontent.com/SimformSolutionsPvtLtd/splash_master/master/preview/ios_image_splash.gif" height="600px;"/></a> |
 
 ## Features
 
@@ -43,81 +43,23 @@ dependencies:
 
 ### With animation widgets
 
-Add the sub-package for the renderer you need:
+Each animation sub-package **already depends on `splash_master`** internally, so you **don't need to add `splash_master` separately**. Just add the sub-package you need — it works standalone:
 
 ```yaml
 dependencies:
-  splash_master: ^1.0.0         # always needed for the CLI / shared types
-
-  # pick one or more:
-  splash_master_rive: ^0.0.1        # Rive animations
-  splash_master_video: ^0.0.1       # Video splash
-  splash_master_lottie: ^0.0.1      # Lottie animations
+  # Just pick one or more — no need to add splash_master separately:
+  splash_master_rive: ^1.0.0        # Rive animations (includes splash_master)
+  splash_master_video: ^1.0.0       # Video splash (includes splash_master)
+  splash_master_lottie: ^1.0.0      # Lottie animations (includes splash_master)
 ```
 
-## Package structure
+> **Note:** You only need `splash_master` directly if you're using the CLI for native splash generation **without** any animation widget, or if you want to pin a specific version.
 
-| Package                  | Contents                                                                  |
-|--------------------------|---------------------------------------------------------------------------|
-| `splash_master`          | CLI tool, native splash generation (Android/iOS), shared types (`Source`, `SplashMediaType`, `VisibilityEnum`) |
-| `splash_master_rive`     | `RiveSplash` widget + `RiveConfig` + `RiveFileSource`                     |
-| `splash_master_video`    | `VideoSplash` widget + `VideoConfig`                                      |
-| `splash_master_lottie`   | `LottieSplash` widget + `LottieConfig`                                    |
-
-All sub-packages re-export `splash_master` so you only need to import one package in your Dart code.
-
-## Usage — animation splash screens
-
-### Rive
-
-```dart
-import 'package:splash_master_rive/splash_master_rive.dart';
-
-void main() {
-  WidgetsFlutterBinding.ensureInitialized();
-  RiveSplash.initialize();
-  runApp(MaterialApp(home: RiveSplash(
-    source: AssetSource('assets/animation.riv'),
-    nextScreen: const MyApp(),
-  )));
-}
-```
-
-### Video
-
-```dart
-import 'package:splash_master_video/splash_master_video.dart';
-
-void main() {
-  WidgetsFlutterBinding.ensureInitialized();
-  VideoSplash.initialize();
-  runApp(MaterialApp(home: VideoSplash(
-    source: AssetSource('assets/splash.mp4'),
-    nextScreen: const MyApp(),
-  )));
-}
-```
-
-### Lottie
-
-```dart
-import 'package:splash_master_lottie/splash_master_lottie.dart';
-
-void main() {
-  WidgetsFlutterBinding.ensureInitialized();
-  LottieSplash.initialize();
-  runApp(MaterialApp(home: LottieSplash(
-    source: AssetSource('assets/animation.json'),
-    nextScreen: const MyApp(),
-  )));
-}
-```
-
-## Migration from 1.x
+## Migration from 0.0.3 to 1.0.0
 
 **Breaking change**: `SplashMaster.rive(...)`, `SplashMaster.video(...)`, and `SplashMaster.lottie(...)` have been removed from the `splash_master` package. Add the relevant sub-package and rename the widget:
 
-| Before (1.x)                | After (2.x)              | New package              |
+| Before (0.0.3)              | After (1.0.0)            | New package              |
 |-----------------------------|--------------------------|--------------------------|
 | `SplashMaster.rive(...)`    | `RiveSplash(...)`        | `splash_master_rive`     |
 | `SplashMaster.video(...)`   | `VideoSplash(...)`       | `splash_master_video`    |
@@ -129,22 +71,161 @@ Apps that use **only** the native image/color splash (CLI only, no Flutter anima
 
 `RiveFileSource` is available in `splash_master_rive`. Import `package:splash_master_rive/splash_master_rive.dart` to access it.
 
+## Package structure
+
+| Package                  | Contents                                                                  |
+|--------------------------|---------------------------------------------------------------------------|
+| `splash_master` | CLI tool, native splash generation (Android/iOS), shared types (`Source`, `VisibilityEnum`) |
+| [`splash_master_rive`](packages/splash_master_rive/README.md)     | `RiveSplash` widget + `RiveConfig` + `RiveFileSource`                     |
+| [`splash_master_video`](packages/splash_master_video/README.md)    | `VideoSplash` widget + `VideoConfig`                                      |
+| [`splash_master_lottie`](packages/splash_master_lottie/README.md)   | `LottieSplash` widget + `LottieConfig`                                    |
+
+All sub-packages re-export `splash_master`, so one import gives you both the splash widget and shared types.
+
+```dart
+// Choose one:
+import 'package:splash_master_rive/splash_master_rive.dart';
+import 'package:splash_master_video/splash_master_video.dart';
+import 'package:splash_master_lottie/splash_master_lottie.dart';
+```
+
+## Sub-packages on pub.dev
+
+Use these links to open each renderer package directly on pub.dev:
+
+| Package | pub.dev |
+|---|---|
+| `splash_master_rive` | [pub.dev/packages/splash_master_rive](https://pub.dev/packages/splash_master_rive) |
+| `splash_master_video` | [pub.dev/packages/splash_master_video](https://pub.dev/packages/splash_master_video) |
+| `splash_master_lottie` | [pub.dev/packages/splash_master_lottie](https://pub.dev/packages/splash_master_lottie) |
+
+---
+
+## Usage — native splash (CLI)
+
+The core `splash_master` package provides a CLI tool that generates native splash screens for **Android** and **iOS** from your `pubspec.yaml` configuration. This splash is displayed by the OS **before** Flutter renders its first frame.
+
+### 1. Add configuration to `pubspec.yaml`
+
+```yaml
+splash_master:
+  # Light mode
+  color: '#FFFFFF'
+  image: 'assets/splash.png'
+  background_image: 'assets/bg.png'          # optional
+
+  # Dark mode (Android & iOS)
+  color_dark: '#000000'
+  image_dark: 'assets/splash_dark.png'
+  background_image_dark: 'assets/bg_dark.png' # optional
+
+  # iOS positioning
+  ios_content_mode: 'center'                  # default: scaleToFill
+  ios_background_content_mode: 'scaleToFill'
+
+  # Android pre-12 positioning
+  android_gravity: 'center'                   # default: fill
+  android_dark_gravity: 'center'
+  android_background_image_gravity: 'fill'
+
+  # Android 12+ (API 31+)
+  android_12_and_above:
+    color: '#FFFFFF'
+    image: 'assets/splash_12.png'
+    color_dark: '#000000'
+    image_dark: 'assets/splash_12_dark.png'
+    branding_image: 'assets/branding.png'
+    branding_image_dark: 'assets/branding_dark.png'
+```
+
+### 2. Run the generator
+
+```bash
+dart run splash_master create
+```
+
+This will generate and set the native splash resources in your `android/` and `ios/` directories.
+
+### Shared types
+
+The core package exports types used by all companion packages:
+
+| Type | Description |
+|------|-------------|
+| `Source` | Sealed class with `AssetSource`, `DeviceFileSource`, `NetworkFileSource`, `BytesSource` |
+| `VisibilityEnum` | `useFullScreen`, `useAspectRatio`, `none` — controls how media fills the screen |
+
+## Usage — animation splash screens
+
+### Rive
+
+```dart
+import 'package:splash_master_rive/splash_master_rive.dart';
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  RiveSplash.initialize();
+  runApp(
+    MaterialApp(
+      home: RiveSplash(
+        source: AssetSource('assets/animation.riv'),
+        nextScreen: const MyApp(),
+      ),
+    ),
+  );
+}
+
+```
+
+→ [Full API reference and configuration options](packages/splash_master_rive/README.md)
+
+### Video
+
+```dart
+import 'package:splash_master_video/splash_master_video.dart';
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  VideoSplash.initialize();
+  runApp(
+    MaterialApp(
+      home: VideoSplash(
+        source: AssetSource('assets/splash.mp4'),
+        nextScreen: const MyApp(),
+      ),
+    ),
+  );
+}
+
+```
+
+→ [Full API reference and configuration options](packages/splash_master_video/README.md)
+
+### Lottie
+
+```dart
+import 'package:splash_master_lottie/splash_master_lottie.dart';
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  LottieSplash.initialize();
+  runApp(
+    MaterialApp(
+      home: LottieSplash(
+        source: AssetSource('assets/animation.json'),
+        nextScreen: const MyApp(),
+      ),
+    ),
+  );
+}
+```
+
+→ [Full API reference and configuration options](packages/splash_master_lottie/README.md)
+
 ## Support
 
 For questions, issues, or feature requests, [create an issue](https://github.com/SimformSolutionsPvtLtd/splash_master/issues) on GitHub or reach out via the GitHub Discussions tab. We're happy to help and encourage community contributions.  
 To contribute documentation updates specifically, please make changes to the `doc/documentation.md` file and submit a pull request.
-
-## Android 16 KB Page Size Support (Rive)
-
-If you're using Rive animations with Splash Master and encounter the 16 KB page size error when uploading your APK to Google Play Console, you can resolve this by overriding the NDK version used by Rive.
-
-Add the following line to your app's `android/gradle.properties` file:
-
-```properties
-rive.ndk.version=28.1.13356709
-```
-
-This enables 16 KB page size support required by Google Play for apps targeting Android 15+. For more details, see the [Rive Flutter issue #547](https://github.com/rive-app/rive-flutter/issues/547).
 
 ## License
 
