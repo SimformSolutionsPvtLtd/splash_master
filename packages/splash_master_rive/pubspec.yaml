@@ -11,11 +11,11 @@ dependencies:
   flutter:
     sdk: flutter
   splash_master:
-    path: ../../
-  rive: 0.14.5
+    path: ../../ # Core package providing shared types and native splash generation
+  rive: 0.14.5 # Renders Rive animation files in the splash screen
 
 dev_dependencies:
-  flutter_lints: ^3.0.0
+  flutter_lints: ^3.0.0 # Dart/Flutter lint rules for code quality
 
 screenshots:
   - description: 'This screenshot showcases rive as splash screen for ios.'

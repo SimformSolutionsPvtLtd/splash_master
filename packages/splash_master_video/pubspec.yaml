@@ -5,17 +5,16 @@ publish_to: none
 
 environment:
   sdk: '>=3.4.3 <4.0.0'
-  flutter: '>=3.3.0'
 
 dependencies:
   flutter:
     sdk: flutter
   splash_master:
-    path: ../../
-  video_player: ^2.9.1
+    path: ../../ # Core package providing shared types and native splash generation
+  video_player: 2.9.1 # Plays video files in the splash screen widget
 
 dev_dependencies:
-  flutter_lints: ^3.0.0
+  flutter_lints: 3.0.0 # Dart/Flutter lint rules for code quality
 
 screenshots:
   - description: 'This screenshot showcases video as splash screen for ios.'
