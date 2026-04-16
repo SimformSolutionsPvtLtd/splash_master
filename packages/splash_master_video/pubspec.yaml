@@ -1,6 +1,6 @@
 name: splash_master_video
 description: "Video splash screen widget for splash_master."
-version: 2.0.0
+version: 1.0.0
 publish_to: none
 
 environment:
@@ -16,3 +16,9 @@ dependencies:
 
 dev_dependencies:
   flutter_lints: ^3.0.0
+
+screenshots:
+  - description: 'This screenshot showcases video as splash screen for ios.'
+    path: preview/ios_video_splash.gif
+  - description: 'This screenshot showcases video as splash screen for android.'
+    path: preview/android_video_splash.gif

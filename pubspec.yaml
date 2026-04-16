@@ -34,7 +34,7 @@ platforms:
   ios:
 
 screenshots:
-  - description: 'This screenshot showcases video as splash screen for ios.'
-    path: preview/ios_preview.gif
-  - description: 'This screenshot showcases video as splash screen for android.'
-    path: preview/android_preview.gif
+  - description: 'This screenshot showcases image as splash screen for ios.'
+    path: preview/ios_image_splash.gif
+  - description: 'This screenshot showcases image as splash screen for android.'
+    path: preview/android_image_splash.gif

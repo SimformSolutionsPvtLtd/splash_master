@@ -20,8 +20,6 @@
  * SOFTWARE.
  */
 
-enum SplashMediaType { image, video, lottie, rive, custom }
-
 enum VisibilityEnum {
   /// To display video in full screen
   useFullScreen,
