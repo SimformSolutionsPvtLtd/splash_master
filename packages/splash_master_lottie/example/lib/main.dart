@@ -18,11 +18,11 @@ class LottieSplashScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return LottieSplash(
-      source: AssetSource('assets/sample_lottie.json'),
+      source: AssetSource('assets/simform_splash_lottie.json'),
       lottieConfig: const LottieConfig(
         repeat: false,
         visibilityEnum: VisibilityEnum.useAspectRatio,
-        aspectRatio: 1.0,
+        aspectRatio: 16 / 9,
       ),
       backGroundColor: Colors.white,
       nextScreen: const _HomeScreen(),
