@@ -31,6 +31,3 @@ migrate_working_dir/
 **/.flutter-plugins
 **/.flutter-plugins-dependencies
 **/android/gradle/wrapper/gradle-wrapper.jar
-**/android/local.properties
-**/android/key.properties
-*.jks
