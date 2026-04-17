@@ -89,6 +89,17 @@ import 'package:splash_master_video/splash_master_video.dart';
 import 'package:splash_master_lottie/splash_master_lottie.dart';
 ```
 
+## GitHub Copilot Support
+
+Splash Master now supports GitHub Copilot instruction, skill, and prompt files for direct package usage.
+
+- Copy these files to your app's `.github/` folder and use them with Copilot.
+- Use `prompts/fresh-install.prompt.md` for first-time setup.
+- Use `prompts/auto-migration.prompt.md` for migration from legacy `SplashMaster.*` APIs.
+- Use `copilot-instructions.md` and `skills/splash-master/SKILL.md` for package-aware guidance while working on splash-related tasks.
+
+The same support files are available at repository root and also inside each renderer package, so opening a sub-package directly still provides the same Copilot workflow.
+
 ## Sub-packages on pub.dev
 
 Use these links to open each renderer package directly on pub.dev:

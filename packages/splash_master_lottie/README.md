@@ -54,6 +54,15 @@ dart run splash_master create
 
 > `splash_master_lottie` already includes `splash_master`, so you don't need to add `splash_master` separately for package usage.
 
+## GitHub Copilot Support
+
+This package now supports GitHub Copilot instruction, skill, and prompt files.
+
+- Copy this package's `.github/` files into your app project's `.github/` folder and use them with Copilot.
+- Use `.github/prompts/fresh-install.prompt.md` for fresh install flow.
+- Use `.github/prompts/auto-migration.prompt.md` for migration flow.
+- Use `.github/copilot-instructions.md` and `.github/skills/splash_master_lottie/SKILL.md` for package-aware setup and migration guidance.
+
 ---
 
 ## Quick start
