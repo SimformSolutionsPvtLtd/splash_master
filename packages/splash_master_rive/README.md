@@ -1,6 +1,6 @@
-![Banner](../../preview/banner.png)
+![Banner](preview/banner.png)
 
-# splash_master_rive
+# Splash Master Rive
 
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/SimformSolutionsPvtLtd/splash_master/blob/master/LICENSE)
 

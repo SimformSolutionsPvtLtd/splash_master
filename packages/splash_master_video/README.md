@@ -1,6 +1,6 @@
-![Banner](../../preview/banner.png)
+![Banner](preview/banner.png)
 
-# splash_master_video
+# Splash Master Video
 
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/SimformSolutionsPvtLtd/splash_master/blob/master/LICENSE)
 

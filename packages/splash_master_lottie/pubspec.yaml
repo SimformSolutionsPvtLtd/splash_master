@@ -1,6 +1,14 @@
 name: splash_master_lottie
 description: "Lottie animation splash screen widget for splash_master."
 version: 1.0.0
+repository: https://github.com/SimformSolutionsPvtLtd/splash_master
+issue_tracker: https://github.com/SimformSolutionsPvtLtd/splash_master/issues
+topics:
+  - splash-screen
+  - flutter-splash-screen
+  - flutter-splash
+  - lottie
+  - lottie-animation
 publish_to: none
 
 environment:
