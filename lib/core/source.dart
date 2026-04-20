@@ -23,7 +23,8 @@
 import 'dart:io';
 
 import 'package:flutter/services.dart';
-import 'package:splash_master/core/utils.dart';
+
+import '../splash_master.dart';
 
 /// Holds the source file
 sealed class Source {

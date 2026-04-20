@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-import 'package:splash_master/core/utils.dart';
+import '../../splash_master.dart';
 
 /// Supported image extensions
 enum SupportedImageExtensions {
