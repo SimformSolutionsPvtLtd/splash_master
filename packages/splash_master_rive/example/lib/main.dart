@@ -18,7 +18,7 @@ class RiveSplashScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return RiveSplash(
-      source: AssetSource('assets/sample_rive.riv'),
+      source: AssetSource('assets/simform_logo_animation.riv'),
       riveConfig: const RiveConfig(),
       backGroundColor: Colors.white,
       nextScreen: const _HomeScreen(),
