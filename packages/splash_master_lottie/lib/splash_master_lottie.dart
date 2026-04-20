@@ -7,11 +7,11 @@
 ///     path: ../packages/splash_master_lottie  # adjust path as needed
 /// ```
 ///
-/// Then use [LottieSplash] in your Flutter app:
+/// Then use [SplashMasterLottie] in your Flutter app:
 /// ```dart
 /// import 'package:splash_master_lottie/splash_master_lottie.dart';
 ///
-/// LottieSplash(
+/// SplashMasterLottie(
 ///   source: AssetSource('assets/animation.json'),
 ///   nextScreen: const MyApp(),
 /// )

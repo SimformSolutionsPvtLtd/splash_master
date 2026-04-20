@@ -130,11 +130,11 @@ For each Dart file with detected old API usage, apply the following renames:
 
 | Old API | New API | Import to add |
 |---|---|---|
-| `SplashMaster.rive(...)` | `RiveSplash(...)` | `package:splash_master_rive/splash_master_rive.dart` |
-| `SplashMaster.video(...)` | `VideoSplash(...)` | `package:splash_master_video/splash_master_video.dart` |
-| `SplashMaster.lottie(...)` | `LottieSplash(...)` | `package:splash_master_lottie/splash_master_lottie.dart` |
-| `SplashMaster.initialize()` | `RiveSplash.initialize()` / `VideoSplash.initialize()` / `LottieSplash.initialize()` | same sub-package |
-| `SplashMaster.resume()` | `RiveSplash.resume()` / `VideoSplash.resume()` / `LottieSplash.resume()` | same sub-package |
+| `SplashMaster.rive(...)` | `SplashMasterRive(...)` | `package:splash_master_rive/splash_master_rive.dart` |
+| `SplashMaster.video(...)` | `SplashMasterVideo(...)` | `package:splash_master_video/splash_master_video.dart` |
+| `SplashMaster.lottie(...)` | `SplashMasterLottie(...)` | `package:splash_master_lottie/splash_master_lottie.dart` |
+| `SplashMaster.initialize()` | `SplashMasterRive.initialize()` / `SplashMasterVideo.initialize()` / `SplashMasterLottie.initialize()` | same sub-package |
+| `SplashMaster.resume()` | `SplashMasterRive.resume()` / `SplashMasterVideo.resume()` / `SplashMasterLottie.resume()` | same sub-package |
 | `import 'package:splash_master/splash_master.dart'` | `import 'package:splash_master_<type>/splash_master_<type>.dart'` (sub-package re-exports all) | — |
 
 For each file:

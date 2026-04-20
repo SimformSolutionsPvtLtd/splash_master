@@ -7,11 +7,11 @@
 ///     path: ../packages/splash_master_rive
 /// ```
 ///
-/// Then use [RiveSplash] in your Flutter app:
+/// Then use [SplashMasterRive] in your Flutter app:
 /// ```dart
 /// import 'package:splash_master_rive/splash_master_rive.dart';
 ///
-/// RiveSplash(
+/// SplashMasterRive(
 ///   source: AssetSource('assets/animation.riv'),
 ///   nextScreen: const MyApp(),
 /// )

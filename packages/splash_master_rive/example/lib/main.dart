@@ -3,7 +3,7 @@ import 'package:splash_master_rive/splash_master_rive.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  RiveSplash.initialize();
+  SplashMasterRive.initialize();
   runApp(
     const MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -17,7 +17,7 @@ class RiveSplashScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return RiveSplash(
+    return SplashMasterRive(
       source: AssetSource('assets/simform_logo_animation.riv'),
       riveConfig: const RiveConfig(),
       backGroundColor: Colors.white,

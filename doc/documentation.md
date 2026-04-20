@@ -24,18 +24,18 @@ Splash Master is a Flutter plugin designed to make adding splash screens to your
 | Package | Contents |
 |---|---|
 | `splash_master` | CLI tool, native splash generation (Android/iOS), shared types (`Source`, `VisibilityEnum`) |
-| [`splash_master_rive`](../packages/splash_master_rive/README.md) | `RiveSplash` widget, `RiveConfig`, `RiveFileSource` — Rive animation splash |
-| [`splash_master_video`](../packages/splash_master_video/README.md) | `VideoSplash` widget, `VideoConfig` — video splash screen |
-| [`splash_master_lottie`](../packages/splash_master_lottie/README.md) | `LottieSplash` widget, `LottieConfig` — Lottie animation splash |
+| [`splash_master_rive`](../packages/splash_master_rive/README.md) | `SplashMasterRive` widget, `RiveConfig`, `RiveFileSource` — Rive animation splash |
+| [`splash_master_video`](../packages/splash_master_video/README.md) | `SplashMasterVideo` widget, `VideoConfig` — video splash screen |
+| [`splash_master_lottie`](../packages/splash_master_lottie/README.md) | `SplashMasterLottie` widget, `LottieConfig` — Lottie animation splash |
 
 All sub-packages **re-export `splash_master`**, so one import covers both the animation widget and shared types.
 
 ## Key Components
 
 - **Image splash**: Uses a static image as the splash screen (requires manual `resume()` call).
-- **VideoSplash** (`splash_master_video`): Plays a video splash screen (auto-resumes when loaded).
-- **LottieSplash** (`splash_master_lottie`): Renders a Lottie animation as the splash screen (auto-resumes when loaded).
-- **RiveSplash** (`splash_master_rive`): Displays a Rive animation splash screen (auto-resumes when loaded).
+- **SplashMasterVideo** (`splash_master_video`): Plays a video splash screen (auto-resumes when loaded).
+- **SplashMasterLottie** (`splash_master_lottie`): Renders a Lottie animation as the splash screen (auto-resumes when loaded).
+- **SplashMasterRive** (`splash_master_rive`): Displays a Rive animation splash screen (auto-resumes when loaded).
 - **Custom widget**: Allows integration of a custom Flutter widget as the splash screen for full flexibility.
 
 # Installation
@@ -182,9 +182,9 @@ import 'package:splash_master/splash_master.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  VideoSplash.initialize(); // or LottieSplash / RiveSplash
+  SplashMasterVideo.initialize(); // or SplashMasterLottie / SplashMasterRive
   // Perform any setup/configuration before resuming
-  VideoSplash.resume(); // Manual resume required for image splash
+  SplashMasterVideo.resume(); // Manual resume required for image splash
   runApp(
     MaterialApp(
       home: YourFirstScreen(),
@@ -199,10 +199,10 @@ import 'package:splash_master_video/splash_master_video.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  VideoSplash.initialize();
+  SplashMasterVideo.initialize();
   runApp(
     MaterialApp(
-      home: VideoSplash(
+      home: SplashMasterVideo(
         source: AssetSource('assets/splash.mp4'),
         nextScreen: HomeScreen(),
       ),
@@ -217,10 +217,10 @@ import 'package:splash_master_lottie/splash_master_lottie.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  LottieSplash.initialize();
+  SplashMasterLottie.initialize();
   runApp(
     MaterialApp(
-      home: LottieSplash(
+      home: SplashMasterLottie(
         source: AssetSource('assets/splash.json'),
         nextScreen: HomeScreen(),
       ),
@@ -235,10 +235,10 @@ import 'package:splash_master_rive/splash_master_rive.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  RiveSplash.initialize();
+  SplashMasterRive.initialize();
   runApp(
     MaterialApp(
-      home: RiveSplash(
+      home: SplashMasterRive(
         source: AssetSource('assets/splash.riv'),
         nextScreen: HomeScreen(),
       ),
@@ -254,14 +254,14 @@ Take advantage of advanced features and customizations for more control over you
 
 ## 1. Image Splash: Manual Resume
 
-When using an image splash, you **must** call `resume()` to transition from the native splash to your Flutter app. You can use the `initialize()`/`resume()` static methods from any splash widget class (e.g., `VideoSplash`, `LottieSplash`, or `RiveSplash`):
+When using an image splash, you **must** call `resume()` to transition from the native splash to your Flutter app. You can use the `initialize()`/`resume()` static methods from any splash widget class (e.g., `SplashMasterVideo`, `SplashMasterLottie`, or `SplashMasterRive`):
 
 ```dart
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  VideoSplash.initialize();
+  SplashMasterVideo.initialize();
   // Perform any setup/config before resuming
-  VideoSplash.resume();
+  SplashMasterVideo.resume();
   runApp(
     MaterialApp(
       home: YourWidget(),
@@ -277,7 +277,7 @@ You can use your own custom widget for the splash screen:
 ```dart
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  VideoSplash.initialize();
+  SplashMasterVideo.initialize();
   runApp(
     MaterialApp(
       home: YourCustomWidget(),
@@ -294,7 +294,7 @@ void main() {
 
 **Usage Notes:**
 - For image splash: You **must** call `resume()` manually to transition from native splash to Flutter.
-- For `VideoSplash`, `LottieSplash`, and `RiveSplash`: You **do not** need to call `resume()` manually; it resumes automatically when the media finishes loading/playing.
+- For `SplashMasterVideo`, `SplashMasterLottie`, and `SplashMasterRive`: You **do not** need to call `resume()` manually; it resumes automatically when the media finishes loading/playing.
 - If you provide a custom `onSourceLoaded` callback in your widget, you are responsible for calling `resume()`.
 
 ## Supported Media Types
@@ -309,8 +309,8 @@ void main() {
 
 ## Properties:
 
-The common properties used across `VideoSplash`, `LottieSplash`,
-and `RiveSplash` are largely the same. The key difference between them is the use
+The common properties used across `SplashMasterVideo`, `SplashMasterLottie`,
+and `SplashMasterRive` are largely the same. The key difference between them is the use
 of `videoConfig`, `lottieConfig` and `riveConfig`, which allow for configuration customization specific to video, Lottie animations
 and Rive animations, respectively.
 
@@ -325,7 +325,7 @@ Rive animations have an additional property called `splashDuration` (in `RiveCon
 | backGroundColor                | Background color of the splash screen behind the media.                                                       |
 | nextScreen                     | Widget to navigate to after splash finishes.                                                                  |
 | customNavigation               | Callback to handle custom navigation logic when splash completes.                                             |
-| onSourceLoaded                 | Called when provided media is loaded. You must call `<Widget>.resume()` (e.g., `VideoSplash.resume()`) if you provide this callback.    |
+| onSourceLoaded                 | Called when provided media is loaded. You must call `<Widget>.resume()` (e.g., `SplashMasterVideo.resume()`) if you provide this callback.    |
 | splashDuration (rive only)     | Optional explicit duration for the Rive splash screen. If provided, uses this value; otherwise defaults to 3 seconds. |
 
 ### VisibilityEnum Values
@@ -362,10 +362,10 @@ import 'package:splash_master_rive/splash_master_rive.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  RiveSplash.initialize();
+  SplashMasterRive.initialize();
   runApp(
     MaterialApp(
-      home: RiveSplash(
+      home: SplashMasterRive(
         source: AssetSource('assets/animation.riv'),
         nextScreen: const MyApp(),
       ),
@@ -424,10 +424,10 @@ import 'package:splash_master_video/splash_master_video.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  VideoSplash.initialize();
+  SplashMasterVideo.initialize();
   runApp(
     MaterialApp(
-      home: VideoSplash(
+      home: SplashMasterVideo(
         source: AssetSource('assets/splash.mp4'),
         nextScreen: const MyApp(),
       ),
@@ -482,10 +482,10 @@ import 'package:splash_master_lottie/splash_master_lottie.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  LottieSplash.initialize();
+  SplashMasterLottie.initialize();
   runApp(
     MaterialApp(
-      home: LottieSplash(
+      home: SplashMasterLottie(
         source: AssetSource('assets/animation.json'),
         nextScreen: const MyApp(),
       ),
@@ -535,9 +535,9 @@ This version standardizes dark-mode keys, enforces strict config validation, int
 
 | Before (0.0.3)              | After (1.0.0)            | New package              |
 |-----------------------------|--------------------------|--------------------------|
-| `SplashMaster.rive(...)`    | `RiveSplash(...)`        | `splash_master_rive`     |
-| `SplashMaster.video(...)`   | `VideoSplash(...)`       | `splash_master_video`    |
-| `SplashMaster.lottie(...)`  | `LottieSplash(...)`      | `splash_master_lottie`   |
+| `SplashMaster.rive(...)`    | `SplashMasterRive(...)`        | `splash_master_rive`     |
+| `SplashMaster.video(...)`   | `SplashMasterVideo(...)`       | `splash_master_video`    |
+| `SplashMaster.lottie(...)`  | `SplashMasterLottie(...)`      | `splash_master_lottie`   |
 | `SplashMaster.initialize()` | `<Widget>.initialize()`  | same sub-package widget  |
 | `SplashMaster.resume()`     | `<Widget>.resume()`      | same sub-package widget  |
 

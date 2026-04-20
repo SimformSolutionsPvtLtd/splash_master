@@ -26,7 +26,7 @@ import 'package:splash_master/splash_master.dart';
 /// Provides a pre-loaded Rive [rive.File] instance as a splash source.
 ///
 /// Use this when you have already loaded a Rive file and want to pass it
-/// directly to [RiveSplash].
+/// directly to [SplashMasterRive].
 class RiveFileSource {
   const RiveFileSource(this.file);
 
@@ -34,7 +34,7 @@ class RiveFileSource {
   final rive.File file;
 }
 
-/// Type alias for the splash source accepted by [RiveSplash].
+/// Type alias for the splash source accepted by [SplashMasterRive].
 ///
 /// Either a [Source] (for asset / file / network / bytes loading) or a
 /// [RiveFileSource] (for a pre-loaded Rive file).

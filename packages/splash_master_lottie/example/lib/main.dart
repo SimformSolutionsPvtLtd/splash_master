@@ -3,7 +3,7 @@ import 'package:splash_master_lottie/splash_master_lottie.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  LottieSplash.initialize();
+  SplashMasterLottie.initialize();
   runApp(
     const MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -17,7 +17,7 @@ class LottieSplashScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LottieSplash(
+    return SplashMasterLottie(
       source: AssetSource('assets/simform_splash_lottie.json'),
       lottieConfig: const LottieConfig(
         repeat: false,

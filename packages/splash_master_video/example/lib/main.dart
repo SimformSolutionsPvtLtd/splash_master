@@ -3,7 +3,7 @@ import 'package:splash_master_video/splash_master_video.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  VideoSplash.initialize();
+  SplashMasterVideo.initialize();
   runApp(
     const MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -17,7 +17,7 @@ class VideoSplashScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return VideoSplash(
+    return SplashMasterVideo(
       source: AssetSource('assets/simform_splash_video.mp4'),
       videoConfig: const VideoConfig(
         videoVisibilityEnum: VisibilityEnum.useAspectRatio,

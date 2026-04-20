@@ -31,7 +31,7 @@ import 'package:video_player/video_player.dart';
 /// A widget that displays a video as a splash screen.
 ///
 /// ```dart
-/// VideoSplash(
+/// SplashMasterVideo(
 ///   source: AssetSource('assets/splash.mp4'),
 ///   videoConfig: const VideoConfig(
 ///     videoVisibilityEnum: VisibilityEnum.useAspectRatio,
@@ -39,8 +39,8 @@ import 'package:video_player/video_player.dart';
 ///   nextScreen: const MyApp(),
 /// )
 /// ```
-class VideoSplash extends StatefulWidget {
-  const VideoSplash({
+class SplashMasterVideo extends StatefulWidget {
+  const SplashMasterVideo({
     super.key,
     required this.source,
     this.videoConfig,
@@ -76,10 +76,10 @@ class VideoSplash extends StatefulWidget {
   }
 
   @override
-  State<VideoSplash> createState() => _VideoSplashState();
+  State<SplashMasterVideo> createState() => _VideoSplashState();
 }
 
-class _VideoSplashState extends State<VideoSplash> {
+class _VideoSplashState extends State<SplashMasterVideo> {
   late VideoPlayerController _videoController;
   Timer? _timer;
   late final VoidCallback _onSourceLoaded;
@@ -89,7 +89,7 @@ class _VideoSplashState extends State<VideoSplash> {
   @override
   void initState() {
     super.initState();
-    _onSourceLoaded = widget.onSourceLoaded ?? VideoSplash.resume;
+    _onSourceLoaded = widget.onSourceLoaded ?? SplashMasterVideo.resume;
     _videoController = _getVideoControllerFromSource();
     _videoController.initialize().then((_) {
       if (mounted) setState(() {});
