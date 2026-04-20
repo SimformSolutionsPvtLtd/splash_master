@@ -104,7 +104,8 @@ class _RiveSplashState extends State<SplashMasterRive> {
   bool _fallbackScheduled = false;
 
   RiveConfig get _riveConfig => widget.riveConfig;
-  VoidCallback get _onSourceLoaded => widget.onSourceLoaded ?? SplashMasterRive.resume;
+  VoidCallback get _onSourceLoaded =>
+      widget.onSourceLoaded ?? SplashMasterRive.resume;
 
   @override
   void initState() {

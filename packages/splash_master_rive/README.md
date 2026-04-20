@@ -1,4 +1,4 @@
-![Banner](../../preview/banner.png)
+![Banner](preview/banner.png)
 
 # Splash Master Rive
 

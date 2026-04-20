@@ -33,11 +33,11 @@ Visit our [documentation](https://simform-flutter-packages.web.app/splashMaster)
 
 ## Sub Packages
 
-| Sub Package | pub.dev | Repository | Documentation |
-|---|---|---|---|
-| `splash_master_rive` | [pub.dev/packages/splash_master_rive](https://pub.dev/packages/splash_master_rive) | [packages/splash_master_rive](packages/splash_master_rive) | [packages/splash_master_rive/doc/documentation.md](packages/splash_master_rive/doc/documentation.md) |
-| `splash_master_video` | [pub.dev/packages/splash_master_video](https://pub.dev/packages/splash_master_video) | [packages/splash_master_video](packages/splash_master_video) | [packages/splash_master_video/doc/documentation.md](packages/splash_master_video/doc/documentation.md) |
-| `splash_master_lottie` | [pub.dev/packages/splash_master_lottie](https://pub.dev/packages/splash_master_lottie) | [packages/splash_master_lottie](packages/splash_master_lottie) | [packages/splash_master_lottie/doc/documentation.md](packages/splash_master_lottie/doc/documentation.md) |
+| Sub Package | pub.dev | Repository | Documentation                                                                       |
+|---|---|---|-------------------------------------------------------------------------------------|
+| `splash_master_rive` | [pub.dev/packages/splash_master_rive](https://pub.dev/packages/splash_master_rive) | [packages/splash_master_rive](https://github.com/SimformSolutionsPvtLtd/splash_master/tree/master/packages/splash_master_rive) | [Rive documentaion](https://simform-flutter-packages.web.app/splashMasterRive)      |
+| `splash_master_video` | [pub.dev/packages/splash_master_video](https://pub.dev/packages/splash_master_video) | [packages/splash_master_video](https://github.com/SimformSolutionsPvtLtd/splash_master/tree/master/packages/splash_master_video) | [Video documentation](https://simform-flutter-packages.web.app/splashMasterVideo)   |
+| `splash_master_lottie` | [pub.dev/packages/splash_master_lottie](https://pub.dev/packages/splash_master_lottie) | [packages/splash_master_lottie](https://github.com/SimformSolutionsPvtLtd/splash_master/tree/master/packages/) | [Lottie documentation](https://simform-flutter-packages.web.app/splashMasterLottie) |
 
 ## Installation
 
