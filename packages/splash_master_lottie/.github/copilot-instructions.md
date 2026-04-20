@@ -23,9 +23,9 @@ Splash Master is a Flutter plugin for adding native splash screens with optional
 | Package | Purpose | Import |
 |---|---|---|
 | `splash_master` | CLI tool, native splash generation (Android/iOS), shared types | `package:splash_master/splash_master.dart` |
-| `splash_master_rive` | `RiveSplash` widget + `RiveConfig` + `RiveFileSource` | `package:splash_master_rive/splash_master_rive.dart` |
-| `splash_master_video` | `VideoSplash` widget + `VideoConfig` | `package:splash_master_video/splash_master_video.dart` |
-| `splash_master_lottie` | `LottieSplash` widget + `LottieConfig` | `package:splash_master_lottie/splash_master_lottie.dart` |
+| `splash_master_rive` | `SplashMasterRive` widget + `RiveConfig` + `RiveFileSource` | `package:splash_master_rive/splash_master_rive.dart` |
+| `splash_master_video` | `SplashMasterVideo` widget + `VideoConfig` | `package:splash_master_video/splash_master_video.dart` |
+| `splash_master_lottie` | `SplashMasterLottie` widget + `LottieConfig` | `package:splash_master_lottie/splash_master_lottie.dart` |
 
 All sub-packages re-export `splash_master`, so only one import is needed per file.
 
@@ -101,10 +101,10 @@ import 'package:splash_master_rive/splash_master_rive.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  RiveSplash.initialize();
+  SplashMasterRive.initialize();
   runApp(
     MaterialApp(
-      home: RiveSplash(
+      home: SplashMasterRive(
         source: AssetSource('assets/animation.riv'),
         nextScreen: const MyApp(),
       ),
@@ -119,10 +119,10 @@ import 'package:splash_master_video/splash_master_video.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  VideoSplash.initialize();
+  SplashMasterVideo.initialize();
   runApp(
     MaterialApp(
-      home: VideoSplash(
+      home: SplashMasterVideo(
         source: AssetSource('assets/splash.mp4'),
         nextScreen: const MyApp(),
       ),
@@ -137,10 +137,10 @@ import 'package:splash_master_lottie/splash_master_lottie.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  LottieSplash.initialize();
+  SplashMasterLottie.initialize();
   runApp(
     MaterialApp(
-      home: LottieSplash(
+      home: SplashMasterLottie(
         source: AssetSource('assets/animation.json'),
         nextScreen: const MyApp(),
       ),
@@ -182,9 +182,9 @@ dart run splash_master create
 
 | Before (0.0.3)             | After (1.0.0)       | New package |
 |----------------------------|---------------------|---|
-| `SplashMaster.rive(...)`   | `RiveSplash(...)`   | `splash_master_rive` |
-| `SplashMaster.video(...)`  | `VideoSplash(...)`  | `splash_master_video` |
-| `SplashMaster.lottie(...)` | `LottieSplash(...)` | `splash_master_lottie` |
+| `SplashMaster.rive(...)`   | `SplashMasterRive(...)`   | `splash_master_rive` |
+| `SplashMaster.video(...)`  | `SplashMasterVideo(...)`  | `splash_master_video` |
+| `SplashMaster.lottie(...)` | `SplashMasterLottie(...)` | `splash_master_lottie` |
 | `SplashMaster.initialize()` | `No need of it`     | same sub-package |
 | `SplashMaster.resume()`    | `No need of it`              | same sub-package |
 

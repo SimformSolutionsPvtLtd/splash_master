@@ -30,13 +30,13 @@ import 'package:splash_master_lottie/src/lottie_config.dart';
 /// A widget that displays a Lottie animation as a splash screen.
 ///
 /// ```dart
-/// LottieSplash(
+/// SplashMasterLottie(
 ///   source: AssetSource('assets/animation.json'),
 ///   nextScreen: const MyApp(),
 /// )
 /// ```
-class LottieSplash extends StatefulWidget {
-  const LottieSplash({
+class SplashMasterLottie extends StatefulWidget {
+  const SplashMasterLottie({
     super.key,
     required this.source,
     this.lottieConfig = const LottieConfig(),
@@ -72,17 +72,17 @@ class LottieSplash extends StatefulWidget {
   }
 
   @override
-  State<LottieSplash> createState() => _LottieSplashState();
+  State<SplashMasterLottie> createState() => _SplashMasterLottieState();
 }
 
-class _LottieSplashState extends State<LottieSplash> {
+class _SplashMasterLottieState extends State<SplashMasterLottie> {
   Timer? _timer;
   late final VoidCallback _onSourceLoaded;
 
   @override
   void initState() {
     super.initState();
-    _onSourceLoaded = widget.onSourceLoaded ?? LottieSplash.resume;
+    _onSourceLoaded = widget.onSourceLoaded ?? SplashMasterLottie.resume;
   }
 
   @override

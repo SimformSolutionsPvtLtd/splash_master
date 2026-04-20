@@ -33,18 +33,18 @@ import 'package:splash_master_rive/src/rive_source.dart';
 /// This implementation uses Rive 0.14.x APIs with [RiveWidgetBuilder].
 ///
 /// ```dart
-/// RiveSplash(
+/// SplashMasterRive(
 ///   source: AssetSource('assets/animation.riv'),
 ///   riveConfig: const RiveConfig(),
 ///   nextScreen: const MyApp(),
 /// )
 /// ```
-class RiveSplash extends StatefulWidget {
+class SplashMasterRive extends StatefulWidget {
   /// Creates a Rive splash screen that loads from [source].
   ///
   /// [source] must be a [Source] (e.g. [AssetSource], [NetworkFileSource],
   /// [DeviceFileSource], [BytesSource]) or a [RiveFileSource].
-  const RiveSplash({
+  const SplashMasterRive({
     super.key,
     required this.source,
     this.riveConfig = const RiveConfig(),
@@ -92,10 +92,10 @@ class RiveSplash extends StatefulWidget {
   }
 
   @override
-  State<RiveSplash> createState() => _RiveSplashState();
+  State<SplashMasterRive> createState() => _RiveSplashState();
 }
 
-class _RiveSplashState extends State<RiveSplash> {
+class _RiveSplashState extends State<SplashMasterRive> {
   static const _defaultDuration = Duration(seconds: 3);
 
   Timer? _timer;
@@ -104,7 +104,7 @@ class _RiveSplashState extends State<RiveSplash> {
   bool _fallbackScheduled = false;
 
   RiveConfig get _riveConfig => widget.riveConfig;
-  VoidCallback get _onSourceLoaded => widget.onSourceLoaded ?? RiveSplash.resume;
+  VoidCallback get _onSourceLoaded => widget.onSourceLoaded ?? SplashMasterRive.resume;
 
   @override
   void initState() {
@@ -113,7 +113,7 @@ class _RiveSplashState extends State<RiveSplash> {
   }
 
   @override
-  void didUpdateWidget(covariant RiveSplash oldWidget) {
+  void didUpdateWidget(covariant SplashMasterRive oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.source != oldWidget.source ||
         widget.riveConfig.riveFactory != oldWidget.riveConfig.riveFactory) {

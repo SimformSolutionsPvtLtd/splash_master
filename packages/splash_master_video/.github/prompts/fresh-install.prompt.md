@@ -153,10 +153,10 @@ import 'package:splash_master_lottie/splash_master_lottie.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  LottieSplash.initialize();
+  SplashMasterLottie.initialize();
   runApp(
     MaterialApp(
-      home: LottieSplash(
+      home: SplashMasterLottie(
         source: AssetSource('assets/animation.json'),
         nextScreen: const MyApp(),
       ),
@@ -171,10 +171,10 @@ import 'package:splash_master_rive/splash_master_rive.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  RiveSplash.initialize();
+  SplashMasterRive.initialize();
   runApp(
     MaterialApp(
-      home: RiveSplash(
+      home: SplashMasterRive(
         source: AssetSource('assets/animation.riv'),
         nextScreen: const MyApp(),
       ),
@@ -189,10 +189,10 @@ import 'package:splash_master_video/splash_master_video.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  VideoSplash.initialize();
+  SplashMasterVideo.initialize();
   runApp(
     MaterialApp(
-      home: VideoSplash(
+      home: SplashMasterVideo(
         source: AssetSource('assets/splash.mp4'),
         nextScreen: const MyApp(),
       ),

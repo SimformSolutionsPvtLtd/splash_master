@@ -7,11 +7,11 @@
 ///     path: ../packages/splash_master_video  # adjust path as needed
 /// ```
 ///
-/// Then use [VideoSplash] in your Flutter app:
+/// Then use [SplashMasterVideo] in your Flutter app:
 /// ```dart
 /// import 'package:splash_master_video/splash_master_video.dart';
 ///
-/// VideoSplash(
+/// SplashMasterVideo(
 ///   source: AssetSource('assets/splash.mp4'),
 ///   nextScreen: const MyApp(),
 /// )
