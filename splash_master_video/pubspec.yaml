@@ -1,5 +1,5 @@
 name: splash_master_video
-description: "Video splash screen widget for splash_master."
+description: "Video splash screen widget along with splash_master."
 version: 1.0.0
 repository: https://github.com/SimformSolutionsPvtLtd/splash_master
 issue_tracker: https://github.com/SimformSolutionsPvtLtd/splash_master/issues
@@ -16,8 +16,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  splash_master: 1.0.0 # Core package providing shared types and native splash generation
-  video_player: 2.9.1 # Plays video files in the splash screen widget
+  splash_master: ^1.0.0 # Core package providing shared types and native splash generation
+  video_player: ^2.9.1 # Plays video files in the splash screen widget
 
 dev_dependencies:
   flutter_lints: 3.0.0 # Dart/Flutter lint rules for code quality
