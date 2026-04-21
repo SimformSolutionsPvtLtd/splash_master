@@ -7,7 +7,7 @@ Splash Master is a Flutter plugin designed to make adding splash screens to your
 
 | Android                                                                                                                                                   | iOS                                                                                                                                               |
 |-----------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------|
-| ![Splash master Android image splash](https://github.com/SimformSolutionsPvtLtd/splash_master/blob/master/splash_master/preview/android_image_splash.gif) | ![Splash master iOS image splash](https://github.com/SimformSolutionsPvtLtd/splash_master/blob/master/splash_master/preview/ios_image_splash.gif) |
+| ![Splash master Android image splash](https://raw.githubusercontent.com/SimformSolutionsPvtLtd/splash_master/master/splash_master/preview/android_image_splash.gif) | ![Splash master iOS image splash](https://raw.githubusercontent.com/SimformSolutionsPvtLtd/splash_master/master/splash_master/preview/ios_image_splash.gif) |
 
 
 ## Features
@@ -21,22 +21,21 @@ Splash Master is a Flutter plugin designed to make adding splash screens to your
 
 ## Package Structure
 
-| Package | Contents |
-|---|---|
-| `splash_master` | CLI tool, native splash generation (Android/iOS), shared types (`Source`, `VisibilityEnum`) |
-| [`splash_master_rive`](../splash_master_rive/README.md) | `SplashMasterRive` widget, `RiveConfig`, `RiveFileSource` — Rive animation splash |
-| [`splash_master_video`](../splash_master_video/README.md) | `SplashMasterVideo` widget, `VideoConfig` — video splash screen |
-| [`splash_master_lottie`](../splash_master_lottie/README.md) | `SplashMasterLottie` widget, `LottieConfig` — Lottie animation splash |
+| Package                                                                                                            | Contents |
+|--------------------------------------------------------------------------------------------------------------------|---|
+| `splash_master`                                                                                                    | CLI tool, native splash generation (Android/iOS), shared types (`Source`, `VisibilityEnum`) |
+| [`splash_master_rive`](https://github.com/SimformSolutionsPvtLtd/splash_master/tree/master/splash_master_rive)     | `SplashMasterRive` widget, `RiveConfig`, `RiveFileSource` — Rive animation splash |
+| [`splash_master_video`](https://github.com/SimformSolutionsPvtLtd/splash_master/tree/master/splash_master_video)   | `SplashMasterVideo` widget, `VideoConfig` — video splash screen |
+| [`splash_master_lottie`](https://github.com/SimformSolutionsPvtLtd/splash_master/tree/master/splash_master_lottie) | `SplashMasterLottie` widget, `LottieConfig` — Lottie animation splash |
 
 All sub-packages **re-export `splash_master`**, so one import covers both the animation widget and shared types.
 
 ## Key Components
 
-- **Image splash**: Uses a static image as the splash screen (requires manual `resume()` call).
-- **SplashMasterVideo** (`splash_master_video`): Plays a video splash screen (auto-resumes when loaded).
-- **SplashMasterLottie** (`splash_master_lottie`): Renders a Lottie animation as the splash screen (auto-resumes when loaded).
-- **SplashMasterRive** (`splash_master_rive`): Displays a Rive animation splash screen (auto-resumes when loaded).
-- **Custom widget**: Allows integration of a custom Flutter widget as the splash screen for full flexibility.
+- **Image splash**: Uses a static image as the splash screen. Configured entirely via `pubspec.yaml` and the CLI — no Flutter-side code needed.
+- **SplashMasterVideo** (`splash_master_video`): Plays a video splash screen (auto-navigates when video finishes).
+- **SplashMasterLottie** (`splash_master_lottie`): Renders a Lottie animation as the splash screen (auto-navigates when animation completes).
+- **SplashMasterRive** (`splash_master_rive`): Displays a Rive animation splash screen (auto-navigates when animation completes).
 
 # Installation
 
@@ -171,170 +170,55 @@ dart pub global activate splash_master
 splash_master create
 ```
 
-## 3. Integrate Splash Master in Flutter
+## 3. Flutter Integration
 
-Splash Master supports video, Lottie, Rive, image, and custom widget splash screens.
-Each animated splash type lives in its own sub-package with a dedicated widget class.
+For a native image/color splash, **no Flutter-side code is required**. The `splash_master` package is a CLI tool — once you run `dart run splash_master create`, the native splash is fully set up and transitions automatically to your Flutter app when it starts.
 
-**Image Splash Example:**
-```dart
-import 'package:splash_master/splash_master.dart';
-
-void main() {
-  WidgetsFlutterBinding.ensureInitialized();
-  SplashMasterVideo.initialize(); // or SplashMasterLottie / SplashMasterRive
-  // Perform any setup/configuration before resuming
-  SplashMasterVideo.resume(); // Manual resume required for image splash
-  runApp(
-    MaterialApp(
-      home: YourFirstScreen(),
-    ),
-  );
-}
-```
-
-**Video Splash Example:**
-```dart
-import 'package:splash_master_video/splash_master_video.dart';
-
-void main() {
-  WidgetsFlutterBinding.ensureInitialized();
-  SplashMasterVideo.initialize();
-  runApp(
-    MaterialApp(
-      home: SplashMasterVideo(
-        source: AssetSource('assets/splash.mp4'),
-        nextScreen: HomeScreen(),
-      ),
-    ),
-  );
-}
-```
-
-**Lottie Splash Example:**
-```dart
-import 'package:splash_master_lottie/splash_master_lottie.dart';
-
-void main() {
-  WidgetsFlutterBinding.ensureInitialized();
-  SplashMasterLottie.initialize();
-  runApp(
-    MaterialApp(
-      home: SplashMasterLottie(
-        source: AssetSource('assets/splash.json'),
-        nextScreen: HomeScreen(),
-      ),
-    ),
-  );
-}
-```
-
-**Rive Splash Example:**
-```dart
-import 'package:splash_master_rive/splash_master_rive.dart';
-
-void main() {
-  WidgetsFlutterBinding.ensureInitialized();
-  SplashMasterRive.initialize();
-  runApp(
-    MaterialApp(
-      home: SplashMasterRive(
-        source: AssetSource('assets/splash.riv'),
-        nextScreen: HomeScreen(),
-      ),
-    ),
-  );
-}
-```
+> For animated splash screens (video, Lottie, Rive), use the respective sub-package. See:
+> - [`splash_master_video`](https://github.com/SimformSolutionsPvtLtd/splash_master/tree/master/splash_master_video)
+> - [`splash_master_lottie`](https://github.com/SimformSolutionsPvtLtd/splash_master/tree/master/splash_master_lottie)
+> - [`splash_master_rive`](https://github.com/SimformSolutionsPvtLtd/splash_master/tree/master/splash_master_rive)
 
 
 # Advanced Usage
 
-Take advantage of advanced features and customizations for more control over your splash experience.
+## Dark Mode
 
-## 1. Image Splash: Manual Resume
+Add dark mode variants of your splash assets using the `_dark` key suffixes. Both Android and iOS are supported:
 
-When using an image splash, you **must** call `resume()` to transition from the native splash to your Flutter app. You can use the `initialize()`/`resume()` static methods from any splash widget class (e.g., `SplashMasterVideo`, `SplashMasterLottie`, or `SplashMasterRive`):
-
-```dart
-void main() {
-  WidgetsFlutterBinding.ensureInitialized();
-  SplashMasterVideo.initialize();
-  // Perform any setup/config before resuming
-  SplashMasterVideo.resume();
-  runApp(
-    MaterialApp(
-      home: YourWidget(),
-    ),
-  );
-}
+```yaml
+splash_master:
+  color: '#FFFFFF'
+  image: 'assets/splash.png'
+  color_dark: '#000000'
+  image_dark: 'assets/splash_dark.png'
+  background_image: 'assets/bg.png'
+  background_image_dark: 'assets/bg_dark.png'
 ```
 
-## 2. Custom Splash Widget
+Then re-run `dart run splash_master create` to regenerate native assets.
 
-You can use your own custom widget for the splash screen:
+## Android 12+ Splash
 
-```dart
-void main() {
-  WidgetsFlutterBinding.ensureInitialized();
-  SplashMasterVideo.initialize();
-  runApp(
-    MaterialApp(
-      home: YourCustomWidget(),
-    ),
-  );
-}
+Android 12 introduced a new system splash API. Configure it using the `android_12_and_above` block:
+
+```yaml
+splash_master:
+  # Pre-Android 12
+  color: '#FFFFFF'
+  image: 'assets/splash.png'
+
+  # Android 12+ (independent block)
+  android_12_and_above:
+    color: '#FFFFFF'
+    image: 'assets/splash_12.png'        # 288x288dp recommended
+    color_dark: '#000000'
+    image_dark: 'assets/splash_12_dark.png'
+    branding_image: 'assets/branding.png'       # max 80dp height
+    branding_image_dark: 'assets/branding_dark.png'
 ```
 
-## 3. Initialization & Resume Methods
-
-- Each splash widget provides static `initialize()` and `resume()` methods.
-  - `initialize()` prevents Flutter frames from rendering until initialization is complete.
-  - `resume()` allows Flutter frames to render again.
-
-**Usage Notes:**
-- For image splash: You **must** call `resume()` manually to transition from native splash to Flutter.
-- For `SplashMasterVideo`, `SplashMasterLottie`, and `SplashMasterRive`: You **do not** need to call `resume()` manually; it resumes automatically when the media finishes loading/playing.
-- If you provide a custom `onSourceLoaded` callback in your widget, you are responsible for calling `resume()`.
-
-## Supported Media Types
-
-| Type | Auto-Resume | Manual Resume | Notes |
-|------|-------------|---------------|-------|
-| Image | ❌ No | ✅ Required | Managed natively; requires explicit `resume()` call |
-| Video | ✅ Yes | ❌ Not needed | Auto-resumes when video finishes |
-| Lottie | ✅ Yes | ❌ Not needed | Auto-resumes when animation loads and completes |
-| Rive | ✅ Yes | ❌ Not needed | Auto-resumes when animation loads and completes |
-| Custom | ❌ No | ✅ Custom logic | Handled by your custom widget/callback |
-
-## Properties:
-
-The common properties used across `SplashMasterVideo`, `SplashMasterLottie`,
-and `SplashMasterRive` are largely the same. The key difference between them is the use
-of `videoConfig`, `lottieConfig` and `riveConfig`, which allow for configuration customization specific to video, Lottie animations
-and Rive animations, respectively.
-
-Rive animations have an additional property called `splashDuration` (in `RiveConfig`) that allows you to set a specific duration for the splash screen.
-
-| Name                           | Description                                                                                                   |
-|--------------------------------|---------------------------------------------------------------------------------------------------------------|
-| source                         | Media source for assets (Asset, Network, or RiveFileSource).                                                  |
-| videoConfig                    | Configuration for video playback (VideoConfig). Controls playback behavior and visibility.                    |
-| lottieConfig                   | Configuration for Lottie animations (LottieConfig). Controls animation properties and visibility.            |
-| riveConfig                     | Configuration for the Rive animation (appearance, behavior, artboard and state machine selection via `artboardSelector`/`stateMachineSelector`). |
-| backGroundColor                | Background color of the splash screen behind the media.                                                       |
-| nextScreen                     | Widget to navigate to after splash finishes.                                                                  |
-| customNavigation               | Callback to handle custom navigation logic when splash completes.                                             |
-| onSourceLoaded                 | Called when provided media is loaded. You must call `<Widget>.resume()` (e.g., `SplashMasterVideo.resume()`) if you provide this callback.    |
-| splashDuration (rive only)     | Optional explicit duration for the Rive splash screen. If provided, uses this value; otherwise defaults to 3 seconds. |
-
-### VisibilityEnum Values
-
-Used by `videoConfig` and `lottieConfig` to control how media is displayed:
-
-- `VisibilityEnum.useFullScreen`: Display media in full screen, maintaining aspect ratio with letterboxing if needed (default).
-- `VisibilityEnum.useAspectRatio`: Display media according to its aspect ratio within available space.
-- `VisibilityEnum.none`: No special visibility handling.
+> **Note:** `android_12_and_above` values are independent — they do **not** fall back to top-level values.
 
 # Sub-Package Details
 
@@ -346,7 +230,7 @@ Used by `videoConfig` and `lottieConfig` to control how media is displayed:
 
 | Android | iOS |
 |---|---|
-| <a href="https://raw.githubusercontent.com/SimformSolutionsPvtLtd/splash_master/mast../splash_master_rive/preview/android_rive_splash.gif"><img src="https://raw.githubusercontent.com/SimformSolutionsPvtLtd/splash_master/mast../splash_master_rive/preview/android_rive_splash.gif" height="600px;"/></a> | <a href="https://raw.githubusercontent.com/SimformSolutionsPvtLtd/splash_master/mast../splash_master_rive/preview/ios_rive_splash.gif"><img src="https://raw.githubusercontent.com/SimformSolutionsPvtLtd/splash_master/mast../splash_master_rive/preview/ios_rive_splash.gif" height="600px;"/></a> |
+| ![Splash Master Android Rive Splash Preview](https://raw.githubusercontent.com/SimformSolutionsPvtLtd/splash_master/master/splash_master_rive/preview/android_rive_splash.gif) | ![Splash Master iOS Rive Splash Preview](https://raw.githubusercontent.com/SimformSolutionsPvtLtd/splash_master/master/splash_master_rive/preview/ios_rive_splash.gif) |
 
 ### Installation
 
@@ -396,7 +280,7 @@ void main() {
 
 > `DeviceFileSource` and `BytesSource` are **not supported** by Rive.
 
-For full API reference see [splash_master_rive README](../splash_master_rive/README.md).
+For full API reference see [splash_master_rive README](https://github.com/SimformSolutionsPvtLtd/splash_master/tree/master/splash_master_rive).
 
 ---
 
@@ -408,7 +292,7 @@ For full API reference see [splash_master_rive README](../splash_master_rive/REA
 
 | Android | iOS |
 |---|---|
-| <a href="https://raw.githubusercontent.com/SimformSolutionsPvtLtd/splash_master/mast../splash_master_video/preview/android_video_splash.gif"><img src="https://raw.githubusercontent.com/SimformSolutionsPvtLtd/splash_master/mast../splash_master_video/preview/android_video_splash.gif" height="600px;"/></a> | <a href="https://raw.githubusercontent.com/SimformSolutionsPvtLtd/splash_master/mast../splash_master_video/preview/ios_video_splash.gif"><img src="https://raw.githubusercontent.com/SimformSolutionsPvtLtd/splash_master/mast../splash_master_video/preview/ios_video_splash.gif" height="600px;"/></a> |
+| ![Splash Master Android Video Splash Preview](https://raw.githubusercontent.com/SimformSolutionsPvtLtd/splash_master/master/splash_master_video/preview/android_video_splash.gif) | ![Splash Master iOS Video Splash Preview](https://raw.githubusercontent.com/SimformSolutionsPvtLtd/splash_master/master/splash_master_video/preview/ios_video_splash.gif) |
 
 ### Installation
 
@@ -454,7 +338,7 @@ void main() {
 | `NetworkFileSource(url)` | Remote video URL |
 | `BytesSource(bytes)` | In-memory `Uint8List` |
 
-For full API reference see [splash_master_video README](../splash_master_video/README.md).
+For full API reference see [splash_master_video README](https://github.com/SimformSolutionsPvtLtd/splash_master/tree/master/splash_master_video).
 
 ---
 
@@ -466,7 +350,7 @@ For full API reference see [splash_master_video README](../splash_master_video/R
 
 | Android | iOS |
 |---|---|
-| <a href="https://raw.githubusercontent.com/SimformSolutionsPvtLtd/splash_master/mast../splash_master_lottie/preview/android_lottie_splash.gif"><img src="https://raw.githubusercontent.com/SimformSolutionsPvtLtd/splash_master/mast../splash_master_lottie/preview/android_lottie_splash.gif" height="600px;"/></a> | <a href="https://raw.githubusercontent.com/SimformSolutionsPvtLtd/splash_master/mast../splash_master_lottie/preview/ios_lottie_splash.gif"><img src="https://raw.githubusercontent.com/SimformSolutionsPvtLtd/splash_master/mast../splash_master_lottie/preview/ios_lottie_splash.gif" height="600px;"/></a> |
+| ![Splash Master Android Lottie Splash Preview](https://raw.githubusercontent.com/SimformSolutionsPvtLtd/splash_master/master/splash_master_lottie/preview/android_lottie_splash.gif) | ![Splash Master Android Lottie Splash Preview](https://raw.githubusercontent.com/SimformSolutionsPvtLtd/splash_master/master/splash_master_lottie/preview/ios_lottie_splash.gif) |
 
 ### Installation
 
@@ -518,7 +402,7 @@ void main() {
 | `NetworkFileSource(url)` | Remote animation URL |
 | `BytesSource(bytes)` | In-memory `Uint8List` |
 
-For full API reference see [splash_master_lottie README](../splash_master_lottie/README.md).
+For full API reference see [splash_master_lottie README](https://github.com/SimformSolutionsPvtLtd/splash_master/tree/master/splash_master_lottie).
 
 ---
 
