@@ -5,9 +5,9 @@ Splash Master is a Flutter plugin designed to make adding splash screens to your
 ## Preview
 
 
-| Android | iOS |
-|---|---|
-| <a href="https://raw.githubusercontent.com/SimformSolutionsPvtLtd/splash_master/master/preview/android_image_splash.gif"><img src="https://raw.githubusercontent.com/SimformSolutionsPvtLtd/splash_master/master/preview/android_image_splash.gif" height="600px;"/></a> | <a href="https://raw.githubusercontent.com/SimformSolutionsPvtLtd/splash_master/master/preview/ios_image_splash.gif"><img src="https://raw.githubusercontent.com/SimformSolutionsPvtLtd/splash_master/master/preview/ios_image_splash.gif" height="600px;"/></a> |
+| Android                                                                                                                                                   | iOS                                                                                                                                               |
+|-----------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------|
+| ![Splash master Android image splash](https://github.com/SimformSolutionsPvtLtd/splash_master/blob/master/splash_master/preview/android_image_splash.gif) | ![Splash master iOS image splash](https://github.com/SimformSolutionsPvtLtd/splash_master/blob/master/splash_master/preview/ios_image_splash.gif) |
 
 
 ## Features
