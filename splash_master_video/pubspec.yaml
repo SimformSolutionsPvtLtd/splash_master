@@ -9,7 +9,6 @@ topics:
   - flutter-splash
   - video-player
   - video-splash
-publish_to: none
 
 environment:
   sdk: '>=3.4.3 <4.0.0'
@@ -17,8 +16,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  splash_master:
-    path: ../splash_master # Core package providing shared types and native splash generation
+  splash_master: 1.0.0 # Core package providing shared types and native splash generation
   video_player: 2.9.1 # Plays video files in the splash screen widget
 
 dev_dependencies:
