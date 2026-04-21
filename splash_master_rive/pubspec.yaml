@@ -9,7 +9,6 @@ topics:
   - rive
   - rive-animation
   - rive-splash
-publish_to: none
 
 environment:
   sdk: '>=3.6.0 <4.0.0'
@@ -17,8 +16,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  splash_master:
-    path: ../splash_master # Core package providing shared types and native splash generation
+  splash_master: 1.0.0 # Core package providing shared types and native splash generation
   rive: 0.14.5 # Renders Rive animation files in the splash screen
 
 dev_dependencies:
