@@ -206,5 +206,5 @@ When assisting with this project:
 - Always suggest the correct sub-package for the animation type: `splash_master_rive` for Rive, `splash_master_video` for video, `splash_master_lottie` for Lottie.
 - Never add animation widget code directly to `splash_master` — it belongs in the renderer-specific sub-packages.
 - For documentation changes, update `doc/documentation.md` and the relevant package `README.md`.
-- For examples, update `example/` (core) or `packages/<pkg>/example/` (renderer-specific).
+- For examples, update `example/` (core) or `<pkg>/example/` (renderer-specific).
 - After any `pubspec.yaml` config change, remind the user to run `dart run splash_master create`.

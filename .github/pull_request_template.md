@@ -23,7 +23,7 @@ relevant checkboxes with `[x]`. If some checkbox is not applicable, mark it as `
 - [ ] I have followed the [Contributor Guide] when preparing my PR.
 - [ ] I have updated/added tests for ALL new/updated/fixed functionality.
 - [ ] I have updated/added relevant documentation in `doc/` and/or package README(s), and added dartdoc comments with `///` where applicable.
-- [ ] I have updated/added relevant examples in `example/` and/or `packages/splash_master_{rive,video,lottie}/example/`.
+- [ ] I have updated/added relevant examples in `example/` and/or `splash_master_{rive,video,lottie}/example/`.
 - [ ] I have updated impacted package metadata/docs (for example: `README.md`, `CHANGELOG.md`, and package-level docs where applicable).
 
 ### Impacted package(s)
