@@ -19,5 +19,6 @@
 library splash_master_video;
 
 export 'package:splash_master/splash_master.dart';
+
 export 'src/video_config.dart';
 export 'src/video_splash.dart';

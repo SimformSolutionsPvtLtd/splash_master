@@ -16,8 +16,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  splash_master: 1.0.0  # Core package providing shared types and native splash generation
-  lottie: 3.1.2 # Renders Lottie animation files in the splash screen widget
+  splash_master: ^1.0.0  # Core package providing shared types and native splash generation
+  lottie: ^3.1.2 # Renders Lottie animation files in the splash screen widget
 
 dev_dependencies:
   flutter_lints: ^3.0.0 # Dart/Flutter lint rules for code quality
