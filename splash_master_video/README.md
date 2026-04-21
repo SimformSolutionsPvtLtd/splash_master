@@ -26,6 +26,8 @@ dependencies:
 
 > Note: `splash_master_video` already includes `splash_master`, so you do not need to add `splash_master` separately.
 
+For CLI and native image setup, check the `splash_master` package: https://pub.dev/packages/splash_master
+
 ### Minimal splash_master setup (`pubspec.yaml`)
 
 ```yaml
