@@ -182,9 +182,9 @@ SplashMasterVideo(
 )
 ```
 
-# API Reference
+# Widget Reference
 
-## SplashMasterVideo Widget
+## SplashMasterVideo
 
 | Property | Type | Required | Description |
 |---|---|---|---|

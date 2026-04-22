@@ -2,7 +2,7 @@
 
 # Splash Master Video
 
-[![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/SimformSolutionsPvtLtd/splash_master/blob/master/LICENSE)
+[![splash master video](https://img.shields.io/pub/v/splash_master?label=splash_master_video)](https://pub.dev/packages/splash_master_video)[![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/SimformSolutionsPvtLtd/splash_master/blob/master/LICENSE)
 
 Splash Master Video provides `SplashMasterVideo`, a Flutter splash widget for video-based splash flows.
 

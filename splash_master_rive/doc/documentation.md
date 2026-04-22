@@ -191,9 +191,9 @@ SplashMasterRive(
 )
 ```
 
-# API Reference
+# Widget Reference
 
-## SplashMasterRive Widget
+## SplashMasterRive
 
 | Property | Type | Required | Description |
 |---|---|---|---|

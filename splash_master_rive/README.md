@@ -2,7 +2,7 @@
 
 # Splash Master Rive
 
-[![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/SimformSolutionsPvtLtd/splash_master/blob/master/LICENSE)
+[![splash master rive](https://img.shields.io/pub/v/splash_master?label=splash_master_rive)](https://pub.dev/packages/splash_master_rive)[![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/SimformSolutionsPvtLtd/splash_master/blob/master/LICENSE)
 
 Splash Master Rive provides `SplashMasterRive`, a Flutter splash widget for Rive animations.
 
