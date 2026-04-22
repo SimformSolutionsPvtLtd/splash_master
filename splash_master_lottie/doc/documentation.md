@@ -223,9 +223,9 @@ SplashMasterLottie(
 )
 ```
 
-# API Reference
+# Widget Reference
 
-## SplashMasterLottie Widget
+## SplashMasterLottie
 
 | Property | Type | Required | Description |
 |---|---|---|---|
