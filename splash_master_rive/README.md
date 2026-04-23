@@ -15,7 +15,7 @@ Splash Master Rive provides `SplashMasterRive`, a Flutter splash widget for Rive
 
 ## Documentation
 
-Visit our [documentation](https://simform-flutter-packages.web.app/splashMaster) site for all implementation details, usage instructions, code examples, and advanced features.
+Visit our [documentation](https://simform-flutter-packages.web.app/splashMasterRive) site for all implementation details, usage instructions, code examples, and advanced features.
 
 ## Installation
 

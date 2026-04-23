@@ -15,7 +15,7 @@ Splash Master Video provides `SplashMasterVideo`, a Flutter splash widget for vi
 
 ## Documentation
 
-Visit our [documentation](https://simform-flutter-packages.web.app/splashMaster) site for all implementation details, usage instructions, code examples, and advanced features.
+Visit our [documentation](https://simform-flutter-packages.web.app/splashMasterVideo) site for all implementation details, usage instructions, code examples, and advanced features.
 
 ## Installation
 
