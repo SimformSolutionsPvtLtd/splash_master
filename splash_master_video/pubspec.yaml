@@ -1,6 +1,6 @@
 name: splash_master_video
 description: "Video splash screen widget along with splash_master."
-version: 1.0.0
+version: 1.0.0+1
 repository: https://github.com/SimformSolutionsPvtLtd/splash_master
 issue_tracker: https://github.com/SimformSolutionsPvtLtd/splash_master/issues
 topics:
