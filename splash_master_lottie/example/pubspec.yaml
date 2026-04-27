@@ -100,3 +100,42 @@ splash_master:
     # Android 12+ only; this example intentionally reuses the light branding asset
     # Fallback: Falls back to android_12_and_above.branding_image if omitted.
     branding_image_dark: 'assets/branding_image.png'
+
+  # ===== Desktop Configuration =====
+  desktop:
+    image: 'assets/simform_splash_img.png'
+    color: '#FFFFFF'
+    image_dark: 'assets/simform_splash_img_dark.png'
+    color_dark: '#000000'
+    #branding_image: '<your_branding_image_path>'
+    #branding_image_dark: '<your_branding_image_path>'
+
+    # How the splash image should be displayed on desktop
+    # Options: contain, cover, fill, fitWidth, fitHeight, none, scaleDown
+    image_fit: 'fitWidth'
+
+    # How the splash image should be positioned on desktop
+    # Options: center, top, bottom, left, right, topLeft, topRight, bottomLeft, bottomRight
+    image_position: 'center'
+
+    # Positioning for the optional branding image on desktop
+    # Options: topLeft, topCenter, topRight, centerLeft, center, centerRight, bottomLeft, bottomCenter, bottomRight
+    #branding_position: 'bottomCenter'
+
+    # Gap between the window edges and branding image on desktop (if branding image is used)
+    #branding_spacing: 20
+
+    # Splash window dimensions
+    splash_window_width: 800
+    splash_window_height: 600
+
+    # Main application window dimensions (after splash screen)
+    main_window_width: 800
+    main_window_height: 600
+
+    # ===== macOS-Specific Override Configuration =====
+    # Specific macOS window configuration. Any top-level keys here
+    # will override the common desktop configuration for macOS
+    macos:
+      # macOS-specific key to make the splash screen window borderless (no title bar or borders)
+      borderless: false

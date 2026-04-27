@@ -24,6 +24,16 @@ class LottieSplashScreen extends StatelessWidget {
         visibilityEnum: VisibilityEnum.useAspectRatio,
         aspectRatio: 16 / 9,
       ),
+      onSourceLoaded: () {
+        // Resume Flutter frame rendering once the video source is loaded and ready to play.
+        SplashMasterLottie.resume();
+
+        // IMPORTANT- Remove the native splash screen (if added) on macOS after
+        // a short delay to ensure the video starts playing smoothly.
+        DesktopSplashHelper.removeMacosSplash(
+          delay: const Duration(milliseconds: 50),
+        );
+      },
       backGroundColor: Colors.white,
       nextScreen: const _HomeScreen(),
     );

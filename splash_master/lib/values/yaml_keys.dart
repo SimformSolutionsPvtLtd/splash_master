@@ -66,6 +66,25 @@ class YamlKeys {
   /// Specifies the dark branding image for Android 12+ dark mode.
   static const brandingImageDarkKey = 'branding_image_dark';
 
+  /// Specifies the desktop (macOS/Windows/Linux) configuration section.
+  static const desktopKey = 'desktop';
+
+  /// Specifies the macOS-specific configuration section.
+  static const macosKey = 'macos';
+
+  //TODO(Lavi)- Add Windows and Linux specific keys when needed.
+
+  /// Desktop-specific keys
+  static const imageFitKey = 'image_fit';
+  static const imagePositionKey = 'image_position';
+  static const brandingImagePositionKey = 'branding_position';
+  static const brandingImageSpacingKey = 'branding_spacing';
+  static const splashWindowWidthKey = 'splash_window_width';
+  static const splashWindowHeightKey = 'splash_window_height';
+  static const mainWindowWidthKey = 'main_window_width';
+  static const mainWindowHeightKey = 'main_window_height';
+  static const borderlessKey = 'borderless';
+
   // ---------------------------------------------------------------------------
 
   /// List of supported top-level keys under `splash_master`.
@@ -87,6 +106,9 @@ class YamlKeys {
     // iOS-only keys
     iosContentModeKey,
     iosBackgroundContentMode,
+
+    // Desktop/Platform keys
+    desktopKey,
   ];
 
   /// List of supported nested keys under `android_12_and_above`.
@@ -97,5 +119,29 @@ class YamlKeys {
     colorDarkKey,
     brandingImageKey,
     brandingImageDarkKey,
+  ];
+
+  /// List of supported nested keys under `desktop` and `macos`.
+  static List<String> supportedDesktopYamlKeys = [
+    imageKey,
+    colorKey,
+    imageDarkKey,
+    colorDarkKey,
+    brandingImageKey,
+    brandingImageDarkKey,
+    imageFitKey,
+    imagePositionKey,
+    brandingImagePositionKey,
+    brandingImageSpacingKey,
+    splashWindowWidthKey,
+    splashWindowHeightKey,
+    mainWindowWidthKey,
+    mainWindowHeightKey,
+    macosKey,
+    // TODO(Lavi)- Add Windows and Linux specific keys when needed.
+  ];
+
+  static List<String> macosOnlyKeys = [
+    borderlessKey,
   ];
 }

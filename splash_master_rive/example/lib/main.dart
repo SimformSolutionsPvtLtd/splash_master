@@ -20,6 +20,16 @@ class RiveSplashScreen extends StatelessWidget {
     return SplashMasterRive(
       source: AssetSource('assets/simform_logo_animation.riv'),
       riveConfig: const RiveConfig(),
+      onSourceLoaded: () {
+        // Resume Flutter frame rendering once the video source is loaded and ready to play.
+        SplashMasterRive.resume();
+
+        // IMPORTANT- Remove the native splash screen (if added) on macOS after
+        // a short delay to ensure the video starts playing smoothly.
+        DesktopSplashHelper.removeMacosSplash(
+          delay: const Duration(milliseconds: 50),
+        );
+      },
       backGroundColor: Colors.white,
       nextScreen: const _HomeScreen(),
     );

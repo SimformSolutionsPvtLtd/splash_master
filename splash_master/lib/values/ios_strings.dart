@@ -24,6 +24,9 @@
 class IOSStrings {
   IOSStrings._();
 
+  /// Folder name
+  static const ios = 'ios';
+
   /// `splash_image`
   static const splashImage = 'splash_image';
 

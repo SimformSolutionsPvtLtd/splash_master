@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:splash_master/helpers/desktop_splash_helper.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -19,6 +20,18 @@ class _HomeState extends State<Home> {
       // called again, and so nothing would appear to happen.
       _counter++;
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) async {
+        // IMPORTANT: Ensure that the splash screen is removed
+        // after the first frame is rendered.
+        DesktopSplashHelper.removeMacosSplash();
+      },
+    );
   }
 
   @override

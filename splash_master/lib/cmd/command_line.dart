@@ -31,6 +31,7 @@ import 'logging.dart';
 
 part 'android_splash.dart';
 part 'ios_splash.dart';
+part 'macos_splash.dart';
 
 Future<void> commandEntry(List<String> arguments) async {
   if (arguments.isEmpty) {
@@ -80,6 +81,16 @@ Future<void> setupSplashScreen(YamlMap splashData) async {
   final hasAndroid12Section =
       splashKeys.contains(YamlKeys.android12AndAboveKey);
 
+  // --- Platform Directory Checks ---
+  final hasAndroidFolder = Directory(AndroidStrings.android).existsSync();
+  final hasIosFolder = Directory(IOSStrings.ios).existsSync();
+  final hasMacosFolder = Directory(DesktopStrings.macos).existsSync();
+
+  if (!hasAndroidFolder && !hasIosFolder && !hasMacosFolder) {
+    log('No supported platform folders (android/, ios/, macos/) found. Skipping splash generation.');
+    return;
+  }
+
   /// Checking keys in the `splash_master` section in `pubspec.yaml` file is proper or not.
   if (unsupportedTopLevelKeys.isNotEmpty) {
     log(
@@ -91,19 +102,16 @@ Future<void> setupSplashScreen(YamlMap splashData) async {
   }
 
   final android12AndAboveRaw = splashData[YamlKeys.android12AndAboveKey];
-  final android12AndAbove = hasAndroid12Section && android12AndAboveRaw == null
-      ? (loadYaml('{}') as YamlMap)
-      : android12AndAboveRaw;
-  if (android12AndAbove != null && android12AndAbove is! YamlMap) {
+  final android12AndAbove =
+      hasAndroid12Section && (android12AndAboveRaw == null)
+          ? (loadYaml('{}') as YamlMap)
+          : (android12AndAboveRaw is YamlMap ? android12AndAboveRaw : null);
+  if (hasAndroid12Section &&
+      android12AndAboveRaw != null &&
+      android12AndAboveRaw is! YamlMap) {
     log('Please check the android_12_and_above configuration. All parameters must be nested under the android_12_and_above key.');
     return;
   }
-
-  final iosContentMode =
-      _tryParseIosContentMode(splashData[YamlKeys.iosContentModeKey]);
-  final iosBackgroundContentMode = _tryParseIosContentMode(
-    splashData[YamlKeys.iosBackgroundContentMode],
-  );
 
   if (android12AndAbove != null) {
     final android12Keys =
@@ -134,6 +142,12 @@ Future<void> setupSplashScreen(YamlMap splashData) async {
     log('Please check the android_gravity');
     return;
   }
+
+  final iosContentMode =
+      _tryParseIosContentMode(splashData[YamlKeys.iosContentModeKey]);
+  final iosBackgroundContentMode = _tryParseIosContentMode(
+    splashData[YamlKeys.iosBackgroundContentMode],
+  );
 
   /// Checking if provided content mode is valid or not
   if (splashData[YamlKeys.iosContentModeKey] != null &&
@@ -217,21 +231,82 @@ Future<void> setupSplashScreen(YamlMap splashData) async {
     return;
   }
 
+  // --- Platform-specific Splash Generation ---
   try {
-    await applySplash(
-      imageSource: splashData[YamlKeys.imageKey],
-      color: splashData[YamlKeys.colorKey],
-      gravity: splashData[YamlKeys.androidGravityKey],
-      iosContentMode: iosContentMode?.mode,
-      android12AndAbove: android12AndAbove,
-      iosBackgroundContentMode: iosBackgroundContentMode?.mode,
-      backgroundImageSource: splashData[YamlKeys.backgroundImage],
-      backgroundImageGravity: splashData[YamlKeys.androidBackgroundGravity],
-      darkColor: splashData[YamlKeys.colorDarkKey],
-      darkGravity: splashData[YamlKeys.androidDarkGravityKey],
-      darkImage: splashData[YamlKeys.imageDarkKey],
-      darkBackgroundImageSource: splashData[YamlKeys.backgroundImageDarkKey],
-    );
+    // Android Splash Handling
+    if (hasAndroidFolder) {
+      await applyAndroidSplashImage(
+        imageSource: splashData[YamlKeys.imageKey],
+        color: splashData[YamlKeys.colorKey],
+        gravity: splashData[YamlKeys.androidGravityKey],
+        android12AndAbove: android12AndAbove,
+        backgroundImageSource: splashData[YamlKeys.backgroundImage],
+        backgroundImageGravity: splashData[YamlKeys.androidBackgroundGravity],
+        darkColor: splashData[YamlKeys.colorDarkKey],
+        darkGravity: splashData[YamlKeys.androidDarkGravityKey],
+        darkImage: splashData[YamlKeys.imageDarkKey],
+        darkBackgroundImageSource: splashData[YamlKeys.backgroundImageDarkKey],
+      );
+    } else {
+      log('android/ folder not found. Skipping Android splash generation.');
+    }
+
+    // iOS Splash Handling
+    if (hasIosFolder) {
+      final iosSkipReasons = <String>[];
+      if (splashData[YamlKeys.imageDarkKey] != null &&
+          splashData[YamlKeys.imageKey] == null) {
+        iosSkipReasons.add(
+          'For iOS, image is required when image_dark is provided. '
+          'Add image to provide the base Any appearance asset.',
+        );
+      }
+      if (splashData[YamlKeys.backgroundImageDarkKey] != null &&
+          splashData[YamlKeys.backgroundImage] == null) {
+        iosSkipReasons.add(
+          'For iOS, background_image is required when background_image_dark is provided. '
+          'Add background_image to provide the base Any appearance asset.',
+        );
+      }
+      if (iosSkipReasons.isNotEmpty) {
+        log('Skipping iOS splash generation: \n${iosSkipReasons.join(' ')}');
+      } else {
+        await generateIosImages(
+          imageSource: splashData[YamlKeys.imageKey],
+          color: splashData[YamlKeys.colorKey],
+          backgroundImage: splashData[YamlKeys.backgroundImage],
+          iosContentMode: iosContentMode?.mode,
+          iosBackgroundContentMode: iosBackgroundContentMode?.mode,
+          darkImageSource: splashData[YamlKeys.imageDarkKey],
+          darkColor: splashData[YamlKeys.colorDarkKey],
+          darkBackgroundImage: splashData[YamlKeys.backgroundImageDarkKey],
+        );
+      }
+    } else {
+      log('ios/ folder not found. Skipping iOS splash generation.');
+    }
+
+    // macOS Splash Handling
+    final hasDesktopSection = splashKeys.contains(YamlKeys.desktopKey);
+    final desktopConfig = splashData[YamlKeys.desktopKey];
+    final isDesktopConfigValid = desktopConfig is YamlMap;
+
+    if (hasMacosFolder && hasDesktopSection) {
+      final hasMacosSection = desktopConfig.containsKey(YamlKeys.macosKey);
+      final macosConfig = desktopConfig?[YamlKeys.macosKey];
+      if ((!hasMacosSection && isDesktopConfigValid) ||
+          (hasMacosSection && macosConfig is YamlMap && isDesktopConfigValid)) {
+        await applyMacosSplash(
+          macosConfig: macosConfig,
+          commonConfig: desktopConfig,
+        );
+      } else {
+        log('macos/desktop splash config must be a map.');
+        return;
+      }
+    } else if (hasDesktopSection && !hasMacosFolder) {
+      log('macos/ folder not found. Skipping macOS splash generation.');
+    }
   } on SplashMasterException catch (e) {
     log(e.message);
   }
@@ -310,67 +385,6 @@ Future<void> applyAndroidSplashImage({
   );
 }
 
-/// Applies the splash screen on Android and iOS using details from the YAML file.
-Future<void> applySplash({
-  String? imageSource,
-  String? color,
-  String? gravity,
-  String? iosContentMode,
-  String? iosBackgroundContentMode,
-  YamlMap? android12AndAbove,
-  String? backgroundImageSource,
-  String? backgroundImageGravity,
-  String? darkImage,
-  String? darkColor,
-  String? darkGravity,
-  String? darkBackgroundImageSource,
-}) async {
-  final iosSkipReasons = <String>[];
-
-  if (darkImage != null && imageSource == null) {
-    iosSkipReasons.add(
-      'For iOS, image is required when image_dark is provided. '
-      'Add image to provide the base Any appearance asset.',
-    );
-  }
-
-  if (darkBackgroundImageSource != null && backgroundImageSource == null) {
-    iosSkipReasons.add(
-      'For iOS, background_image is required when background_image_dark is provided. '
-      'Add background_image to provide the base Any appearance asset.',
-    );
-  }
-
-  if (iosSkipReasons.isNotEmpty) {
-    log('Skipping iOS splash generation: ${iosSkipReasons.join(' ')}');
-    log('Continuing with Android generation.');
-  } else {
-    await generateIosImages(
-      imageSource: imageSource,
-      color: color,
-      backgroundImage: backgroundImageSource,
-      iosContentMode: iosContentMode,
-      iosBackgroundContentMode: iosBackgroundContentMode,
-      darkImageSource: darkImage,
-      darkColor: darkColor,
-      darkBackgroundImage: darkBackgroundImageSource,
-    );
-  }
-
-  await applyAndroidSplashImage(
-    imageSource: imageSource,
-    color: color,
-    gravity: gravity,
-    android12AndAbove: android12AndAbove,
-    backgroundImageSource: backgroundImageSource,
-    backgroundImageGravity: backgroundImageGravity,
-    darkImage: darkImage,
-    darkColor: darkColor,
-    darkGravity: darkGravity,
-    darkBackgroundImageSource: darkBackgroundImageSource,
-  );
-}
-
 IosContentMode? _tryParseIosContentMode(dynamic mode) {
   if (mode == null) {
     return null;
@@ -412,4 +426,110 @@ bool _validateImageExtensionIfProvided(
   }
 
   return true;
+}
+
+/// Applies the splash screen for macOS using details from the YAML file.
+Future<void> applyMacosSplash({
+  required YamlMap commonConfig,
+  YamlMap? macosConfig,
+}) async {
+  // Extract config values with fallback logic
+  final image =
+      macosConfig?[YamlKeys.imageKey] ?? commonConfig[YamlKeys.imageKey];
+  final color =
+      macosConfig?[YamlKeys.colorKey] ?? commonConfig[YamlKeys.colorKey];
+  final imageDark = macosConfig?[YamlKeys.imageDarkKey] ??
+      commonConfig[YamlKeys.imageDarkKey];
+  final colorDark = macosConfig?[YamlKeys.colorDarkKey] ??
+      commonConfig[YamlKeys.colorDarkKey];
+  final brandingImage = macosConfig?[YamlKeys.brandingImageKey] ??
+      commonConfig[YamlKeys.brandingImageKey];
+  final brandingImageDark = macosConfig?[YamlKeys.brandingImageDarkKey] ??
+      commonConfig[YamlKeys.brandingImageDarkKey];
+  final imagePosition = macosConfig?[YamlKeys.imagePositionKey] ??
+      commonConfig[YamlKeys.imagePositionKey];
+  final imageFit =
+      macosConfig?[YamlKeys.imageFitKey] ?? commonConfig[YamlKeys.imageFitKey];
+  final brandingPosition = macosConfig?[YamlKeys.brandingImagePositionKey] ??
+      commonConfig[YamlKeys.brandingImagePositionKey];
+  final brandingSpacing = macosConfig?[YamlKeys.brandingImageSpacingKey] ??
+      commonConfig[YamlKeys.brandingImageSpacingKey];
+  final splashWindowWidth = macosConfig?[YamlKeys.splashWindowWidthKey] ??
+      commonConfig[YamlKeys.splashWindowWidthKey];
+  final splashWindowHeight = macosConfig?[YamlKeys.splashWindowHeightKey] ??
+      commonConfig[YamlKeys.splashWindowHeightKey];
+  final mainWindowWidth = macosConfig?[YamlKeys.mainWindowWidthKey] ??
+      commonConfig[YamlKeys.mainWindowWidthKey];
+  final mainWindowHeight = macosConfig?[YamlKeys.mainWindowHeightKey] ??
+      commonConfig[YamlKeys.mainWindowHeightKey];
+  final borderless = macosConfig?[YamlKeys.borderlessKey] ??
+      commonConfig[YamlKeys.borderlessKey];
+
+  // If no relevant macOS splash configuration is provided,
+  // skip the entire process
+  if (image == null &&
+      brandingImage == null &&
+      imageDark == null &&
+      brandingImageDark == null &&
+      color == null &&
+      colorDark == null) {
+    log('No macOS splash images provided. Skipping asset generation and MainFlutterWindow.swift modification for macOS.');
+    return;
+  }
+
+  // Asset generation step
+  await generateMacosSplashAssets(
+    image: image,
+    imageDark: imageDark,
+    brandingImage: brandingImage,
+    brandingImageDark: brandingImageDark,
+    backgroundColor: color,
+    backgroundColorDark: colorDark,
+  );
+
+  // Modify MainFlutterWindow.swift with the provided configuration
+  final config = DesktopConfigDm(
+      hasSplashImage: image != null,
+      hasBrandingImage: brandingImage != null,
+      imageFit: DesktopImageFit.fromString(
+          imageFit ?? DesktopStrings.imageFitDefaultValue),
+      imagePosition: DesktopImagePosition.fromString(
+          imagePosition ?? DesktopStrings.imagePositionDefaultValue),
+      brandingPosition: DesktopBrandingPosition.fromString(
+          brandingPosition ?? DesktopStrings.brandingPositionDefaultValue),
+      brandingSpacing: brandingSpacing is num
+          ? brandingSpacing.toInt()
+          : DesktopStrings.defaultBrandingSpacing,
+      splashWindowWidth: splashWindowWidth is num
+          ? splashWindowWidth.toInt()
+          : DesktopStrings.defaultSplashWindowWidth,
+      splashWindowHeight: splashWindowHeight is num
+          ? splashWindowHeight.toInt()
+          : DesktopStrings.defaultSplashWindowHeight,
+      mainWindowWidth: mainWindowWidth is num
+          ? mainWindowWidth.toInt()
+          : DesktopStrings.defaultMainWindowWidth,
+      mainWindowHeight: mainWindowHeight is num
+          ? mainWindowHeight.toInt()
+          : DesktopStrings.defaultMainWindowHeight,
+      macosConfig: MacosConfigDm(
+        borderless: borderless is bool
+            ? borderless
+            : DesktopStrings.defaultMacosBorderless,
+      ));
+
+  // Call the function to generate the modified MainFlutterWindow.swift file
+  await generateMainFlutterWindowFile(config);
+
+  // AppDelegate modification step
+  if (image != null ||
+      brandingImage != null ||
+      imageDark != null ||
+      brandingImageDark != null) {
+    await addSplashChannelToAppDelegate();
+  } else {
+    // remove existing splash channel from AppDelegate
+    // if it exists to avoid stale code when user removes splash config
+    //await removeSplashChannelFromAppDelegate();
+  }
 }

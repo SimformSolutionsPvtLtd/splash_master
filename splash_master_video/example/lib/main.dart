@@ -19,6 +19,16 @@ class VideoSplashScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return SplashMasterVideo(
       source: AssetSource('assets/simform_splash_video.mp4'),
+      onSourceLoaded: () async {
+        // Resume Flutter frame rendering once the video source is loaded and ready to play.
+        SplashMasterVideo.resume();
+
+        // IMPORTANT- Remove the native splash screen (if added) on macOS after
+        // a short delay to ensure the video starts playing smoothly.
+        DesktopSplashHelper.removeMacosSplash(
+          delay: const Duration(milliseconds: 50),
+        );
+      },
       videoConfig: const VideoConfig(
         videoVisibilityEnum: VisibilityEnum.useAspectRatio,
       ),
