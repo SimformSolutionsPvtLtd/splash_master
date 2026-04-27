@@ -726,8 +726,7 @@ XmlElement getImageXMLElement({
       ),
       XmlAttribute(
         XmlName(IOSStrings.contentMode),
-        IosContentMode.fromString(contentMode ?? IOSStrings.contentModeValue)
-            .mode,
+        contentMode ?? IOSStrings.contentModeValue,
       ),
       XmlAttribute(
         XmlName(IOSStrings.image),
@@ -898,10 +897,10 @@ XmlElement _constraint({
 }
 
 bool _fillsContainer(String contentMode) {
-  return contentMode == IosContentMode.scaleToFill.mode ||
-      contentMode == IosContentMode.scaleAspectFit.mode ||
-      contentMode == IosContentMode.scaleAspectFill.mode ||
-      contentMode == IosContentMode.redraw.mode;
+  return contentMode == IosContentMode.scaleToFill.name ||
+      contentMode == IosContentMode.scaleAspectFit.name ||
+      contentMode == IosContentMode.scaleAspectFill.name ||
+      contentMode == IosContentMode.redraw.name;
 }
 
 String _verticalConstraintAttribute(String contentMode) {

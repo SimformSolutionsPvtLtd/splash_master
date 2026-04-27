@@ -22,6 +22,9 @@
 
 /// Android strings (Element, Attribute and its value)
 class AndroidStrings {
+  /// Folder name
+  static const String android = 'android';
+
   /// `splash_image.png`
   static const splashImagePng = 'splash_image.png';
 

@@ -27,21 +27,6 @@ enum SupportedImageExtensions {
   jpg,
   png,
   jpeg;
-
-  static SupportedImageExtensions fromString(String str) {
-    switch (str) {
-      case 'jpg':
-        return jpg;
-      case 'png':
-        return png;
-      case 'jpeg':
-        return jpeg;
-      default:
-        throw SplashMasterException(
-          message: 'The image must be jpg, png or jpeg.',
-        );
-    }
-  }
 }
 
 /// All the available Android gravity values
@@ -61,93 +46,247 @@ enum AndroidGravity {
   right,
   start;
 
-  static AndroidGravity fromString(String str) {
-    switch (str) {
-      case 'center':
-        return center;
-      case 'clip_horizontal':
-        return clipHorizontal;
-      case 'clip_vertical':
-        return clipVertical;
-      case 'fill_horizontal':
-        return fillHorizontal;
-      case 'fill':
-        return fill;
-      case 'center_vertical':
-        return centerVertical;
-      case 'bottom':
-        return bottom;
-      case 'fill_vertical':
-        return fillVertical;
-      case 'center_horizontal':
-        return centerHorizontal;
-      case 'top':
-        return top;
-      case 'end':
-        return end;
-      case 'left':
-        return left;
-      case 'right':
-        return right;
-      case 'start':
-        return start;
-      default:
-        throw SplashMasterException(message: 'Invalid android gravity.');
-    }
+  /// Returns true if the provided string is a valid [AndroidGravity] value.
+  static bool isSupported(String? str) {
+    if (str.isNullOrBlank) return false;
+    return values.any((supported) => supported.name == str);
   }
 }
 
 /// All the available iOS content mode values
 enum IosContentMode {
-  scaleToFill('scaleToFill'),
-  scaleAspectFit('scaleAspectFit'),
-  scaleAspectFill('scaleAspectFill'),
-  redraw('redraw'),
-  center('center'),
-  top('top'),
-  bottom('bottom'),
-  left('left'),
-  right('right'),
-  topLeft('topLeft'),
-  topRight('topRight'),
-  bottomLeft('bottomLeft'),
-  bottomRight('bottomRight');
+  scaleToFill,
+  scaleAspectFit,
+  scaleAspectFill,
+  redraw,
+  center,
+  top,
+  bottom,
+  left,
+  right,
+  topLeft,
+  topRight,
+  bottomLeft,
+  bottomRight;
 
-  /// Native storyboard value written to the iOS launch screen XML.
-  final String mode;
-
-  const IosContentMode(this.mode);
-
-  static IosContentMode fromString(String str) {
-    switch (str) {
-      case 'scaleToFill':
-        return scaleToFill;
-      case 'scaleAspectFit':
-        return scaleAspectFit;
-      case 'scaleAspectFill':
-        return scaleAspectFill;
-      case 'redraw':
-        return redraw;
-      case 'center':
-        return center;
-      case 'top':
-        return top;
-      case 'bottom':
-        return bottom;
-      case 'left':
-        return left;
-      case 'right':
-        return right;
-      case 'topLeft':
-        return topLeft;
-      case 'topRight':
-        return topRight;
-      case 'bottomLeft':
-        return bottomLeft;
-      case 'bottomRight':
-        return bottomRight;
-      default:
-        throw SplashMasterException(message: 'Invalid content mode.');
-    }
+  /// Returns true if the provided string is a valid [IosContentMode] value.
+  static bool isSupported(String? str) {
+    if (str.isNullOrBlank) return false;
+    return values.any((supported) => supported.name == str);
   }
+}
+
+/// All the available image fit values for desktop splash configuration.
+enum DesktopImageFit {
+  contain,
+  cover,
+  fill,
+  fitWidth,
+  fitHeight,
+  none,
+  scaleDown;
+
+  /// Converts the enum value to the corresponding macOS image scaling code for the splash image.
+  String get toMacosScalingLine => switch (this) {
+        contain => '''
+      imageView.imageScaling = .scaleProportionallyUpOrDown
+      imageView.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+      imageView.setContentCompressionResistancePriority(.defaultLow, for: .vertical)''',
+        fill => '''
+      imageView.imageScaling = .scaleAxesIndependently
+      imageView.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+      imageView.setContentCompressionResistancePriority(.defaultLow, for: .vertical)''',
+        fitWidth || fitHeight => '''
+      imageView.imageScaling = .scaleProportionallyUpOrDown
+      imageView.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+      imageView.setContentCompressionResistancePriority(.defaultLow, for: .vertical)''',
+        none => 'imageView.imageScaling = .scaleNone',
+        scaleDown => '''
+      imageView.imageScaling = .scaleProportionallyDown
+      imageView.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+      imageView.setContentCompressionResistancePriority(.defaultLow, for: .vertical)''',
+        cover => '''
+      imageView.imageScaling = .scaleProportionallyUpOrDown
+      imageView.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+      imageView.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
+      imageView.setContentHuggingPriority(.defaultLow, for: .horizontal)
+      imageView.setContentHuggingPriority(.defaultLow, for: .vertical)
+      imageView.wantsLayer = true
+      imageView.layer?.masksToBounds = true''',
+      };
+
+  /// Constraints that must go inside NSLayoutConstraint.activate([]).
+  String get toMacosDimensionConstraints => switch (this) {
+        fitWidth => '''
+      imageView.widthAnchor.constraint(equalTo: container.widthAnchor),
+      imageView.centerXAnchor.constraint(equalTo: container.centerXAnchor),
+      imageView.centerYAnchor.constraint(equalTo: container.centerYAnchor),''',
+        fitHeight => '''
+      imageView.heightAnchor.constraint(equalTo: container.heightAnchor),
+      imageView.centerXAnchor.constraint(equalTo: container.centerXAnchor),
+      imageView.centerYAnchor.constraint(equalTo: container.centerYAnchor),''',
+        cover || fill => '''
+      imageView.widthAnchor.constraint(equalTo: container.widthAnchor),
+      imageView.heightAnchor.constraint(equalTo: container.heightAnchor),
+      imageView.centerXAnchor.constraint(equalTo: container.centerXAnchor),
+      imageView.centerYAnchor.constraint(equalTo: container.centerYAnchor),''',
+        contain => '''
+      imageView.widthAnchor.constraint(lessThanOrEqualTo: container.widthAnchor),
+      imageView.heightAnchor.constraint(lessThanOrEqualTo: container.heightAnchor),
+      imageView.centerXAnchor.constraint(equalTo: container.centerXAnchor),
+      imageView.centerYAnchor.constraint(equalTo: container.centerYAnchor),''',
+        none || scaleDown => '''
+      imageView.centerXAnchor.constraint(equalTo: container.centerXAnchor),
+      imageView.centerYAnchor.constraint(equalTo: container.centerYAnchor),''',
+      };
+
+  /// Returns true if the provided string is a valid [DesktopImageFit] value.
+  static bool isSupported(String? str) {
+    if (str.isNullOrBlank) return false;
+    return values.any((supported) => supported.name == str);
+  }
+
+  /// Converts a string to the corresponding [DesktopImageFit] enum value.
+  static DesktopImageFit fromString(String str) => switch (str) {
+        'contain' => contain,
+        'cover' => cover,
+        'fill' => fill,
+        'fitWidth' => fitWidth,
+        'fitHeight' => fitHeight,
+        'none' => none,
+        'scaleDown' => scaleDown,
+        _ => throw SplashMasterException(
+            message: 'Invalid desktop image fit: $str',
+          ),
+      };
+}
+
+/// All the available image position values for desktop splash configuration.
+enum DesktopImagePosition {
+  center,
+  top,
+  bottom,
+  left,
+  right,
+  topLeft,
+  topRight,
+  bottomLeft,
+  bottomRight;
+
+  /// Converts the enum value to the corresponding macOS X positioning constraints for the splash image.
+  String get toMacosXPosition => switch (this) {
+        left ||
+        topLeft ||
+        bottomLeft =>
+          '      imageView.leadingAnchor.constraint(equalTo: container.leadingAnchor),',
+        right ||
+        topRight ||
+        bottomRight =>
+          '      imageView.trailingAnchor.constraint(equalTo: container.trailingAnchor),',
+        _ =>
+          '      imageView.centerXAnchor.constraint(equalTo: container.centerXAnchor),',
+      };
+
+  /// Converts the enum value to the corresponding macOS Y positioning constraints for the splash image.
+  String get toMacosYPosition => switch (this) {
+        top ||
+        topLeft ||
+        topRight =>
+          '      imageView.topAnchor.constraint(equalTo: container.topAnchor),',
+        bottom ||
+        bottomLeft ||
+        bottomRight =>
+          '      imageView.bottomAnchor.constraint(equalTo: container.bottomAnchor),',
+        _ =>
+          '      imageView.centerYAnchor.constraint(equalTo: container.centerYAnchor),',
+      };
+
+  /// Returns true if the provided string is a valid [DesktopImagePosition] value.
+  static bool isSupported(String? str) {
+    if (str.isNullOrBlank) return false;
+    return values.any((supported) => supported.name == str);
+  }
+
+  /// Converts a string to the corresponding [DesktopImagePosition] enum value.
+  static DesktopImagePosition fromString(String str) => switch (str) {
+        'center' => center,
+        'top' => top,
+        'bottom' => bottom,
+        'left' => left,
+        'right' => right,
+        'topLeft' => topLeft,
+        'topRight' => topRight,
+        'bottomLeft' => bottomLeft,
+        'bottomRight' => bottomRight,
+        _ => throw SplashMasterException(
+            message: 'Invalid desktop image position: $str',
+          ),
+      };
+}
+
+/// All the available branding image position values for desktop splash configuration.
+enum DesktopBrandingPosition {
+  topLeft,
+  topCenter,
+  topRight,
+  centerLeft,
+  center,
+  centerRight,
+  bottomLeft,
+  bottomCenter,
+  bottomRight;
+
+  // Converts the enum value to the corresponding macOS Auto Layout constraints
+  // for the branding image, always relative to the splash container/window.
+  String macosConstraints(int brandingSpacing) => switch (this) {
+        topLeft => '''
+        brandingView.topAnchor.constraint(equalTo: container.topAnchor, constant: $brandingSpacing),
+        brandingView.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: $brandingSpacing),''',
+        topCenter => '''
+        brandingView.topAnchor.constraint(equalTo: container.topAnchor, constant: $brandingSpacing),
+        brandingView.centerXAnchor.constraint(equalTo: container.centerXAnchor),''',
+        topRight => '''
+        brandingView.topAnchor.constraint(equalTo: container.topAnchor, constant: $brandingSpacing),
+        brandingView.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -$brandingSpacing),''',
+        centerLeft => '''
+        brandingView.centerYAnchor.constraint(equalTo: container.centerYAnchor),
+        brandingView.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: $brandingSpacing),''',
+        center => '''
+        brandingView.centerXAnchor.constraint(equalTo: container.centerXAnchor),
+        brandingView.centerYAnchor.constraint(equalTo: container.centerYAnchor),''',
+        centerRight => '''
+        brandingView.centerYAnchor.constraint(equalTo: container.centerYAnchor),
+        brandingView.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -$brandingSpacing),''',
+        bottomLeft => '''
+        brandingView.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -$brandingSpacing),
+        brandingView.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: $brandingSpacing),''',
+        bottomCenter => '''
+        brandingView.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -$brandingSpacing),
+        brandingView.centerXAnchor.constraint(equalTo: container.centerXAnchor),''',
+        bottomRight => '''
+        brandingView.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -$brandingSpacing),
+        brandingView.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -$brandingSpacing),''',
+      };
+
+  /// Returns true if the provided string is a valid [DesktopBrandingPosition] value.
+  static bool isSupported(String? str) {
+    if (str.isNullOrBlank) return false;
+    return values.any((supported) => supported.name == str);
+  }
+
+  /// Converts a string to the corresponding [DesktopBrandingPosition] enum value.
+  static DesktopBrandingPosition fromString(String str) => switch (str) {
+        'topLeft' => topLeft,
+        'topCenter' => topCenter,
+        'topRight' => topRight,
+        'centerLeft' => centerLeft,
+        'center' => center,
+        'centerRight' => centerRight,
+        'bottomLeft' => bottomLeft,
+        'bottomCenter' => bottomCenter,
+        'bottomRight' => bottomRight,
+        _ => throw SplashMasterException(
+            message: 'Invalid desktop branding position: $str',
+          ),
+      };
 }
