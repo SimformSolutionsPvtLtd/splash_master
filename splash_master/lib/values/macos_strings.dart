@@ -1,4 +1,4 @@
-abstract final class DesktopStrings {
+abstract final class MacosStrings {
   static const String kEmptyString = '';
   static const String closingBracket = '}';
 

@@ -8,6 +8,14 @@ extension StringExtension on String {
 }
 
 extension StringNullableExtension on String? {
+  /// Checks if the string is null or blank (empty or just whitespace).
+  bool get isNullOrBlank {
+    if (this == null || this!.trim().isEmpty) {
+      return true;
+    }
+    return false;
+  }
+
   /// Checks if the string is not null and not blank (not empty and not just whitespace).
   bool get isNotNullOrBlank {
     if (this == null || this!.trim().isEmpty) {

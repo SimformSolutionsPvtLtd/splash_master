@@ -24,9 +24,9 @@ class RiveSplashScreen extends StatelessWidget {
         // Resume Flutter frame rendering once the video source is loaded and ready to play.
         SplashMasterRive.resume();
 
-        // IMPORTANT- Remove the native splash screen (if added) on macOS after
+        // IMPORTANT- Remove the native splash screen (if added) after
         // a short delay to ensure the video starts playing smoothly.
-        DesktopSplashHelper.removeMacosSplash(
+        SplashMasterDesktop.removeSplash(
           delay: const Duration(milliseconds: 50),
         );
       },

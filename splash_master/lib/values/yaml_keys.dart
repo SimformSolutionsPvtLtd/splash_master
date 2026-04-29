@@ -72,7 +72,10 @@ class YamlKeys {
   /// Specifies the macOS-specific configuration section.
   static const macosKey = 'macos';
 
-  //TODO(Lavi)- Add Windows and Linux specific keys when needed.
+  /// Specifies the Windows-specific configuration section.
+  static const windowsKey = 'windows';
+
+  //TODO(Lavi)- Add Linux specific keys when needed.
 
   /// Desktop-specific keys
   static const imageFitKey = 'image_fit';
@@ -138,10 +141,45 @@ class YamlKeys {
     mainWindowWidthKey,
     mainWindowHeightKey,
     macosKey,
-    // TODO(Lavi)- Add Windows and Linux specific keys when needed.
+    windowsKey
+    // TODO(Lavi)- Add Linux specific keys when needed.
   ];
 
-  static List<String> macosOnlyKeys = [
+  static List<String> supportedMacosYamlKeys = [
+    imageKey,
+    colorKey,
+    imageDarkKey,
+    colorDarkKey,
+    brandingImageKey,
+    brandingImageDarkKey,
+    imageFitKey,
+    imagePositionKey,
+    brandingImagePositionKey,
+    brandingImageSpacingKey,
+    splashWindowWidthKey,
+    splashWindowHeightKey,
+    mainWindowWidthKey,
+    mainWindowHeightKey,
     borderlessKey,
   ];
+
+  static List<String> supportedWindowsYamlKeys = [
+    imageKey,
+    colorKey,
+    imageDarkKey,
+    colorDarkKey,
+    brandingImageKey,
+    brandingImageDarkKey,
+    imageFitKey,
+    imagePositionKey,
+    brandingImagePositionKey,
+    brandingImageSpacingKey,
+    splashWindowWidthKey,
+    splashWindowHeightKey,
+    mainWindowWidthKey,
+    mainWindowHeightKey,
+    borderlessKey,
+  ];
+
+  // TODO(Lavi)- Add supported Linux  keys when needed.
 }

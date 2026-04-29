@@ -27,21 +27,6 @@ enum SupportedImageExtensions {
   jpg,
   png,
   jpeg;
-
-  static SupportedImageExtensions fromString(String str) {
-    switch (str) {
-      case 'jpg':
-        return jpg;
-      case 'png':
-        return png;
-      case 'jpeg':
-        return jpeg;
-      default:
-        throw SplashMasterException(
-          message: 'The image must be jpg, png or jpeg.',
-        );
-    }
-  }
 }
 
 /// All the available Android gravity values
@@ -61,94 +46,33 @@ enum AndroidGravity {
   right,
   start;
 
-  static AndroidGravity fromString(String str) {
-    switch (str) {
-      case 'center':
-        return center;
-      case 'clip_horizontal':
-        return clipHorizontal;
-      case 'clip_vertical':
-        return clipVertical;
-      case 'fill_horizontal':
-        return fillHorizontal;
-      case 'fill':
-        return fill;
-      case 'center_vertical':
-        return centerVertical;
-      case 'bottom':
-        return bottom;
-      case 'fill_vertical':
-        return fillVertical;
-      case 'center_horizontal':
-        return centerHorizontal;
-      case 'top':
-        return top;
-      case 'end':
-        return end;
-      case 'left':
-        return left;
-      case 'right':
-        return right;
-      case 'start':
-        return start;
-      default:
-        throw SplashMasterException(message: 'Invalid android gravity.');
-    }
+  /// Returns true if the provided string is a valid [AndroidGravity] value.
+  static bool isSupported(String? str) {
+    if (str.isNullOrBlank) return false;
+    return values.any((supported) => supported.name == str);
   }
 }
 
 /// All the available iOS content mode values
 enum IosContentMode {
-  scaleToFill('scaleToFill'),
-  scaleAspectFit('scaleAspectFit'),
-  scaleAspectFill('scaleAspectFill'),
-  redraw('redraw'),
-  center('center'),
-  top('top'),
-  bottom('bottom'),
-  left('left'),
-  right('right'),
-  topLeft('topLeft'),
-  topRight('topRight'),
-  bottomLeft('bottomLeft'),
-  bottomRight('bottomRight');
+  scaleToFill,
+  scaleAspectFit,
+  scaleAspectFill,
+  redraw,
+  center,
+  top,
+  bottom,
+  left,
+  right,
+  topLeft,
+  topRight,
+  bottomLeft,
+  bottomRight;
 
-  /// Native storyboard value written to the iOS launch screen XML.
-  final String mode;
-
-  const IosContentMode(this.mode);
-
-  static IosContentMode fromString(String str) {
-    switch (str) {
-      case 'scaleToFill':
-        return scaleToFill;
-      case 'scaleAspectFit':
-        return scaleAspectFit;
-      case 'scaleAspectFill':
-        return scaleAspectFill;
-      case 'redraw':
-        return redraw;
-      case 'center':
-        return center;
-      case 'top':
-        return top;
-      case 'bottom':
-        return bottom;
-      case 'left':
-        return left;
-      case 'right':
-        return right;
-      case 'topLeft':
-        return topLeft;
-      case 'topRight':
-        return topRight;
-      case 'bottomLeft':
-        return bottomLeft;
-      case 'bottomRight':
-        return bottomRight;
-      default:
-        throw SplashMasterException(message: 'Invalid content mode.');
-    }
+  /// Returns true if the provided string is a valid [IosContentMode] value.
+  static bool isSupported(String? str) {
+    if (str.isNullOrBlank) return false;
+    return values.any((supported) => supported.name == str);
   }
 }
 
@@ -162,7 +86,7 @@ enum DesktopImageFit {
   none,
   scaleDown;
 
-  // Converts the enum value to the corresponding macOS image scaling code for the splash image.
+  /// Converts the enum value to the corresponding macOS image scaling code for the splash image.
   String get toMacosScalingLine => switch (this) {
         contain => '''
       imageView.imageScaling = .scaleProportionallyUpOrDown
@@ -191,7 +115,7 @@ enum DesktopImageFit {
       imageView.layer?.masksToBounds = true''',
       };
 
-  // Constraints that must go inside NSLayoutConstraint.activate([]).
+  /// Constraints that must go inside NSLayoutConstraint.activate([]).
   String get toMacosDimensionConstraints => switch (this) {
         fitWidth => '''
       imageView.widthAnchor.constraint(equalTo: container.widthAnchor),
@@ -216,7 +140,13 @@ enum DesktopImageFit {
       imageView.centerYAnchor.constraint(equalTo: container.centerYAnchor),''',
       };
 
-  // Converts a string to the corresponding DesktopImageFit enum value.
+  /// Returns true if the provided string is a valid [DesktopImageFit] value.
+  static bool isSupported(String? str) {
+    if (str.isNullOrBlank) return false;
+    return values.any((supported) => supported.name == str);
+  }
+
+  /// Converts a string to the corresponding DesktopImageFit enum value.
   static DesktopImageFit fromString(String str) => switch (str) {
         'contain' => contain,
         'cover' => cover,
@@ -243,7 +173,7 @@ enum DesktopImagePosition {
   bottomLeft,
   bottomRight;
 
-  // Converts the enum value to the corresponding macOS X positioning constraints for the splash image.
+  /// Converts the enum value to the corresponding macOS X positioning constraints for the splash image.
   String get toMacosXPosition => switch (this) {
         left ||
         topLeft ||
@@ -257,7 +187,7 @@ enum DesktopImagePosition {
           '      imageView.centerXAnchor.constraint(equalTo: container.centerXAnchor),',
       };
 
-  // Converts the enum value to the corresponding macOS Y positioning constraints for the splash image.
+  /// Converts the enum value to the corresponding macOS Y positioning constraints for the splash image.
   String get toMacosYPosition => switch (this) {
         top ||
         topLeft ||
@@ -271,7 +201,13 @@ enum DesktopImagePosition {
           '      imageView.centerYAnchor.constraint(equalTo: container.centerYAnchor),',
       };
 
-  // Converts a string to the corresponding DesktopImagePosition enum value.
+  /// Returns true if the provided string is a valid [DesktopImagePosition] value.
+  static bool isSupported(String? str) {
+    if (str.isNullOrBlank) return false;
+    return values.any((supported) => supported.name == str);
+  }
+
+  /// Converts a string to the corresponding DesktopImagePosition enum value.
   static DesktopImagePosition fromString(String str) => switch (str) {
         'center' => center,
         'top' => top,
@@ -332,7 +268,13 @@ enum DesktopBrandingPosition {
         brandingView.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -$brandingSpacing),''',
       };
 
-  // Converts a string to the corresponding DesktopBrandingPosition enum value.
+  /// Returns true if the provided string is a valid [DesktopBrandingPosition] value.
+  static bool isSupported(String? str) {
+    if (str.isNullOrBlank) return false;
+    return values.any((supported) => supported.name == str);
+  }
+
+  /// Converts a string to the corresponding DesktopBrandingPosition enum value.
   static DesktopBrandingPosition fromString(String str) => switch (str) {
         'topLeft' => topLeft,
         'topCenter' => topCenter,

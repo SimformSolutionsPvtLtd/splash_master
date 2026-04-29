@@ -142,3 +142,10 @@ splash_master:
       # macOS-specific key to make the splash screen window borderless (no title bar or borders)
       borderless: false
 
+    # ===== Windows-Specific Override Configuration =====
+    windows:
+      # Remove title bar and window borders (like macOS borderless)
+      borderless: false
+
+      # Hide the window from the Windows taskbar during splash
+#      skip_taskbar: true

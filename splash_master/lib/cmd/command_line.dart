@@ -49,26 +49,23 @@ Future<void> commandEntry(List<String> arguments) async {
       if (arguments.length == 1) {
         const filePath = 'pubspec.yaml';
         try {
-          final yamlMap =
-              loadYaml(File(filePath).readAsStringSync()) as YamlMap;
-          if (yamlMap[YamlKeys.splashMasterKey].runtimeType != YamlMap) {
-            throw SplashMasterException(message: 'Unable to read yaml file.');
+          // Load and parse the YAML file
+          final yamlMap = loadYaml(File(filePath).readAsStringSync());
+          if (yamlMap[YamlKeys.splashMasterKey] is! YamlMap) {
+            throw SplashMasterException(
+                message: '[Error] Unable to read yaml file.');
           }
-
-          final splashData = yamlMap[YamlKeys.splashMasterKey];
-          if (splashData.runtimeType != YamlMap) {
-            log("splash_master section isn't formatted correctly.");
-            return;
-          }
-
-          /// [splashData] is data that is being extracted from the YAML file.
-          await setupSplashScreen(splashData);
+          // Setup splash screen using the configuration
+          await setupSplashScreen(yamlMap[YamlKeys.splashMasterKey] as YamlMap);
         } catch (e) {
           log(e.toString());
         }
+      } else {
+        log("The 'create' command does not accept additional arguments.");
+        log('Usage: dart run splash_master create');
       }
     case Command.none:
-      log('Invalid command or arguments.');
+      log('[Error] Invalid command or arguments.');
   }
 }
 
@@ -78,168 +75,214 @@ Future<void> setupSplashScreen(YamlMap splashData) async {
   final unsupportedTopLevelKeys = splashKeys
       .where((key) => !YamlKeys.supportedYamlKeys.contains(key))
       .toList();
-  final hasAndroid12Section =
-      splashKeys.contains(YamlKeys.android12AndAboveKey);
 
-  // --- Platform Directory Checks ---
-  final hasAndroidFolder = Directory(AndroidStrings.android).existsSync();
-  final hasIosFolder = Directory(IOSStrings.ios).existsSync();
-  final hasMacosFolder = Directory(DesktopStrings.macos).existsSync();
+  final hasAndroid12Section = splashData[YamlKeys.android12AndAboveKey] != null;
+  final android12AndAbove = splashData[YamlKeys.android12AndAboveKey];
 
-  if (!hasAndroidFolder && !hasIosFolder && !hasMacosFolder) {
-    log('No supported platform folders (android/, ios/, macos/) found. Skipping splash generation.');
-    return;
-  }
+  final hasDesktopSection = splashData[YamlKeys.desktopKey] != null;
+  final desktopData = splashData[YamlKeys.desktopKey];
+  var hasMacosSection = false;
+  var hasWindowsSection = false;
 
-  /// Checking keys in the `splash_master` section in `pubspec.yaml` file is proper or not.
+  // Checking keys in the `splash_master` section in `pubspec.yaml` file is proper or not.
   if (unsupportedTopLevelKeys.isNotEmpty) {
     log(
-      'Unsupported key(s) in splash_master: '
+      '[Error] Unsupported key(s) in splash_master: '
       '${unsupportedTopLevelKeys.join(', ')}. '
       'Supported keys are: ${YamlKeys.supportedYamlKeys.join(', ')}',
     );
     return;
   }
-
-  final android12AndAboveRaw = splashData[YamlKeys.android12AndAboveKey];
-  final android12AndAbove =
-      hasAndroid12Section && (android12AndAboveRaw == null)
-          ? (loadYaml('{}') as YamlMap)
-          : (android12AndAboveRaw is YamlMap ? android12AndAboveRaw : null);
-  if (hasAndroid12Section &&
-      android12AndAboveRaw != null &&
-      android12AndAboveRaw is! YamlMap) {
-    log('Please check the android_12_and_above configuration. All parameters must be nested under the android_12_and_above key.');
-    return;
-  }
-
-  if (android12AndAbove != null) {
-    final android12Keys =
-        android12AndAbove.keys.map((e) => e.toString()).toSet();
-    final unsupportedAndroid12Keys = android12Keys
-        .where(
-          (key) => !YamlKeys.supportedAndroid12AndAboveYamlKeys.contains(key),
-        )
-        .toList();
-    if (unsupportedAndroid12Keys.isNotEmpty) {
+  // Checking if the `android_12_and_above` section is properly structured and valid when present.
+  if (hasAndroid12Section) {
+    if (android12AndAbove is! YamlMap) {
       log(
-        'Unsupported key(s) in android_12_and_above: '
-        '${unsupportedAndroid12Keys.join(', ')}. '
-        'Supported keys are: '
-        '${YamlKeys.supportedAndroid12AndAboveYamlKeys.join(', ')}',
+        '[Error] Please check the android_12_and_above configuration. '
+        'All parameters must be nested under the android_12_and_above key.',
       );
       return;
+    } else {
+      final android12Keys =
+          android12AndAbove.keys.map((e) => e.toString()).toSet();
+      final unsupportedAndroid12Keys = android12Keys
+          .where(
+            (key) => !YamlKeys.supportedAndroid12AndAboveYamlKeys.contains(key),
+          )
+          .toList();
+      if (unsupportedAndroid12Keys.isNotEmpty) {
+        log(
+          '[Error] Unsupported key(s) in android_12_and_above: '
+          '${unsupportedAndroid12Keys.join(', ')}. '
+          'Supported keys are: '
+          '${YamlKeys.supportedAndroid12AndAboveYamlKeys.join(', ')}',
+        );
+        return;
+      }
+    }
+  }
+  // Checking if the `desktop` section is properly structured when present.
+  if (hasDesktopSection) {
+    if (desktopData is! YamlMap) {
+      log(
+        "[Error] 'desktop' section must be a map. "
+        "Please check your pubspec.yaml.",
+      );
+      return;
+    } else {
+      final desktopKeys = desktopData.keys.map((e) => e.toString()).toSet();
+      final unsupportedDesktopKeys = desktopKeys
+          .where((key) => !YamlKeys.supportedDesktopYamlKeys.contains(key))
+          .toList();
+      if (unsupportedDesktopKeys.isNotEmpty) {
+        log(
+          '[Error] Unsupported key(s) in desktop configuration: '
+          '${unsupportedDesktopKeys.join(', ')}. '
+          'Supported keys are: ${YamlKeys.supportedDesktopYamlKeys.join(', ')}',
+        );
+        return;
+      }
+
+      // Checking if the `macos` section under `desktop` is properly structured when present.
+      hasMacosSection = desktopData[YamlKeys.macosKey] != null;
+      if (hasMacosSection) {
+        final macosData = desktopData[YamlKeys.macosKey];
+        if (macosData is! YamlMap) {
+          log(
+            "[Error] 'macos' section under 'desktop' must be a map. "
+            "Please check your pubspec.yaml.",
+          );
+          return;
+        } else {
+          // Checking if keys in `macos` section are supported or not
+          final macosKeys = macosData.keys.map((e) => e.toString()).toSet();
+          final unsupportedMacosKeys = macosKeys
+              .where((key) => !YamlKeys.supportedMacosYamlKeys.contains(key))
+              .toList();
+          if (unsupportedMacosKeys.isNotEmpty) {
+            log(
+              '[Error] Unsupported key(s) in macos configuration: '
+              '${unsupportedMacosKeys.join(', ')}. '
+              'Supported keys are: ${YamlKeys.supportedMacosYamlKeys.join(', ')}',
+            );
+            return;
+          }
+        }
+      }
+      // Checking if the `windows` section under `desktop` is properly structured when present.
+      hasWindowsSection = desktopData[YamlKeys.windowsKey] != null;
+      if (hasWindowsSection) {
+        final windowsData = desktopData[YamlKeys.windowsKey];
+        if (windowsData is! YamlMap) {
+          log(
+            "[Error] 'windows' section under 'desktop' must be a map. "
+            "Please check your pubspec.yaml.",
+          );
+          return;
+        } else {
+          // Checking if keys in `macos` section are supported or not
+          final windowsKeys = windowsData.keys.map((e) => e.toString()).toSet();
+          final unsupportedWindowsKeys = windowsKeys
+              .where((key) => !YamlKeys.supportedWindowsYamlKeys.contains(key))
+              .toList();
+          if (unsupportedWindowsKeys.isNotEmpty) {
+            log(
+              '[Error] Unsupported key(s) in windows configuration: '
+              '${unsupportedWindowsKeys.join(', ')}. '
+              'Supported keys are: ${YamlKeys.supportedWindowsYamlKeys.join(', ')}',
+            );
+            return;
+          }
+        }
+      }
     }
   }
 
-  /// Checking if provided android gravity is valid or not
-  if (splashData[YamlKeys.androidGravityKey] != null &&
-      !(AndroidGravity.values.any(
-        (element) =>
-            element ==
-            AndroidGravity.fromString(splashData[YamlKeys.androidGravityKey]),
-      ))) {
-    log('Please check the android_gravity');
-    return;
-  }
-
-  final iosContentMode =
-      _tryParseIosContentMode(splashData[YamlKeys.iosContentModeKey]);
-  final iosBackgroundContentMode = _tryParseIosContentMode(
-    splashData[YamlKeys.iosBackgroundContentMode],
-  );
-
-  /// Checking if provided content mode is valid or not
-  if (splashData[YamlKeys.iosContentModeKey] != null &&
-      !IosContentMode.values.any(
-        (element) => element == iosContentMode,
-      )) {
-    log('Please check the ios_content_mode');
-    return;
-  }
-
-  /// Checking if provided background content mode is valid or not
-  if (splashData[YamlKeys.iosBackgroundContentMode] != null &&
-      !IosContentMode.values.any(
-        (element) => element == iosBackgroundContentMode,
-      )) {
-    log('Please check the ios_background_content_mode');
-    return;
-  }
-
-  if (!_validateImageExtensionIfProvided(
-    splashData[YamlKeys.imageKey],
-    keyName: YamlKeys.imageKey,
-  )) {
-    return;
-  }
-  if (!_validateImageExtensionIfProvided(
-    splashData[YamlKeys.imageDarkKey],
-    keyName: YamlKeys.imageDarkKey,
-  )) {
-    return;
-  }
-  if (!_validateImageExtensionIfProvided(
-    splashData[YamlKeys.backgroundImage],
-    keyName: YamlKeys.backgroundImage,
-  )) {
-    return;
-  }
-  if (!_validateImageExtensionIfProvided(
-    splashData[YamlKeys.backgroundImageDarkKey],
-    keyName: YamlKeys.backgroundImageDarkKey,
-  )) {
-    return;
-  }
-
-  if (android12AndAbove != null) {
-    if (!_validateImageExtensionIfProvided(
-      android12AndAbove[YamlKeys.imageKey],
-      keyName: '${YamlKeys.android12AndAboveKey}.${YamlKeys.imageKey}',
-    )) {
+  // Image extension validation for common keys on Android and iOS
+  for (final key in [
+    YamlKeys.imageKey,
+    YamlKeys.imageDarkKey,
+    YamlKeys.backgroundImage,
+    YamlKeys.backgroundImageDarkKey,
+  ]) {
+    if (!_validateImageExtensionIfProvided(splashData[key], keyName: key)) {
       return;
     }
-    if (!_validateImageExtensionIfProvided(
-      android12AndAbove[YamlKeys.imageDarkKey],
-      keyName: '${YamlKeys.android12AndAboveKey}.${YamlKeys.imageDarkKey}',
-    )) {
-      return;
-    }
-    if (!_validateImageExtensionIfProvided(
-      android12AndAbove[YamlKeys.brandingImageKey],
-      keyName: '${YamlKeys.android12AndAboveKey}.${YamlKeys.brandingImageKey}',
-    )) {
-      return;
-    }
-    if (!_validateImageExtensionIfProvided(
-      android12AndAbove[YamlKeys.brandingImageDarkKey],
-      keyName:
-          '${YamlKeys.android12AndAboveKey}.${YamlKeys.brandingImageDarkKey}',
-    )) {
-      return;
-    }
   }
 
-  if (splashData[YamlKeys.androidBackgroundGravity] != null &&
-      !(AndroidGravity.values.any(
-        (element) =>
-            element ==
-            AndroidGravity.fromString(
-                splashData[YamlKeys.androidBackgroundGravity]),
-      ))) {
-    log('Please check the android_background_image_gravity');
-    return;
+  // Image extension validation for Android 12+, desktop, macOS, and Windows keys
+  for (final key in [
+    YamlKeys.imageKey,
+    YamlKeys.imageDarkKey,
+    YamlKeys.brandingImageKey,
+    YamlKeys.brandingImageDarkKey,
+  ]) {
+    if (hasAndroid12Section &&
+        !_validateImageExtensionIfProvided(
+          android12AndAbove?[key],
+          keyName: '${YamlKeys.android12AndAboveKey}.$key',
+        )) {
+      return;
+    }
+    if (hasDesktopSection &&
+        !_validateImageExtensionIfProvided(
+          desktopData[key],
+          keyName: '${YamlKeys.desktopKey}.$key',
+        )) {
+      return;
+    }
+    if (hasMacosSection &&
+        !_validateImageExtensionIfProvided(
+          desktopData?[YamlKeys.macosKey]?[key],
+          keyName: '${YamlKeys.desktopKey}.${YamlKeys.macosKey}.$key',
+        )) {
+      return;
+    }
+    if (hasWindowsSection &&
+        !_validateImageExtensionIfProvided(
+          desktopData?[YamlKeys.windowsKey]?[key],
+          keyName: '${YamlKeys.desktopKey}.${YamlKeys.windowsKey}.$key',
+        )) {
+      return;
+    }
   }
 
   // --- Platform-specific Splash Generation ---
+  final hasAndroidFolder = Directory(AndroidStrings.android).existsSync();
+  final hasIosFolder = Directory(IOSStrings.ios).existsSync();
+  final hasMacosFolder = Directory(MacosStrings.macos).existsSync();
+  final hasWindowsFolder = Directory(WindowsStrings.windows).existsSync();
   try {
     // Android Splash Handling
     if (hasAndroidFolder) {
-      await applyAndroidSplashImage(
+      // Checking if provided android gravity is valid or not
+      if (splashData[YamlKeys.androidGravityKey] != null &&
+          !AndroidGravity.isSupported(
+              splashData[YamlKeys.androidGravityKey].toString())) {
+        log('[Error] Invalid value of android_gravity');
+        return;
+      }
+
+      // Checking if provided android dark gravity is valid or not
+      if (splashData[YamlKeys.androidDarkGravityKey] != null &&
+          !AndroidGravity.isSupported(
+              splashData[YamlKeys.androidDarkGravityKey].toString())) {
+        log('[Error] Invalid value of android_dark_gravity');
+        return;
+      }
+
+      // Checking if provided android background gravity is valid or not
+      if (splashData[YamlKeys.androidBackgroundGravity] != null &&
+          !AndroidGravity.isSupported(
+              splashData[YamlKeys.androidBackgroundGravity].toString())) {
+        log('[Error] Invalid value of android_background_image_gravity');
+        return;
+      }
+
+      await _applyAndroidSplashImage(
         imageSource: splashData[YamlKeys.imageKey],
         color: splashData[YamlKeys.colorKey],
         gravity: splashData[YamlKeys.androidGravityKey],
-        android12AndAbove: android12AndAbove,
+        android12AndAbove: android12AndAbove as YamlMap?,
         backgroundImageSource: splashData[YamlKeys.backgroundImage],
         backgroundImageGravity: splashData[YamlKeys.androidBackgroundGravity],
         darkColor: splashData[YamlKeys.colorDarkKey],
@@ -248,7 +291,7 @@ Future<void> setupSplashScreen(YamlMap splashData) async {
         darkBackgroundImageSource: splashData[YamlKeys.backgroundImageDarkKey],
       );
     } else {
-      log('android/ folder not found. Skipping Android splash generation.');
+      log('[Warning] android/ folder not found. Skipping Android splash generation.');
     }
 
     // iOS Splash Handling
@@ -268,44 +311,79 @@ Future<void> setupSplashScreen(YamlMap splashData) async {
           'Add background_image to provide the base Any appearance asset.',
         );
       }
+
+      // If there are reasons to skip iOS splash generation, log them.
+      // Otherwise, proceed with generation.
       if (iosSkipReasons.isNotEmpty) {
-        log('Skipping iOS splash generation: \n${iosSkipReasons.join(' ')}');
+        log('[Warning] Skipping iOS splash generation: \n${iosSkipReasons.join(' ')}');
       } else {
+        // Checking if provided content mode is valid or not
+        if (splashData[YamlKeys.iosContentModeKey] != null &&
+            !IosContentMode.isSupported(
+                splashData[YamlKeys.iosContentModeKey].toString())) {
+          log('[Error] Invalid value of ios_content_mode');
+          return;
+        }
+        // Checking if provided background content mode is valid or not
+        if (splashData[YamlKeys.iosBackgroundContentMode] != null &&
+            !IosContentMode.isSupported(
+                splashData[YamlKeys.iosBackgroundContentMode].toString())) {
+          log('[Error] Invalid value of ios_background_content_mode');
+          return;
+        }
+
+        // If the config is valid, proceed with iOS splash generation
         await generateIosImages(
           imageSource: splashData[YamlKeys.imageKey],
           color: splashData[YamlKeys.colorKey],
           backgroundImage: splashData[YamlKeys.backgroundImage],
-          iosContentMode: iosContentMode?.mode,
-          iosBackgroundContentMode: iosBackgroundContentMode?.mode,
+          iosContentMode: splashData[YamlKeys.iosContentModeKey],
+          iosBackgroundContentMode:
+              splashData[YamlKeys.iosBackgroundContentMode],
           darkImageSource: splashData[YamlKeys.imageDarkKey],
           darkColor: splashData[YamlKeys.colorDarkKey],
           darkBackgroundImage: splashData[YamlKeys.backgroundImageDarkKey],
         );
       }
     } else {
-      log('ios/ folder not found. Skipping iOS splash generation.');
+      log('[Warning] ios/ folder not found. Skipping iOS splash generation.');
     }
 
-    // macOS Splash Handling
-    final hasDesktopSection = splashKeys.contains(YamlKeys.desktopKey);
-    final desktopConfig = splashData[YamlKeys.desktopKey];
-    final isDesktopConfigValid = desktopConfig is YamlMap;
+    if (hasDesktopSection) {
+      // Validate if values under `desktop` are correct
+      if (!_validateDesktopYamlValues(desktopData)) return;
 
-    if (hasMacosFolder && hasDesktopSection) {
-      final hasMacosSection = desktopConfig.containsKey(YamlKeys.macosKey);
-      final macosConfig = desktopConfig?[YamlKeys.macosKey];
-      if ((!hasMacosSection && isDesktopConfigValid) ||
-          (hasMacosSection && macosConfig is YamlMap && isDesktopConfigValid)) {
-        await applyMacosSplash(
-          macosConfig: macosConfig,
-          commonConfig: desktopConfig,
+      // macOS Splash Handling
+      if (hasMacosFolder) {
+        final macosData = desktopData[YamlKeys.macosKey];
+        if (!_validateDesktopYamlValues(
+          macosData,
+          keyName: YamlKeys.macosKey,
+          validateSpecificKeys: true,
+        )) return;
+        await _applyMacosSplash(
+          macosConfig: macosData as YamlMap,
+          commonConfig: desktopData as YamlMap,
         );
       } else {
-        log('macos/desktop splash config must be a map.');
-        return;
+        log('[Warning] macos/ folder not found. Skipping macOS splash generation.');
       }
-    } else if (hasDesktopSection && !hasMacosFolder) {
-      log('macos/ folder not found. Skipping macOS splash generation.');
+
+      // windows Splash Handling
+      if (hasWindowsFolder) {
+        final windowsData = desktopData[YamlKeys.windowsKey];
+        if (!_validateDesktopYamlValues(
+          windowsData,
+          keyName: YamlKeys.windowsKey,
+          validateSpecificKeys: true,
+        )) return;
+        await _applyWindowsSplash(
+          windowsConfig: windowsData as YamlMap,
+          commonConfig: desktopData as YamlMap,
+        );
+      } else {
+        log('[Warning] windows/ folder not found. Skipping Windows splash generation.');
+      }
     }
   } on SplashMasterException catch (e) {
     log(e.message);
@@ -318,7 +396,7 @@ Future<void> setupSplashScreen(YamlMap splashData) async {
 /// generates Android 12+ assets from `android12AndAbove`, writes color resources,
 /// builds splash drawable XMLs for light and dark themes, updates `styles.xml`,
 /// and updates dark styles when any dark-mode input is provided.
-Future<void> applyAndroidSplashImage({
+Future<void> _applyAndroidSplashImage({
   String? imageSource,
   String? color,
   String? gravity,
@@ -385,85 +463,119 @@ Future<void> applyAndroidSplashImage({
   );
 }
 
-IosContentMode? _tryParseIosContentMode(dynamic mode) {
-  if (mode == null) {
-    return null;
-  }
-
-  final modeString = mode.toString();
-  for (final supportedMode in IosContentMode.values) {
-    if (supportedMode.mode == modeString) {
-      return supportedMode;
-    }
-  }
-
-  return null;
-}
-
+/// Validates the image extension if provided.
 bool _validateImageExtensionIfProvided(
   dynamic imagePath, {
   required String keyName,
 }) {
-  if (imagePath == null) {
-    return true;
-  }
+  if (imagePath == null) return true;
 
   final path = imagePath.toString().trim();
   final parts = path.split('.');
   if (parts.length < 2 || parts.last.isEmpty) {
-    log('$keyName should point to a png, jpg, or jpeg asset.');
+    log('[Error] $keyName should point to a png, jpg, or jpeg asset.');
     return false;
   }
 
   final extension = parts.last.toLowerCase();
-  final isSupported = SupportedImageExtensions.values.any(
-    (supported) => supported.name == extension,
-  );
+  final isSupported = SupportedImageExtensions.values
+      .any((supported) => supported.name == extension);
 
   if (!isSupported) {
-    log('$keyName should point to a png, jpg, or jpeg asset.');
+    log('[Error] $keyName should point to a png, jpg, or jpeg asset.');
     return false;
   }
 
   return true;
 }
 
+/// Validates the desktop YAML values for both common desktop configuration
+/// and platform-specific sections (macOS/Windows).
+bool _validateDesktopYamlValues(
+  YamlMap map, {
+  String keyName = YamlKeys.desktopKey,
+  bool validateSpecificKeys = false,
+}) {
+  if (map[YamlKeys.imageFitKey] != null &&
+      !DesktopImageFit.isSupported(map[YamlKeys.imageFitKey])) {
+    log('[Error] Invalid value of $keyName.image_fit');
+    return false;
+  }
+  if (map[YamlKeys.imagePositionKey] != null &&
+      !DesktopImagePosition.isSupported(map[YamlKeys.imagePositionKey])) {
+    log('[Error] Invalid value of $keyName.image_position');
+    return false;
+  }
+
+  if (map[YamlKeys.brandingImagePositionKey] != null &&
+      !DesktopBrandingPosition.isSupported(
+          map[YamlKeys.brandingImagePositionKey])) {
+    log('[Error] Invalid value of $keyName.branding_image_position');
+    return false;
+  }
+
+  if (map[YamlKeys.brandingImageSpacingKey] != null &&
+      map[YamlKeys.brandingImageSpacingKey] is! int) {
+    log('[Error] Invalid value of $keyName.branding_image_spacing');
+    return false;
+  }
+  if (map[YamlKeys.splashWindowWidthKey] != null &&
+      map[YamlKeys.splashWindowWidthKey] is! int) {
+    log('[Error] Invalid value of $keyName.splash_window_width');
+    return false;
+  }
+
+  if (map[YamlKeys.splashWindowHeightKey] != null &&
+      map[YamlKeys.splashWindowHeightKey] is! int) {
+    log('[Error] Invalid value of $keyName.splash_window_height');
+    return false;
+  }
+
+  if (map[YamlKeys.mainWindowWidthKey] != null &&
+      map[YamlKeys.mainWindowWidthKey] is! int) {
+    log('[Error] Invalid value of $keyName.main_window_width');
+    return false;
+  }
+
+  if (map[YamlKeys.mainWindowHeightKey] != null &&
+      map[YamlKeys.mainWindowHeightKey] is! int) {
+    log('[Error] Invalid value of $keyName.main_window_height');
+    return false;
+  }
+
+  if (validateSpecificKeys) {
+    if (map[YamlKeys.borderlessKey] != null &&
+        map[YamlKeys.borderlessKey] is! bool) {
+      log('[Error] Invalid value of $keyName.borderless. '
+          'Allowed values are `true` and `false`');
+      return false;
+    }
+  }
+  return true;
+}
+
 /// Applies the splash screen for macOS using details from the YAML file.
-Future<void> applyMacosSplash({
+Future<void> _applyMacosSplash({
   required YamlMap commonConfig,
   YamlMap? macosConfig,
 }) async {
+  // Helper function to pick values with macOS-specific config
+  // taking precedence over common desktop config
+  dynamic pick(String key) => macosConfig?[key] ?? commonConfig[key];
+  int pickInt(String key, int fallback) =>
+      pick(key) is num ? (pick(key) as num).toInt() : fallback;
+  bool pickBool(String key, bool fallback) =>
+      pick(key) is bool ? pick(key) as bool : fallback;
+  String pickString(String key, String fallback) =>
+      pick(key)?.toString() ?? fallback;
+
   // Extract config values with fallback logic
-  final image =
-      macosConfig?[YamlKeys.imageKey] ?? commonConfig[YamlKeys.imageKey];
-  final color =
-      macosConfig?[YamlKeys.colorKey] ?? commonConfig[YamlKeys.colorKey];
-  final imageDark = macosConfig?[YamlKeys.imageDarkKey] ??
-      commonConfig[YamlKeys.imageDarkKey];
-  final colorDark = macosConfig?[YamlKeys.colorDarkKey] ??
-      commonConfig[YamlKeys.colorDarkKey];
-  final brandingImage = macosConfig?[YamlKeys.brandingImageKey] ??
-      commonConfig[YamlKeys.brandingImageKey];
-  final brandingImageDark = macosConfig?[YamlKeys.brandingImageDarkKey] ??
-      commonConfig[YamlKeys.brandingImageDarkKey];
-  final imagePosition = macosConfig?[YamlKeys.imagePositionKey] ??
-      commonConfig[YamlKeys.imagePositionKey];
-  final imageFit =
-      macosConfig?[YamlKeys.imageFitKey] ?? commonConfig[YamlKeys.imageFitKey];
-  final brandingPosition = macosConfig?[YamlKeys.brandingImagePositionKey] ??
-      commonConfig[YamlKeys.brandingImagePositionKey];
-  final brandingSpacing = macosConfig?[YamlKeys.brandingImageSpacingKey] ??
-      commonConfig[YamlKeys.brandingImageSpacingKey];
-  final splashWindowWidth = macosConfig?[YamlKeys.splashWindowWidthKey] ??
-      commonConfig[YamlKeys.splashWindowWidthKey];
-  final splashWindowHeight = macosConfig?[YamlKeys.splashWindowHeightKey] ??
-      commonConfig[YamlKeys.splashWindowHeightKey];
-  final mainWindowWidth = macosConfig?[YamlKeys.mainWindowWidthKey] ??
-      commonConfig[YamlKeys.mainWindowWidthKey];
-  final mainWindowHeight = macosConfig?[YamlKeys.mainWindowHeightKey] ??
-      commonConfig[YamlKeys.mainWindowHeightKey];
-  final borderless = macosConfig?[YamlKeys.borderlessKey] ??
-      commonConfig[YamlKeys.borderlessKey];
+  final image = pick(YamlKeys.imageKey);
+  final color = pick(YamlKeys.colorKey);
+  final imageDark = pick(YamlKeys.imageDarkKey);
+  final colorDark = pick(YamlKeys.colorDarkKey);
+  final brandingImage = pick(YamlKeys.brandingImageKey);
+  final brandingImageDark = pick(YamlKeys.brandingImageDarkKey);
 
   // If no relevant macOS splash configuration is provided,
   // skip the entire process
@@ -473,7 +585,7 @@ Future<void> applyMacosSplash({
       brandingImageDark == null &&
       color == null &&
       colorDark == null) {
-    log('No macOS splash images provided. Skipping asset generation and MainFlutterWindow.swift modification for macOS.');
+    log('[Warning] No macOS splash assets provided. Skipping macOS generation.');
     return;
   }
 
@@ -489,34 +601,49 @@ Future<void> applyMacosSplash({
 
   // Modify MainFlutterWindow.swift with the provided configuration
   final config = DesktopConfigDm(
-      hasSplashImage: image != null,
-      hasBrandingImage: brandingImage != null,
-      imageFit: DesktopImageFit.fromString(
-          imageFit ?? DesktopStrings.imageFitDefaultValue),
-      imagePosition: DesktopImagePosition.fromString(
-          imagePosition ?? DesktopStrings.imagePositionDefaultValue),
-      brandingPosition: DesktopBrandingPosition.fromString(
-          brandingPosition ?? DesktopStrings.brandingPositionDefaultValue),
-      brandingSpacing: brandingSpacing is num
-          ? brandingSpacing.toInt()
-          : DesktopStrings.defaultBrandingSpacing,
-      splashWindowWidth: splashWindowWidth is num
-          ? splashWindowWidth.toInt()
-          : DesktopStrings.defaultSplashWindowWidth,
-      splashWindowHeight: splashWindowHeight is num
-          ? splashWindowHeight.toInt()
-          : DesktopStrings.defaultSplashWindowHeight,
-      mainWindowWidth: mainWindowWidth is num
-          ? mainWindowWidth.toInt()
-          : DesktopStrings.defaultMainWindowWidth,
-      mainWindowHeight: mainWindowHeight is num
-          ? mainWindowHeight.toInt()
-          : DesktopStrings.defaultMainWindowHeight,
-      macosConfig: MacosConfigDm(
-        borderless: borderless is bool
-            ? borderless
-            : DesktopStrings.defaultMacosBorderless,
-      ));
+    hasSplashImage: image != null,
+    hasBrandingImage: brandingImage != null,
+    imageFit: DesktopImageFit.fromString(pickString(
+      YamlKeys.imageFitKey,
+      MacosStrings.imageFitDefaultValue,
+    )),
+    imagePosition: DesktopImagePosition.fromString(pickString(
+      YamlKeys.imagePositionKey,
+      MacosStrings.imagePositionDefaultValue,
+    )),
+    brandingPosition: DesktopBrandingPosition.fromString(
+      pickString(
+        YamlKeys.brandingImagePositionKey,
+        MacosStrings.brandingPositionDefaultValue,
+      ),
+    ),
+    brandingSpacing: pickInt(
+      YamlKeys.brandingImageSpacingKey,
+      MacosStrings.defaultBrandingSpacing,
+    ),
+    splashWindowWidth: pickInt(
+      YamlKeys.splashWindowWidthKey,
+      MacosStrings.defaultSplashWindowWidth,
+    ),
+    splashWindowHeight: pickInt(
+      YamlKeys.splashWindowHeightKey,
+      MacosStrings.defaultSplashWindowHeight,
+    ),
+    mainWindowWidth: pickInt(
+      YamlKeys.mainWindowWidthKey,
+      MacosStrings.defaultMainWindowWidth,
+    ),
+    mainWindowHeight: pickInt(
+      YamlKeys.mainWindowHeightKey,
+      MacosStrings.defaultMainWindowHeight,
+    ),
+    macosConfig: MacosConfigDm(
+      borderless: pickBool(
+        YamlKeys.borderlessKey,
+        MacosStrings.defaultMacosBorderless,
+      ),
+    ),
+  );
 
   // Call the function to generate the modified MainFlutterWindow.swift file
   await generateMainFlutterWindowFile(config);
@@ -532,4 +659,90 @@ Future<void> applyMacosSplash({
     // if it exists to avoid stale code when user removes splash config
     //await removeSplashChannelFromAppDelegate();
   }
+}
+
+Future<void> _applyWindowsSplash({
+  required YamlMap commonConfig,
+  YamlMap? windowsConfig,
+}) async {
+  // Helper function to pick values with Windows-specific config
+  // taking precedence over common desktop config.
+  dynamic pick(String key) => windowsConfig?[key] ?? commonConfig[key];
+  int pickInt(String key, int fallback) =>
+      pick(key) is num ? (pick(key) as num).toInt() : fallback;
+  bool pickBool(String key, bool fallback) =>
+      pick(key) is bool ? pick(key) as bool : fallback;
+  String pickString(String key, String fallback) =>
+      pick(key)?.toString() ?? fallback;
+
+  final image = pick(YamlKeys.imageKey);
+  final color = pick(YamlKeys.colorKey);
+  final imageDark = pick(YamlKeys.imageDarkKey);
+  final colorDark = pick(YamlKeys.colorDarkKey);
+  final brandingImage = pick(YamlKeys.brandingImageKey);
+  final brandingImageDark = pick(YamlKeys.brandingImageDarkKey);
+
+  if (image == null &&
+      brandingImage == null &&
+      imageDark == null &&
+      brandingImageDark == null &&
+      color == null &&
+      colorDark == null) {
+    log('[Warning] No Windows splash assets provided. Skipping Windows generation.');
+    return;
+  }
+  // Todo- Asset generation for Windows splash
+
+  final config = DesktopConfigDm(
+    hasSplashImage: image != null,
+    hasBrandingImage: brandingImage != null,
+    imageFit: DesktopImageFit.fromString(
+      pickString(
+        YamlKeys.imageFitKey,
+        WindowsStrings.imageFitDefaultValue,
+      ),
+    ),
+    imagePosition: DesktopImagePosition.fromString(
+      pickString(
+        YamlKeys.imagePositionKey,
+        WindowsStrings.imagePositionDefaultValue,
+      ),
+    ),
+    brandingPosition: DesktopBrandingPosition.fromString(
+      pickString(
+        YamlKeys.brandingImagePositionKey,
+        WindowsStrings.brandingPositionDefaultValue,
+      ),
+    ),
+    brandingSpacing: pickInt(
+      YamlKeys.brandingImageSpacingKey,
+      WindowsStrings.defaultBrandingSpacing,
+    ),
+    splashWindowWidth: pickInt(
+      YamlKeys.splashWindowWidthKey,
+      WindowsStrings.defaultSplashWindowWidth,
+    ),
+    splashWindowHeight: pickInt(
+      YamlKeys.splashWindowHeightKey,
+      WindowsStrings.defaultSplashWindowHeight,
+    ),
+    mainWindowWidth: pickInt(
+      YamlKeys.mainWindowWidthKey,
+      WindowsStrings.defaultMainWindowWidth,
+    ),
+    mainWindowHeight: pickInt(
+      YamlKeys.mainWindowHeightKey,
+      WindowsStrings.defaultMainWindowHeight,
+    ),
+    windowsConfig: WindowsConfigDm(
+      borderless: pickBool(
+        YamlKeys.borderlessKey,
+        WindowsStrings.defaultWindowsBorderless,
+      ),
+    ),
+  );
+
+  // Todo- main file modification
+
+  // channel setup for Windows
 }

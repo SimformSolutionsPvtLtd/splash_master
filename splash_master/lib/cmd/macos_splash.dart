@@ -27,42 +27,42 @@ Future<void> generateMacosSplashAssets({
   // Generate SplashImage.imageset if provided, otherwise delete any existing
   if (image != null || imageDark != null)
     await createImageset(
-      imagesetName: DesktopStrings.splashImageAssetName,
+      imagesetName: MacosStrings.splashImageAssetName,
       lightImage: image,
       darkImage: imageDark,
     );
   else {
     _deleteStaleAssetDir(
       assetPath:
-          '${DesktopStrings.xcassetsDirPath}/${DesktopStrings.splashImageAssetName}${DesktopStrings.imagesetExtension}',
-      label: DesktopStrings.splashImageAssetName,
+          '${MacosStrings.xcassetsDirPath}/${MacosStrings.splashImageAssetName}${MacosStrings.imagesetExtension}',
+      label: MacosStrings.splashImageAssetName,
     );
   }
   // Generate BrandingImage.imageset if provided, otherwise delete any existing
   if (brandingImage != null || brandingImageDark != null)
     await createImageset(
-      imagesetName: DesktopStrings.brandingImageAssetName,
+      imagesetName: MacosStrings.brandingImageAssetName,
       lightImage: brandingImage,
       darkImage: brandingImageDark,
     );
   else
     _deleteStaleAssetDir(
       assetPath:
-          '${DesktopStrings.xcassetsDirPath}/${DesktopStrings.brandingImageAssetName}${DesktopStrings.imagesetExtension}',
-      label: DesktopStrings.brandingImageAssetName,
+          '${MacosStrings.xcassetsDirPath}/${MacosStrings.brandingImageAssetName}${MacosStrings.imagesetExtension}',
+      label: MacosStrings.brandingImageAssetName,
     );
   // Generate color set if any color is provided, otherwise delete any existing
   if (backgroundColor != null || backgroundColorDark != null) {
     await createColorset(
-      colorsetName: DesktopStrings.splashBackgroundColorAssetName,
+      colorsetName: MacosStrings.splashBackgroundColorAssetName,
       lightColor: backgroundColor,
       darkColor: backgroundColorDark,
     );
   } else
     _deleteStaleAssetDir(
       assetPath:
-          '${DesktopStrings.xcassetsDirPath}/${DesktopStrings.splashBackgroundColorAssetName}${DesktopStrings.colorsetExtension}',
-      label: DesktopStrings.splashBackgroundColorAssetName,
+          '${MacosStrings.xcassetsDirPath}/${MacosStrings.splashBackgroundColorAssetName}${MacosStrings.colorsetExtension}',
+      label: MacosStrings.splashBackgroundColorAssetName,
     );
 }
 
@@ -90,29 +90,29 @@ Future<void> createImageset({
   String? darkImage,
 }) async {
   final imagesetDir = Directory(
-      '${DesktopStrings.xcassetsDirPath}/$imagesetName${DesktopStrings.imagesetExtension}');
+      '${MacosStrings.xcassetsDirPath}/$imagesetName${MacosStrings.imagesetExtension}');
   if (!imagesetDir.existsSync()) {
     imagesetDir.createSync(recursive: true);
   }
 
   // Explicitly select correct filenames for splash or branding imageset
   late final String light1x, light2x, light3x, dark1x, dark2x, dark3x;
-  if (imagesetName == DesktopStrings.splashImageAssetName) {
+  if (imagesetName == MacosStrings.splashImageAssetName) {
     // Use splash image filenames
-    light1x = DesktopStrings.splashImage1x;
-    light2x = DesktopStrings.splashImage2x;
-    light3x = DesktopStrings.splashImage3x;
-    dark1x = DesktopStrings.splashImageDark1x;
-    dark2x = DesktopStrings.splashImageDark2x;
-    dark3x = DesktopStrings.splashImageDark3x;
-  } else if (imagesetName == DesktopStrings.brandingImageAssetName) {
+    light1x = MacosStrings.splashImage1x;
+    light2x = MacosStrings.splashImage2x;
+    light3x = MacosStrings.splashImage3x;
+    dark1x = MacosStrings.splashImageDark1x;
+    dark2x = MacosStrings.splashImageDark2x;
+    dark3x = MacosStrings.splashImageDark3x;
+  } else if (imagesetName == MacosStrings.brandingImageAssetName) {
     // Use branding image filenames
-    light1x = DesktopStrings.brandingImage1x;
-    light2x = DesktopStrings.brandingImage2x;
-    light3x = DesktopStrings.brandingImage3x;
-    dark1x = DesktopStrings.brandingImageDark1x;
-    dark2x = DesktopStrings.brandingImageDark2x;
-    dark3x = DesktopStrings.brandingImageDark3x;
+    light1x = MacosStrings.brandingImage1x;
+    light2x = MacosStrings.brandingImage2x;
+    light3x = MacosStrings.brandingImage3x;
+    dark1x = MacosStrings.brandingImageDark1x;
+    dark2x = MacosStrings.brandingImageDark2x;
+    dark3x = MacosStrings.brandingImageDark3x;
   } else {
     throw Exception('Unknown imagesetName: $imagesetName');
   }
@@ -131,17 +131,17 @@ Future<void> createImageset({
     File(effectiveLightImage).copySync(dest3x.path);
     images.addAll([
       MacosImage(
-          idiom: DesktopStrings.idiomUniversal,
+          idiom: MacosStrings.idiomUniversal,
           filename: light1x,
-          scale: DesktopStrings.scale1x),
+          scale: MacosStrings.scale1x),
       MacosImage(
-          idiom: DesktopStrings.idiomUniversal,
+          idiom: MacosStrings.idiomUniversal,
           filename: light2x,
-          scale: DesktopStrings.scale2x),
+          scale: MacosStrings.scale2x),
       MacosImage(
-          idiom: DesktopStrings.idiomUniversal,
+          idiom: MacosStrings.idiomUniversal,
           filename: light3x,
-          scale: DesktopStrings.scale3x),
+          scale: MacosStrings.scale3x),
     ]);
   }
   // Copy and register dark images (all scales use the same file)
@@ -154,25 +154,25 @@ Future<void> createImageset({
     File(darkImage).copySync(dest3x.path);
     final darkAppearance = [
       {
-        DesktopStrings.appearanceKey: DesktopStrings.appearanceLuminosity,
-        DesktopStrings.valueKey: DesktopStrings.appearanceDark,
+        MacosStrings.appearanceKey: MacosStrings.appearanceLuminosity,
+        MacosStrings.valueKey: MacosStrings.appearanceDark,
       }
     ];
     images.addAll([
       MacosImage(
-          idiom: DesktopStrings.idiomUniversal,
+          idiom: MacosStrings.idiomUniversal,
           filename: dark1x,
-          scale: DesktopStrings.scale1x,
+          scale: MacosStrings.scale1x,
           appearances: darkAppearance),
       MacosImage(
-          idiom: DesktopStrings.idiomUniversal,
+          idiom: MacosStrings.idiomUniversal,
           filename: dark2x,
-          scale: DesktopStrings.scale2x,
+          scale: MacosStrings.scale2x,
           appearances: darkAppearance),
       MacosImage(
-          idiom: DesktopStrings.idiomUniversal,
+          idiom: MacosStrings.idiomUniversal,
           filename: dark3x,
-          scale: DesktopStrings.scale3x,
+          scale: MacosStrings.scale3x,
           appearances: darkAppearance),
     ]);
   }
@@ -180,11 +180,11 @@ Future<void> createImageset({
   final contents = MacosContentJson(
     images: images,
     info: MacosInfo(
-        version: DesktopStrings.assetCatalogVersion,
-        author: DesktopStrings.assetCatalogAuthor),
+        version: MacosStrings.assetCatalogVersion,
+        author: MacosStrings.assetCatalogAuthor),
   );
   final contentsFile =
-      File('${imagesetDir.path}/${DesktopStrings.contentsJsonFileName}');
+      File('${imagesetDir.path}/${MacosStrings.contentsJsonFileName}');
   contentsFile.writeAsStringSync(
       JsonEncoder.withIndent('  ').convert(contents.toJson()));
   log('[macOS] Created $imagesetName.imageset with ${images.length} image(s)');
@@ -199,7 +199,7 @@ Future<void> createColorset({
   String? darkColor,
 }) async {
   final colorsetDir = Directory(
-      '${DesktopStrings.xcassetsDirPath}/$colorsetName${DesktopStrings.colorsetExtension}');
+      '${MacosStrings.xcassetsDirPath}/$colorsetName${MacosStrings.colorsetExtension}');
   if (!colorsetDir.existsSync()) {
     colorsetDir.createSync(recursive: true);
   }
@@ -208,17 +208,17 @@ Future<void> createColorset({
 
   if (lightColor != null) {
     colors.add(MacosColor(
-      idiom: DesktopStrings.idiomUniversal,
+      idiom: MacosStrings.idiomUniversal,
       color: _colorToComponentsModel(lightColor),
     ));
   }
   if (darkColor != null) {
     colors.add(MacosColor(
-      idiom: DesktopStrings.idiomUniversal,
+      idiom: MacosStrings.idiomUniversal,
       appearances: [
         {
-          DesktopStrings.appearanceKey: DesktopStrings.appearanceLuminosity,
-          DesktopStrings.valueKey: DesktopStrings.appearanceDark
+          MacosStrings.appearanceKey: MacosStrings.appearanceLuminosity,
+          MacosStrings.valueKey: MacosStrings.appearanceDark
         }
       ],
       color: _colorToComponentsModel(darkColor),
@@ -228,12 +228,12 @@ Future<void> createColorset({
   final contents = MacosContentJson(
     images: [],
     info: MacosInfo(
-        version: DesktopStrings.assetCatalogVersion,
-        author: DesktopStrings.assetCatalogAuthor),
+        version: MacosStrings.assetCatalogVersion,
+        author: MacosStrings.assetCatalogAuthor),
     colors: colors,
   );
   final contentsFile =
-      File('${colorsetDir.path}/${DesktopStrings.contentsJsonFileName}');
+      File('${colorsetDir.path}/${MacosStrings.contentsJsonFileName}');
   contentsFile.writeAsStringSync(
       JsonEncoder.withIndent('  ').convert(contents.toJson()));
   log('[macOS] Created $colorsetName.colorset with ${colors.length} color(s)');
@@ -265,7 +265,7 @@ MacosColorComponents _colorToComponentsModel(String hex) {
       ? int.parse(cleaned.substring(0, 2), radix: 16) / 255.0
       : 1.0;
   return MacosColorComponents(
-    colorSpace: DesktopStrings.colorSpaceSRGB,
+    colorSpace: MacosStrings.colorSpaceSRGB,
     red: r.toStringAsFixed(3),
     green: g.toStringAsFixed(3),
     blue: b.toStringAsFixed(3),
@@ -277,9 +277,9 @@ MacosColorComponents _colorToComponentsModel(String hex) {
 /// generated splash region, and writes the file back — leaving any user code
 /// outside the markers untouched.
 Future<void> generateMainFlutterWindowFile(DesktopConfigDm config) async {
-  final file = File(DesktopStrings.mainFlutterWindowFilePath);
+  final file = File(MacosStrings.mainFlutterWindowFilePath);
   if (!file.existsSync()) {
-    log('Could not find MainFlutterWindow.swift at ${DesktopStrings.mainFlutterWindowFilePath}');
+    log('Could not find MainFlutterWindow.swift at ${MacosStrings.mainFlutterWindowFilePath}');
     return;
   }
 
@@ -293,14 +293,14 @@ Future<void> generateMainFlutterWindowFile(DesktopConfigDm config) async {
 String _spliceGeneratedBlock(String original, DesktopConfigDm config) {
   final generatedBlock = _buildGeneratedBlock(config);
 
-  final begin = original.indexOf(DesktopStrings.kBeginMarker);
-  final end = original.indexOf(DesktopStrings.kEndMarker);
+  final begin = original.indexOf(MacosStrings.kBeginMarker);
+  final end = original.indexOf(MacosStrings.kEndMarker);
 
   // ── Re-run: markers already present — replace the region verbatim. ────────
   if (begin != -1 && end != -1 && end > begin) {
     return original.substring(0, begin) +
         generatedBlock +
-        original.substring(end + DesktopStrings.kEndMarker.length);
+        original.substring(end + MacosStrings.kEndMarker.length);
   }
 
   // ── First run: no markers yet. ────────────────────────────────────────────
@@ -309,7 +309,7 @@ String _spliceGeneratedBlock(String original, DesktopConfigDm config) {
   //   2. Inject the generated block just before the final closing brace.
   final withoutDefaultAwake = _removeDefaultAwakeFromNib(original);
   final lastBrace =
-      withoutDefaultAwake.lastIndexOf(DesktopStrings.closingBracket);
+      withoutDefaultAwake.lastIndexOf(MacosStrings.closingBracket);
 
   if (lastBrace == -1) {
     // Malformed file — build from scratch.
@@ -328,7 +328,7 @@ String _removeDefaultAwakeFromNib(String source) {
     r'\s*override func awakeFromNib\(\)[\s\S]*?\n[ \t]*\}',
     multiLine: true,
   );
-  return source.replaceFirst(pattern, DesktopStrings.kEmptyString);
+  return source.replaceFirst(pattern, MacosStrings.kEmptyString);
 }
 
 /// Builds the sentinel-wrapped generated region.
@@ -339,27 +339,27 @@ String _buildGeneratedBlock(DesktopConfigDm config) {
   if (!hasSplash && !hasBranding) return _buildMinimalBlock(config);
 
   final splashImageSetup = hasSplash
-      ? '${DesktopStrings.splashImageTemplate}\n'
+      ? '${MacosStrings.splashImageTemplate}\n'
           '    ${config.imageFit.toMacosScalingLine}\n'
-          '    ${DesktopStrings.addSubviewTemplate}'
-      : DesktopStrings.kEmptyString;
+          '    ${MacosStrings.addSubviewTemplate}'
+      : MacosStrings.kEmptyString;
 
   final brandingSetup = hasBranding
-      ? DesktopStrings.brandingImageTemplate
-      : DesktopStrings.kEmptyString;
+      ? MacosStrings.brandingImageTemplate
+      : MacosStrings.kEmptyString;
 
   final constraints = _buildConstraints(config, hasSplash, hasBranding);
 
   // TitleBar visibility lines are conditional on the borderless flag.
   final removeTitleBarFromSplashWindow = config.macosConfig.borderless
-      ? DesktopStrings.borderlessOnTemplate
-      : DesktopStrings.kEmptyString;
+      ? MacosStrings.borderlessOnTemplate
+      : MacosStrings.kEmptyString;
 
   final addTitleBarToMainWindow = config.macosConfig.borderless
-      ? DesktopStrings.borderlessOffTemplate
-      : DesktopStrings.kEmptyString;
+      ? MacosStrings.borderlessOffTemplate
+      : MacosStrings.kEmptyString;
 
-  return '${DesktopStrings.kBeginMarker}\n'
+  return '${MacosStrings.kBeginMarker}\n'
       '  // MARK: - Splash (generated by SplashMaster — do not edit between markers)\n'
       '\n'
       '  private let _splashSize = NSSize(width: ${config.splashWindowWidth}, height: ${config.splashWindowHeight})\n'
@@ -367,9 +367,9 @@ String _buildGeneratedBlock(DesktopConfigDm config) {
       '\n'
       '  private var _splashContainer: NSView?\n'
       '\n'
-      '${DesktopStrings.awakeFromNibSplashTemplate}'
+      '${MacosStrings.awakeFromNibSplashTemplate}'
       '\n'
-      '${DesktopStrings.addSplashViewOpeningTemplate}'
+      '${MacosStrings.addSplashViewOpeningTemplate}'
       '$splashImageSetup\n'
       '$brandingSetup\n'
       '\n'
@@ -377,32 +377,32 @@ String _buildGeneratedBlock(DesktopConfigDm config) {
       '$constraints'
       '\n    ])'
       '\n'
-      '${DesktopStrings.addSplashViewClosingTemplate}'
+      '${MacosStrings.addSplashViewClosingTemplate}'
       '$removeTitleBarFromSplashWindow'
       '  }\n'
       '\n'
-      '${DesktopStrings.removeSplashTemplate}'
+      '${MacosStrings.removeSplashTemplate}'
       '$addTitleBarToMainWindow'
       '  }\n'
-      '${DesktopStrings.kEndMarker}';
+      '${MacosStrings.kEndMarker}';
 }
 
 /// Minimal block: no splash/branding images — only window sizing.
 String _buildMinimalBlock(DesktopConfigDm config) =>
-    '${DesktopStrings.kBeginMarker}\n'
+    '${MacosStrings.kBeginMarker}\n'
     '  // MARK: - Window sizing (generated by SplashMaster — do not edit between markers)\n'
     '\n'
     '  private let _mainSize = NSSize(width: ${config.mainWindowWidth}, height: ${config.mainWindowHeight})\n'
     '\n'
-    '${DesktopStrings.awakeFromNibWithoutSplashTemplate}'
+    '${MacosStrings.awakeFromNibWithoutSplashTemplate}'
     '\n'
-    '${DesktopStrings.kEndMarker}';
+    '${MacosStrings.kEndMarker}';
 
 /// Scaffold written only when the file does not exist at all.
 String _buildFullScaffold(String generatedBlock) =>
-    '${DesktopStrings.mainFileScaffoldTemplate}'
+    '${MacosStrings.mainFileScaffoldTemplate}'
     '$generatedBlock\n'
-    '${DesktopStrings.closingBracket}\n';
+    '${MacosStrings.closingBracket}\n';
 
 /// Assembles the NSLayoutConstraint lines in one place.
 String _buildConstraints(
@@ -431,24 +431,24 @@ String _buildConstraints(
 /// Modifies AppDelegate.swift to add a MethodChannel for controlling
 /// the splash screen from Dart code.
 Future<void> addSplashChannelToAppDelegate() async {
-  final file = File(DesktopStrings.appDelegateFilePath);
+  final file = File(MacosStrings.appDelegateFilePath);
   if (!file.existsSync()) {
-    log('AppDelegate.swift not found at ${DesktopStrings.appDelegateFilePath}');
+    log('AppDelegate.swift not found at ${MacosStrings.appDelegateFilePath}');
     return;
   }
 
   String content = await file.readAsString();
 
-  if (content.contains('"${DesktopStrings.macosSplashMethodChannelName}"')) {
+  if (content.contains('"${MacosStrings.macosSplashMethodChannelName}"')) {
     log('Splash channel already present, skipping.');
     return;
   }
 
   // Check if the override already exists
   if (content
-      .contains(DesktopStrings.applicationDidFinishLaunchingMethodSignature)) {
+      .contains(MacosStrings.applicationDidFinishLaunchingMethodSignature)) {
     // Case 1: Insert innerCode inside the existing function
-    const superCall = DesktopStrings.applicationDidFinishLaunchingSuperCall;
+    const superCall = MacosStrings.applicationDidFinishLaunchingSuperCall;
 
     if (!content.contains(superCall)) {
       log('Manual edit required: super call not found.');
@@ -456,13 +456,13 @@ Future<void> addSplashChannelToAppDelegate() async {
     }
 
     content = content.replaceFirst(superCall,
-        '${DesktopStrings.macosMethodChannelTemplate}\n    $superCall');
+        '${MacosStrings.macosMethodChannelTemplate}\n    $superCall');
   } else {
     // Case 2: Insert full function before the last closing brace of the class
     content = content.replaceLastOccurrence(
-        DesktopStrings.closingBracket,
-        '${DesktopStrings.applicationDidFinishLaunchingFunctionTemplate}\n'
-        '${DesktopStrings.closingBracket}');
+        MacosStrings.closingBracket,
+        '${MacosStrings.applicationDidFinishLaunchingFunctionTemplate}\n'
+        '${MacosStrings.closingBracket}');
   }
 
   await file.writeAsString(content);
