@@ -146,7 +146,7 @@ enum DesktopImageFit {
     return values.any((supported) => supported.name == str);
   }
 
-  /// Converts a string to the corresponding DesktopImageFit enum value.
+  /// Converts a string to the corresponding [DesktopImageFit] enum value.
   static DesktopImageFit fromString(String str) => switch (str) {
         'contain' => contain,
         'cover' => cover,
@@ -207,7 +207,7 @@ enum DesktopImagePosition {
     return values.any((supported) => supported.name == str);
   }
 
-  /// Converts a string to the corresponding DesktopImagePosition enum value.
+  /// Converts a string to the corresponding [DesktopImagePosition] enum value.
   static DesktopImagePosition fromString(String str) => switch (str) {
         'center' => center,
         'top' => top,
@@ -274,7 +274,7 @@ enum DesktopBrandingPosition {
     return values.any((supported) => supported.name == str);
   }
 
-  /// Converts a string to the corresponding DesktopBrandingPosition enum value.
+  /// Converts a string to the corresponding [DesktopBrandingPosition] enum value.
   static DesktopBrandingPosition fromString(String str) => switch (str) {
         'topLeft' => topLeft,
         'topCenter' => topCenter,
@@ -287,6 +287,31 @@ enum DesktopBrandingPosition {
         'bottomRight' => bottomRight,
         _ => throw SplashMasterException(
             message: 'Invalid desktop branding position: $str',
+          ),
+      };
+}
+
+/// Supported dismiss animations for Windows splash removal.
+enum WindowsDismissAnimation {
+  none,
+  fade,
+  slideUp,
+  slideDown;
+
+  /// Returns true if the provided string is a valid [WindowsDismissAnimation] value.
+  static bool isSupported(String? str) {
+    if (str.isNullOrBlank) return false;
+    return values.any((supported) => supported.name == str);
+  }
+
+  /// Converts a string to the corresponding [WindowsDismissAnimation] enum value.
+  static WindowsDismissAnimation fromString(String str) => switch (str) {
+        'none' => none,
+        'fade' => fade,
+        'slideUp' => slideUp,
+        'slideDown' => slideDown,
+        _ => throw SplashMasterException(
+            message: 'Invalid windows dismiss animation: $str',
           ),
       };
 }

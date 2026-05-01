@@ -88,6 +88,12 @@ class YamlKeys {
   static const mainWindowHeightKey = 'main_window_height';
   static const borderlessKey = 'borderless';
 
+  /// Specifies the animation duration (ms) when the Windows splash is dismissed.
+  static const animationDurationKey = 'animation_duration';
+
+  /// Specifies the dismiss animation type for Windows splash.
+  static const dismissAnimationKey = 'dismiss_animation';
+
   // ---------------------------------------------------------------------------
 
   /// List of supported top-level keys under `splash_master`.
@@ -140,8 +146,9 @@ class YamlKeys {
     splashWindowHeightKey,
     mainWindowWidthKey,
     mainWindowHeightKey,
+    borderlessKey,
     macosKey,
-    windowsKey
+    windowsKey,
     // TODO(Lavi)- Add Linux specific keys when needed.
   ];
 
@@ -179,6 +186,8 @@ class YamlKeys {
     mainWindowWidthKey,
     mainWindowHeightKey,
     borderlessKey,
+    animationDurationKey,
+    dismissAnimationKey,
   ];
 
   // TODO(Lavi)- Add supported Linux  keys when needed.

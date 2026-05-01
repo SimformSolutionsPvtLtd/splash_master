@@ -1,5 +1,5 @@
 import 'package:splash_master/cmd/yaml_config/support_parameter.dart';
-import 'package:splash_master/values/macos_strings.dart';
+import 'package:splash_master/values/desktop_strings.dart';
 import 'package:splash_master/values/windows_strings.dart';
 
 /// Data model representing the desktop configuration for the splash screen.
@@ -12,12 +12,12 @@ class DesktopConfigDm {
     this.imageFit = DesktopImageFit.contain,
     this.imagePosition = DesktopImagePosition.center,
     this.brandingPosition = DesktopBrandingPosition.bottomCenter,
-    this.brandingSpacing = MacosStrings.defaultBrandingSpacing,
-    this.splashWindowWidth = MacosStrings.defaultSplashWindowWidth,
-    this.splashWindowHeight = MacosStrings.defaultSplashWindowHeight,
-    this.mainWindowWidth = MacosStrings.defaultMainWindowWidth,
-    this.mainWindowHeight = MacosStrings.defaultMainWindowHeight,
-    this.macosConfig = const MacosConfigDm(),
+    this.brandingSpacing = DesktopStrings.defaultBrandingSpacing,
+    this.splashWindowWidth = DesktopStrings.defaultSplashWindowWidth,
+    this.splashWindowHeight = DesktopStrings.defaultSplashWindowHeight,
+    this.mainWindowWidth = DesktopStrings.defaultMainWindowWidth,
+    this.mainWindowHeight = DesktopStrings.defaultMainWindowHeight,
+    this.borderless = DesktopStrings.defaultBorderless,
     this.windowsConfig = const WindowsConfigDm(),
   });
 
@@ -33,24 +33,17 @@ class DesktopConfigDm {
   final int splashWindowHeight;
   final int mainWindowWidth;
   final int mainWindowHeight;
-  final MacosConfigDm macosConfig;
+  final bool borderless;
   final WindowsConfigDm windowsConfig;
 }
 
-/// Data model representing macOS-specific configuration for the splash screen.
-class MacosConfigDm {
-  const MacosConfigDm({
-    this.borderless = MacosStrings.defaultMacosBorderless,
-  });
-
-  final bool borderless;
-}
-
-/// Data model representing Windows-specific configuration for the splash screen.
+/// Data model representing Windows-specific keys for the splash screen.
 class WindowsConfigDm {
   const WindowsConfigDm({
-    this.borderless = WindowsStrings.defaultWindowsBorderless,
+    this.animationDurationMs = WindowsStrings.defaultAnimationDurationMs,
+    this.dismissAnimation = WindowsStrings.defaultDismissAnimation,
   });
 
-  final bool borderless;
+  final int animationDurationMs;
+  final String dismissAnimation;
 }

@@ -1,7 +1,4 @@
-abstract final class MacosStrings {
-  static const String kEmptyString = '';
-  static const String closingBracket = '}';
-
+final class MacosStrings {
   /// ------ macOS paths---------
   static const String macos = 'macos';
   static const String runner = 'Runner';
@@ -51,18 +48,6 @@ abstract final class MacosStrings {
   static const String colorSpaceSRGB = 'srgb';
   static const String assetCatalogAuthor = 'xcode';
   static const int assetCatalogVersion = 1;
-
-  static const int defaultBrandingSpacing = 20;
-  static const int defaultSplashWindowWidth = 800;
-  static const int defaultSplashWindowHeight = 600;
-  static const int defaultMainWindowWidth = 800;
-  static const int defaultMainWindowHeight = 600;
-  static const bool defaultMacosBorderless = false;
-
-  // Default values for desktop enums
-  static const String imageFitDefaultValue = 'contain';
-  static const String imagePositionDefaultValue = 'center';
-  static const String brandingPositionDefaultValue = 'bottomCenter';
 
   // Markers for generated code in MainFlutterWindow.swift
   static const String kBeginMarker = '// BEGIN:SPLASH_MASTER_GENERATED';

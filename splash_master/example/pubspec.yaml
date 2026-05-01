@@ -135,6 +135,10 @@ splash_master:
     main_window_width: 800
     main_window_height: 600
 
+    # Common desktop key for borderless splash window (macOS + Windows).
+    # Platform-specific values below can still override this.
+    borderless: false
+
     # ===== macOS-Specific Override Configuration =====
     # Specific macOS window configuration. Any top-level keys here
     # will override the common desktop configuration for macOS
@@ -145,7 +149,12 @@ splash_master:
     # ===== Windows-Specific Override Configuration =====
     windows:
       # Remove title bar and window borders (like macOS borderless)
-      borderless: false
+      borderless: true
 
-      # Hide the window from the Windows taskbar during splash
-#      skip_taskbar: true
+      # Splash dismiss animation on Windows.
+      # Allowed: none, fade, slideUp, slideDown
+      dismiss_animation: fade
+
+      # Duration of the dismiss animation in milliseconds.
+      # Only used when dismiss_animation is not 'none'.
+      animation_duration: 400

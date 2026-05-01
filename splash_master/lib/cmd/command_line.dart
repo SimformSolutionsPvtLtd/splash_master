@@ -23,15 +23,18 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:splash_master/values/desktop_strings.dart';
 import 'package:xml/xml.dart';
 import 'package:yaml/yaml.dart';
 
 import '../splash_master.dart';
 import 'logging.dart';
+import 'models/window_splash_assets_dm.dart';
 
 part 'android_splash.dart';
 part 'ios_splash.dart';
 part 'macos_splash.dart';
+part 'windows_splash.dart';
 
 Future<void> commandEntry(List<String> arguments) async {
   if (arguments.isEmpty) {
@@ -355,14 +358,14 @@ Future<void> setupSplashScreen(YamlMap splashData) async {
 
       // macOS Splash Handling
       if (hasMacosFolder) {
-        final macosData = desktopData[YamlKeys.macosKey];
-        if (!_validateDesktopYamlValues(
-          macosData,
-          keyName: YamlKeys.macosKey,
-          validateSpecificKeys: true,
-        )) return;
+        final macosData = desktopData[YamlKeys.macosKey] as YamlMap?;
+        if (macosData != null &&
+            !_validateDesktopYamlValues(
+              macosData,
+              keyName: YamlKeys.macosKey,
+            )) return;
         await _applyMacosSplash(
-          macosConfig: macosData as YamlMap,
+          macosConfig: macosData,
           commonConfig: desktopData as YamlMap,
         );
       } else {
@@ -371,14 +374,15 @@ Future<void> setupSplashScreen(YamlMap splashData) async {
 
       // windows Splash Handling
       if (hasWindowsFolder) {
-        final windowsData = desktopData[YamlKeys.windowsKey];
-        if (!_validateDesktopYamlValues(
-          windowsData,
-          keyName: YamlKeys.windowsKey,
-          validateSpecificKeys: true,
-        )) return;
+        final windowsData = desktopData[YamlKeys.windowsKey] as YamlMap?;
+        if (windowsData != null &&
+            !_validateDesktopYamlValues(
+              windowsData,
+              keyName: YamlKeys.windowsKey,
+              validateSpecificKeys: true,
+            )) return;
         await _applyWindowsSplash(
-          windowsConfig: windowsData as YamlMap,
+          windowsConfig: windowsData,
           commonConfig: desktopData as YamlMap,
         );
       } else {
@@ -498,56 +502,71 @@ bool _validateDesktopYamlValues(
 }) {
   if (map[YamlKeys.imageFitKey] != null &&
       !DesktopImageFit.isSupported(map[YamlKeys.imageFitKey])) {
-    log('[Error] Invalid value of $keyName.image_fit');
+    log('[Error] Invalid value of $keyName.${YamlKeys.imageFitKey}');
     return false;
   }
   if (map[YamlKeys.imagePositionKey] != null &&
       !DesktopImagePosition.isSupported(map[YamlKeys.imagePositionKey])) {
-    log('[Error] Invalid value of $keyName.image_position');
+    log('[Error] Invalid value of $keyName.${YamlKeys.imagePositionKey}');
     return false;
   }
 
   if (map[YamlKeys.brandingImagePositionKey] != null &&
       !DesktopBrandingPosition.isSupported(
           map[YamlKeys.brandingImagePositionKey])) {
-    log('[Error] Invalid value of $keyName.branding_image_position');
+    log('[Error] Invalid value of $keyName.${YamlKeys.brandingImagePositionKey}');
     return false;
   }
 
   if (map[YamlKeys.brandingImageSpacingKey] != null &&
       map[YamlKeys.brandingImageSpacingKey] is! int) {
-    log('[Error] Invalid value of $keyName.branding_image_spacing');
+    log('[Error] Invalid value of $keyName.${YamlKeys.brandingImageSpacingKey}');
     return false;
   }
   if (map[YamlKeys.splashWindowWidthKey] != null &&
       map[YamlKeys.splashWindowWidthKey] is! int) {
-    log('[Error] Invalid value of $keyName.splash_window_width');
+    log('[Error] Invalid value of $keyName.${YamlKeys.splashWindowWidthKey}');
     return false;
   }
 
   if (map[YamlKeys.splashWindowHeightKey] != null &&
       map[YamlKeys.splashWindowHeightKey] is! int) {
-    log('[Error] Invalid value of $keyName.splash_window_height');
+    log('[Error] Invalid value of $keyName.${YamlKeys.splashWindowHeightKey}');
     return false;
   }
 
   if (map[YamlKeys.mainWindowWidthKey] != null &&
       map[YamlKeys.mainWindowWidthKey] is! int) {
-    log('[Error] Invalid value of $keyName.main_window_width');
+    log('[Error] Invalid value of $keyName.${YamlKeys.mainWindowWidthKey}');
     return false;
   }
 
   if (map[YamlKeys.mainWindowHeightKey] != null &&
       map[YamlKeys.mainWindowHeightKey] is! int) {
-    log('[Error] Invalid value of $keyName.main_window_height');
+    log('[Error] Invalid value of $keyName.${YamlKeys.mainWindowHeightKey}');
+    return false;
+  }
+
+  if (map[YamlKeys.borderlessKey] != null &&
+      map[YamlKeys.borderlessKey] is! bool) {
+    log('[Error] Invalid value of $keyName.${YamlKeys.borderlessKey}. '
+        'Allowed values are `true` and `false`');
     return false;
   }
 
   if (validateSpecificKeys) {
-    if (map[YamlKeys.borderlessKey] != null &&
-        map[YamlKeys.borderlessKey] is! bool) {
-      log('[Error] Invalid value of $keyName.borderless. '
-          'Allowed values are `true` and `false`');
+    if (map[YamlKeys.animationDurationKey] != null &&
+        map[YamlKeys.animationDurationKey] is! int) {
+      log('[Error] Invalid value of $keyName.${YamlKeys.animationDurationKey}. '
+          'Expected an integer (milliseconds).');
+      return false;
+    }
+    if (map[YamlKeys.dismissAnimationKey] != null &&
+        !WindowsDismissAnimation.isSupported(
+          map[YamlKeys.dismissAnimationKey]?.toString(),
+        )) {
+      log('[Error] Invalid value of $keyName.${YamlKeys.dismissAnimationKey}. '
+          'Allowed values are: ${WindowsDismissAnimation.values.map((e) => e.name).join(', ')}');
       return false;
     }
   }
@@ -605,43 +624,41 @@ Future<void> _applyMacosSplash({
     hasBrandingImage: brandingImage != null,
     imageFit: DesktopImageFit.fromString(pickString(
       YamlKeys.imageFitKey,
-      MacosStrings.imageFitDefaultValue,
+      DesktopStrings.defaultImageFit,
     )),
     imagePosition: DesktopImagePosition.fromString(pickString(
       YamlKeys.imagePositionKey,
-      MacosStrings.imagePositionDefaultValue,
+      DesktopStrings.defaultImagePosition,
     )),
     brandingPosition: DesktopBrandingPosition.fromString(
       pickString(
         YamlKeys.brandingImagePositionKey,
-        MacosStrings.brandingPositionDefaultValue,
+        DesktopStrings.defaultBrandingPosition,
       ),
     ),
     brandingSpacing: pickInt(
       YamlKeys.brandingImageSpacingKey,
-      MacosStrings.defaultBrandingSpacing,
+      DesktopStrings.defaultBrandingSpacing,
     ),
     splashWindowWidth: pickInt(
       YamlKeys.splashWindowWidthKey,
-      MacosStrings.defaultSplashWindowWidth,
+      DesktopStrings.defaultSplashWindowWidth,
     ),
     splashWindowHeight: pickInt(
       YamlKeys.splashWindowHeightKey,
-      MacosStrings.defaultSplashWindowHeight,
+      DesktopStrings.defaultSplashWindowHeight,
     ),
     mainWindowWidth: pickInt(
       YamlKeys.mainWindowWidthKey,
-      MacosStrings.defaultMainWindowWidth,
+      DesktopStrings.defaultMainWindowWidth,
     ),
     mainWindowHeight: pickInt(
       YamlKeys.mainWindowHeightKey,
-      MacosStrings.defaultMainWindowHeight,
+      DesktopStrings.defaultMainWindowHeight,
     ),
-    macosConfig: MacosConfigDm(
-      borderless: pickBool(
-        YamlKeys.borderlessKey,
-        MacosStrings.defaultMacosBorderless,
-      ),
+    borderless: pickBool(
+      YamlKeys.borderlessKey,
+      DesktopStrings.defaultBorderless,
     ),
   );
 
@@ -691,58 +708,77 @@ Future<void> _applyWindowsSplash({
     log('[Warning] No Windows splash assets provided. Skipping Windows generation.');
     return;
   }
-  // Todo- Asset generation for Windows splash
 
   final config = DesktopConfigDm(
-    hasSplashImage: image != null,
-    hasBrandingImage: brandingImage != null,
+    hasSplashImage: image != null || imageDark != null,
+    hasBrandingImage: brandingImage != null || brandingImageDark != null,
+    splashColor: color?.toString(),
+    splashColorDark: colorDark?.toString(),
     imageFit: DesktopImageFit.fromString(
       pickString(
         YamlKeys.imageFitKey,
-        WindowsStrings.imageFitDefaultValue,
+        DesktopStrings.defaultImageFit,
       ),
     ),
     imagePosition: DesktopImagePosition.fromString(
       pickString(
         YamlKeys.imagePositionKey,
-        WindowsStrings.imagePositionDefaultValue,
+        DesktopStrings.defaultImagePosition,
       ),
     ),
     brandingPosition: DesktopBrandingPosition.fromString(
       pickString(
         YamlKeys.brandingImagePositionKey,
-        WindowsStrings.brandingPositionDefaultValue,
+        DesktopStrings.defaultBrandingPosition,
       ),
     ),
     brandingSpacing: pickInt(
       YamlKeys.brandingImageSpacingKey,
-      WindowsStrings.defaultBrandingSpacing,
+      DesktopStrings.defaultBrandingSpacing,
     ),
     splashWindowWidth: pickInt(
       YamlKeys.splashWindowWidthKey,
-      WindowsStrings.defaultSplashWindowWidth,
+      DesktopStrings.defaultSplashWindowWidth,
     ),
     splashWindowHeight: pickInt(
       YamlKeys.splashWindowHeightKey,
-      WindowsStrings.defaultSplashWindowHeight,
+      DesktopStrings.defaultSplashWindowHeight,
     ),
     mainWindowWidth: pickInt(
       YamlKeys.mainWindowWidthKey,
-      WindowsStrings.defaultMainWindowWidth,
+      DesktopStrings.defaultMainWindowWidth,
     ),
     mainWindowHeight: pickInt(
       YamlKeys.mainWindowHeightKey,
-      WindowsStrings.defaultMainWindowHeight,
+      DesktopStrings.defaultMainWindowHeight,
+    ),
+    borderless: pickBool(
+      YamlKeys.borderlessKey,
+      DesktopStrings.defaultBorderless,
     ),
     windowsConfig: WindowsConfigDm(
-      borderless: pickBool(
-        YamlKeys.borderlessKey,
-        WindowsStrings.defaultWindowsBorderless,
+      animationDurationMs: pickInt(
+        YamlKeys.animationDurationKey,
+        WindowsStrings.defaultAnimationDurationMs,
       ),
+      dismissAnimation: WindowsDismissAnimation.fromString(
+        pickString(
+          YamlKeys.dismissAnimationKey,
+          WindowsStrings.defaultDismissAnimation,
+        ),
+      ).name,
     ),
   );
 
-  // Todo- main file modification
+  await generateWindowsSplashAssets(
+    image: image?.toString(),
+    imageDark: imageDark?.toString(),
+    brandingImage: brandingImage?.toString(),
+    brandingImageDark: brandingImageDark?.toString(),
+    backgroundColor: color?.toString(),
+    backgroundColorDark: colorDark?.toString(),
+    config: config,
+  );
 
-  // channel setup for Windows
+  await generateWindowsSplashNativeIntegration();
 }
