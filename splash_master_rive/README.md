@@ -6,6 +6,12 @@
 
 Splash Master Rive provides `SplashMasterRive`, a Flutter splash widget for Rive animations.
 
+## Preview
+
+| Android                                                                                                                                                                        | iOS                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ![Splash Master Android Rive Splash Preview](https://raw.githubusercontent.com/SimformSolutionsPvtLtd/splash_master/master/splash_master_rive/preview/android_rive_splash.gif) | ![Splash Master iOS Rive Splash Preview](https://raw.githubusercontent.com/SimformSolutionsPvtLtd/splash_master/master/splash_master_rive/preview/ios_rive_splash.gif) |
+
 ## Features
 
 - Rive animation splash with automatic next-screen navigation
@@ -42,7 +48,7 @@ Then run:
 dart run splash_master create
 ```
 
-For full key reference, check our [documentation](https://simform-flutter-packages.web.app/splashMaster).
+For full key reference, check our [splash_master documentation](https://simform-flutter-packages.web.app/splashMaster/basic-usage).
 
 ## Support
 

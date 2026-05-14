@@ -7,6 +7,13 @@
 
 Splash Master is a Flutter package ecosystem for native and animated splash screens across Android and iOS.
 
+## Preview
+
+| Android                                                                                                                                                                     | iOS                                                                                                                                                                 |
+|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ![Splash Master Android Image Splash Preview](https://raw.githubusercontent.com/SimformSolutionsPvtLtd/splash_master/master/splash_master/preview/android_image_splash.gif) | ![Splash Master iOS Image Splash Preview](https://raw.githubusercontent.com/SimformSolutionsPvtLtd/splash_master/master/splash_master/preview/ios_image_splash.gif) |
+
+
 ## Migration Guide
 
 | Before (legacy) | After (current) | Package |
@@ -41,20 +48,12 @@ Visit our [documentation](https://simform-flutter-packages.web.app/splashMaster)
 
 ## Installation
 
-### Core package
-
 ```yaml
 dependencies:
-  splash_master: <latest-version>
-```
-
-### Animation packages
-
-```yaml
-dependencies:
-  splash_master_rive: <latest-version>
-  splash_master_video: <latest-version>
-  splash_master_lottie: <latest-version>
+  splash_master: <latest-version> # use this package for image
+  splash_master_rive: <latest-version> # use this package for rive
+  splash_master_video: <latest-version> # use this package for video
+  splash_master_lottie: <latest-version> # use this package for lottie
 ```
 
 > Note: `splash_master_rive`, `splash_master_video`, and `splash_master_lottie` already include `splash_master` as a dependency.
@@ -73,7 +72,7 @@ Then run:
 dart run splash_master create
 ```
 
-For full key reference, check our [documentation](https://simform-flutter-packages.web.app/splashMaster).
+For full key reference, check our [documentation](https://simform-flutter-packages.web.app/splashMaster/basic-usage).
 
 ## Support
 
