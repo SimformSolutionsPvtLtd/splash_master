@@ -4,9 +4,9 @@
 
 ## Preview
 
-| Android                                                                                                                                                                              | iOS                                                                                                                                                                                                                                                                                                                                                          |
-|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| ![Splash Master Android Lottie Splash Preview](https://raw.githubusercontent.com/SimformSolutionsPvtLtd/splash_master/master/splash_master_lottie/preview/android_lottie_splash.gif) | ![Splash Master Android Lottie Splash Preview](https://raw.githubusercontent.com/SimformSolutionsPvtLtd/splash_master/master/splash_master_lottie/preview/ios_lottie_splash.gif) |
+| Android                                                                                                                                                                              | iOS                                                                                                                                                                          |
+|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ![Splash Master Android Lottie Splash Preview](https://raw.githubusercontent.com/SimformSolutionsPvtLtd/splash_master/master/splash_master_lottie/preview/android_lottie_splash.gif) | ![Splash Master iOS Lottie Splash Preview](https://raw.githubusercontent.com/SimformSolutionsPvtLtd/splash_master/master/splash_master_lottie/preview/ios_lottie_splash.gif) |
 
 ## Features
 

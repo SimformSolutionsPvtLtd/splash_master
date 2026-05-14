@@ -7,6 +7,13 @@
 
 Splash Master is a Flutter package ecosystem for native and animated splash screens across Android and iOS.
 
+## Preview
+
+| Android                                                                                                                                                                     | iOS                                                                                                                                                                 |
+|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ![Splash Master Android Image Splash Preview](https://raw.githubusercontent.com/SimformSolutionsPvtLtd/splash_master/master/splash_master/preview/android_image_splash.gif) | ![Splash Master iOS Image Splash Preview](https://raw.githubusercontent.com/SimformSolutionsPvtLtd/splash_master/master/splash_master/preview/ios_image_splash.gif) |
+
+
 ## Migration Guide
 
 | Before (legacy) | After (current) | Package |
@@ -33,28 +40,20 @@ Visit our [documentation](https://simform-flutter-packages.web.app/splashMaster)
 
 ## Sub Packages
 
-| Sub Package | pub.dev | Repository                                                                                                                      | Documentation                                                                       |
-|---|---|---------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------|
-| `splash_master_rive` | [pub.dev/packages/splash_master_rive](https://pub.dev/packages/splash_master_rive) | [splash_master_rive](https://github.com/SimformSolutionsPvtLtd/splash_master/tree/master/splash_master_rive)           | [Rive documentaion](https://simform-flutter-packages.web.app/splashMasterRive)      |
-| `splash_master_video` | [pub.dev/packages/splash_master_video](https://pub.dev/packages/splash_master_video) | [splash_master_video](https://github.com/SimformSolutionsPvtLtd/splash_master/tree/master/splash_master_video) | [Video documentation](https://simform-flutter-packages.web.app/splashMasterVideo)   |
-| `splash_master_lottie` | [pub.dev/packages/splash_master_lottie](https://pub.dev/packages/splash_master_lottie) | [splash_master_lottie](https://github.com/SimformSolutionsPvtLtd/splash_master/tree/master/splash_master_lottie)      | [Lottie documentation](https://simform-flutter-packages.web.app/splashMasterLottie) |
+| Sub Package | pub.dev | Repository                                                                                                                        | Documentation                                                                       |
+|---|---|-----------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------|
+| `splash_master_rive` | [pub.dev/packages/splash_master_rive](https://pub.dev/packages/splash_master_rive) | [splash_master_rive](https://github.com/SimformSolutionsPvtLtd/splash_master/tree/master/splash_master_rive)     | [Rive documentaion](https://simform-flutter-packages.web.app/splashMasterRive)      |
+| `splash_master_video` | [pub.dev/packages/splash_master_video](https://pub.dev/packages/splash_master_video) | [splash_master_video](https://github.com/SimformSolutionsPvtLtd/splash_master/tree/master/splash_master_video)   | [Video documentation](https://simform-flutter-packages.web.app/splashMasterVideo)   |
+| `splash_master_lottie` | [pub.dev/packages/splash_master_lottie](https://pub.dev/packages/splash_master_lottie) | [splash_master_lottie](https://github.com/SimformSolutionsPvtLtd/splash_master/tree/master/splash_master_lottie) | [Lottie documentation](https://simform-flutter-packages.web.app/splashMasterLottie) |
 
 ## Installation
 
-### Core package
-
 ```yaml
 dependencies:
-  splash_master: <latest-version>
-```
-
-### Animation packages
-
-```yaml
-dependencies:
-  splash_master_rive: <latest-version>
-  splash_master_video: <latest-version>
-  splash_master_lottie: <latest-version>
+  splash_master: <latest-version> # use this package for image
+  splash_master_rive: <latest-version> # use this package for rive
+  splash_master_video: <latest-version> # use this package for video
+  splash_master_lottie: <latest-version> # use this package for lottie
 ```
 
 > Note: `splash_master_rive`, `splash_master_video`, and `splash_master_lottie` already include `splash_master` as a dependency.
@@ -73,7 +72,7 @@ Then run:
 dart run splash_master create
 ```
 
-For full key reference, check our [documentation](https://simform-flutter-packages.web.app/splashMaster).
+For full key reference, check our [documentation](https://simform-flutter-packages.web.app/splashMaster/basic-usage).
 
 ## Support
 
