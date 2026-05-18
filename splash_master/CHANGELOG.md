@@ -3,6 +3,7 @@
 ## [1.0.0]
 
 - Improvement - Added dedicated example(s) for each package to make integration and issue reproduction easier.
+- [Breaking] - Removed the legacy `SplashMaster.initialize()` and `SplashMaster.resume()` APIs from the shared package; lifecycle methods now live on the renderer-specific widgets/packages (for example, `SplashMasterRive.initialize()` / `resume()`).
 - [Breaking] - Fixed [#83](https://github.com/SimformSolutionsPvtLtd/splash_master/issues/83) & [#75](https://github.com/SimformSolutionsPvtLtd/splash_master/issues/75) Split Flutter animation widgets into dedicated packages: `splash_master_rive`, `splash_master_lottie`, and `splash_master_video`, while keeping `splash_master` focused on CLI/native generation and shared types.
 - [Breaking] - Renamed `image_dark_android` to `image_dark` & `color_dark_android` to `color_dark` for consistency across platforms.
 - [Breaking] - Android 12+ configuration is treated as an explicit nested block under `android_12_and_above` and validated independently.
