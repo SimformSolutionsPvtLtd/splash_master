@@ -203,7 +203,7 @@ SplashMasterLottie(
 
 ```dart
 SplashMasterLottie(
-  source: NetworkSource('https://example.com/animation.json'),
+  source: NetworkFileSource('https://example.com/animation.json'),
   nextScreen: const MyApp(),
 )
 ```
@@ -222,6 +222,10 @@ SplashMasterLottie(
   nextScreen: const MyApp(),
 )
 ```
+
+## Load Failure
+
+`SplashMasterLottie` calls `resume()` from Lottie's `onLoaded`, which doesn't run when the animation fails to load. After `SplashMasterLottie.initialize()`, a failed load leaves the app on the native splash. Prefer an `AssetSource` that ships with the app, and test network sources offline.
 
 # Widget Reference
 
@@ -272,7 +276,7 @@ SplashMasterLottie(
 |---|---|
 | `AssetSource(path)` | Flutter bundled asset |
 | `DeviceFileSource(path)` | Local device file path |
-| `NetworkSource(url)` | Remote animation URL |
+| `NetworkFileSource(url)` | Remote animation URL |
 | `BytesSource(bytes)` | In-memory `Uint8List` |
 
 # Migration Guide
@@ -283,9 +287,11 @@ SplashMasterLottie(
 |---|---|
 | `SplashMaster.lottie(...)` | `SplashMasterLottie(...)` |
 | `SplashMaster.initialize()` | `SplashMasterLottie.initialize()` |
-| `SplashMaster.resume()` | `SplashMasterLottie.resume()` |
+| `SplashMaster.resume()` | Remove the call; `SplashMasterLottie` resumes itself once the source loads |
 
-Apps that used only the native image/color splash with no animation widget are **not affected**.
+Call only `SplashMasterLottie.initialize()` in `main`. A custom `onSourceLoaded` callback replaces the built-in `resume()` call, so if you pass one, call `SplashMasterLottie.resume()` inside it. Don't call `resume()` in `main`: that releases the first frame before the animation is ready.
+
+Apps that use only the native image/color splash, or their own Flutter splash widget, don't need this package. Native-only apps delete any `SplashMaster.initialize()` and `SplashMaster.resume()` calls; apps with their own widget replace them with `WidgetsBinding.instance.deferFirstFrame()` and `allowFirstFrame()`. See the [splash_master migration guide](https://simform-flutter-packages.web.app/splashMaster/migration-guides).
 
 # Contributors
 

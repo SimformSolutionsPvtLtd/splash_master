@@ -251,9 +251,11 @@ rive.ndk.version=28.1.13356709
 |---|---|
 | `SplashMaster.rive(...)` | `SplashMasterRive(...)` |
 | `SplashMaster.initialize()` | `SplashMasterRive.initialize()` |
-| `SplashMaster.resume()` | `SplashMasterRive.resume()` |
+| `SplashMaster.resume()` | Remove the call; `SplashMasterRive` resumes itself once the source loads |
 
-Apps that used only the native image/color splash with no animation widget are **not affected**.
+Call only `SplashMasterRive.initialize()` in `main`. A custom `onSourceLoaded` callback replaces the built-in `resume()` call, so if you pass one, call `SplashMasterRive.resume()` inside it. Don't call `resume()` in `main`: that releases the first frame before the animation is ready.
+
+Apps that use only the native image/color splash, or their own Flutter splash widget, don't need this package. Native-only apps delete any `SplashMaster.initialize()` and `SplashMaster.resume()` calls; apps with their own widget replace them with `WidgetsBinding.instance.deferFirstFrame()` and `allowFirstFrame()`. See the [splash_master migration guide](https://simform-flutter-packages.web.app/splashMaster/migration-guides).
 
 # Contributors
 
