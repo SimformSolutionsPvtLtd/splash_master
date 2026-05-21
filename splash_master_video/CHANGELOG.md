@@ -1,4 +1,6 @@
-# Changelog
+## [1.0.0+1]
+
+- Documentation changes
 
 ## [1.0.0]
 
