@@ -415,17 +415,27 @@ This version standardizes dark-mode keys, enforces strict config validation, int
 
 ### Flutter Widget API Changes
 
-`SplashMaster.rive(...)`, `SplashMaster.video(...)`, and `SplashMaster.lottie(...)` have been removed from the `splash_master` package. Add the relevant sub-package and rename the widget:
+The `SplashMaster` factory class has been removed. Animation widgets have been moved to dedicated sub-packages:
 
-| Before (0.0.3)              | After (1.0.0)            | New package              |
-|-----------------------------|--------------------------|--------------------------|
-| `SplashMaster.rive(...)`    | `SplashMasterRive(...)`        | `splash_master_rive`     |
-| `SplashMaster.video(...)`   | `SplashMasterVideo(...)`       | `splash_master_video`    |
-| `SplashMaster.lottie(...)`  | `SplashMasterLottie(...)`      | `splash_master_lottie`   |
-| `SplashMaster.initialize()` | `<Widget>.initialize()`  | same sub-package widget  |
-| `SplashMaster.resume()`     | `<Widget>.resume()`      | same sub-package widget  |
+| Before (0.0.3)              | After (1.0.0)            | Notes                                |
+|-----------------------------|--------------------------|--------------------------------------|
+| `SplashMaster.rive(...)`    | `SplashMasterRive(...)`  | Requires `splash_master_rive` package |
+| `SplashMaster.video(...)`   | `SplashMasterVideo(...)` | Requires `splash_master_video` package |
+| `SplashMaster.lottie(...)`  | `SplashMasterLottie(...)` | Requires `splash_master_lottie` package |
+| `SplashMaster.initialize()` | `<Widget>.initialize()`  | **Only needed for animation widgets** |
+| `SplashMaster.resume()`     | `<Widget>.resume()`      | **Only needed for animation widgets** |
 
-Apps that use **only** the native image/color splash (CLI only, no Flutter animation widget) are **not affected** — continue using `splash_master` alone with no code changes.
+#### For Native Image/Color Splash
+
+**No longer required:**
+- `SplashMaster.initialize()`
+- `SplashMaster.resume()`
+
+If you're using **only** the native image/color splash (CLI only, no Flutter animation widget), remove these calls, replace outdated parameters from the `pubspec.yaml` with new ones, and run `dart run splash_master create`. The native splash transitions automatically to your Flutter app.
+
+#### For Animation Widgets
+
+If using `SplashMasterRive`, `SplashMasterVideo`, or `SplashMasterLottie`, call the respective widget's `.initialize()` and `.resume()` methods in your main function.
 
 > `RiveFileSource` is available in `splash_master_rive`. Import `package:splash_master_rive/splash_master_rive.dart` to access it.
 
@@ -438,6 +448,8 @@ Apps that use **only** the native image/color splash (CLI only, no Flutter anima
 | `android_dark_gravity` fallback | Could independently default to `fill` | Falls back to `android_gravity` when omitted |
 | Validation strictness | Legacy/unknown keys could still exist in configs | Unsupported keys are rejected with a validation error |
 | iOS content mode aliases | `aspectFit` and `aspectFill` were accepted aliases | Use `scaleAspectFit` and `scaleAspectFill` |
+| `SplashMaster` factory class | Unified entry point for all splash animations | Removed — use dedicated sub-package widgets instead |
+| **Initialization / Lifecycle methods** | **`SplashMaster.initialize()` and `SplashMaster.resume()` required for all splash types** | **`SplashMaster.initialize()` and `SplashMaster.resume()` are no longer supported.** Use the respective animation widget's `.initialize()` and `.resume()` methods instead (e.g., `SplashMasterRive.initialize()`). Not needed for native image/color splash. |
 
 ## 1) Dark Mode Key Renames
 
@@ -544,7 +556,55 @@ when `background_image_dark` is used on Android.
 1.0.0 validates config keys strictly. Remove legacy keys and keep only supported
 keys, including supported nested keys under `android_12_and_above`.
 
-#### For a complete list of changes and new features in each version, please refer to [CHANGELOG.md](https://github.com/SimformSolutionsPvtLtd/splash_master/blob/master/CHANGELOG.md) on Github.
+## 7) Removed SplashMaster Lifecycle Methods
+
+`SplashMaster.initialize()` and `SplashMaster.resume()` are **no longer supported** in 1.0.0. These static methods on the `SplashMaster` factory class have been removed entirely.
+
+### For Native Image/Color Splash
+
+**No action required.** If you're using only the native image/color splash (CLI only, no Flutter animation widget), you never needed these methods. Simply configure `pubspec.yaml` and run `dart run splash_master create`.
+
+### For Animation Widgets
+
+If you were calling `SplashMaster.initialize()` or `SplashMaster.resume()`, replace them with the respective animation widget's methods:
+
+#### Before (0.0.3)
+
+```dart
+import 'package:splash_master/splash_master.dart';
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  SplashMaster.initialize();  // ❌ No longer supported
+  runApp(
+    MaterialApp(
+      home: SplashMaster.rive(
+        source: AssetSource('assets/animation.riv'),
+        nextScreen: const MyApp(),
+      ),
+    ),
+  );
+}
+```
+
+#### After (1.0.0) — Rive Example
+
+```dart
+import 'package:splash_master_rive/splash_master_rive.dart';
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  SplashMasterRive.initialize();  // ✅ Use widget-specific method
+  runApp(
+    MaterialApp(
+      home: SplashMasterRive(
+        source: AssetSource('assets/animation.riv'),
+        nextScreen: const MyApp(),
+      ),
+    ),
+  );
+}
+```
 
 # Contributors
 
