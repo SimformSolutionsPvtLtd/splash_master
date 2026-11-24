@@ -1,0 +1,1 @@
+../../../../splash_master/skills/splash-master-native-splash/references/config-keys.md

@@ -235,13 +235,9 @@ SplashMasterRive(
 
 # Platform Notes
 
-## Android 16 KB Page Size
+## Android NDK and 16 KB Page Size
 
-If you target devices with 16 KB memory page size (Android 15+), add the following to `android/gradle.properties`:
-
-```properties
-rive.ndk.version=28.1.13356709
-```
+Rive 0.14 supports 16 KB memory pages (Android 15+) without extra setup, and builds with your app's NDK. If the Android build reports an NDK version error, set `ndkVersion` in `android/app/build.gradle(.kts)`; Rive recommends `27.2.12479018`. The `rive.ndk.version` property in `gradle.properties` was a Rive 0.13 setting and has no effect in 0.14.
 
 # Migration Guide
 
@@ -256,6 +252,16 @@ rive.ndk.version=28.1.13356709
 Call only `SplashMasterRive.initialize()` in `main`. A custom `onSourceLoaded` callback replaces the built-in `resume()` call, so if you pass one, call `SplashMasterRive.resume()` inside it. Don't call `resume()` in `main`: that releases the first frame before the animation is ready.
 
 Apps that use only the native image/color splash, or their own Flutter splash widget, don't need this package. Native-only apps delete any `SplashMaster.initialize()` and `SplashMaster.resume()` calls; apps with their own widget replace them with `WidgetsBinding.instance.deferFirstFrame()` and `allowFirstFrame()`. See the [splash_master migration guide](https://simform-flutter-packages.web.app/splashMaster/migration-guides).
+
+# AI Agent Skills
+
+This package ships the `splash-master-rive-splash` [agent skill](https://dart.dev/tools/pub/package-skills), which guides coding agents (Claude Code, Cursor, Copilot, Codex, …) through setting up a Rive splash and the native splash before it. Install it from your app's root (needs Dart 3.10 or later):
+
+```bash
+dart run skills@ get
+```
+
+Run it again after upgrading `splash_master_rive` to update the skill.
 
 # Contributors
 

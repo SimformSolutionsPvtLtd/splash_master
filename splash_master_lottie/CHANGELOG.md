@@ -1,3 +1,8 @@
+## [Unreleased]
+
+- Feature - Added the AI coding-agent skill `splash-master-lottie-splash` in `skills/`. Install it in your app with [`dart run skills@ get`](https://dart.dev/tools/pub/package-skills).
+- Improvement - Removed the GitHub Copilot instructions, prompts and skill files from `.github/`; they are replaced by the package's agent skills.
+
 ## [1.0.0+1]
 
 - Documentation changes

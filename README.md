@@ -76,6 +76,31 @@ dart run splash_master create
 
 For full key reference, check our [documentation](https://simform-flutter-packages.web.app/splashMaster/basic-usage).
 
+## AI agent skills
+
+Each package ships [agent skills](https://dart.dev/tools/pub/package-skills) for coding agents (Claude Code, Cursor, Copilot, Codex, …):
+
+| Package | Skills |
+|---|---|
+| `splash_master` | `splash-master-native-splash`, `splash-master-migration` |
+| `splash_master_rive` | `splash-master-rive-splash` |
+| `splash_master_video` | `splash-master-video-splash` |
+| `splash_master_lottie` | `splash-master-lottie-splash` |
+
+Install them from your app's root (needs Dart 3.10 or later):
+
+```bash
+dart run skills@ get
+```
+
+Only packages that are direct dependencies of your app are scanned. Run the command again after upgrading to update the skills.
+
+Upgrading from 0.0.x? Upgrade first (`flutter pub upgrade --major-versions splash_master`), run the command above, then ask your agent to migrate the project.
+
+## Contributing
+
+> **Windows:** clone with `git clone -c core.symlinks=true` (needs Developer Mode or admin rights), since `splash_master_{rive,video,lottie}/skills/*/references/` are symlinks and otherwise check out as plain-text paths.
+
 ## Support
 
 For questions, issues, or feature requests, [create an issue](https://github.com/SimformSolutionsPvtLtd/splash_master/issues) on GitHub.

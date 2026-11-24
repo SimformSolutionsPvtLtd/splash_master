@@ -293,6 +293,16 @@ Call only `SplashMasterLottie.initialize()` in `main`. A custom `onSourceLoaded`
 
 Apps that use only the native image/color splash, or their own Flutter splash widget, don't need this package. Native-only apps delete any `SplashMaster.initialize()` and `SplashMaster.resume()` calls; apps with their own widget replace them with `WidgetsBinding.instance.deferFirstFrame()` and `allowFirstFrame()`. See the [splash_master migration guide](https://simform-flutter-packages.web.app/splashMaster/migration-guides).
 
+# AI Agent Skills
+
+This package ships the `splash-master-lottie-splash` [agent skill](https://dart.dev/tools/pub/package-skills), which guides coding agents (Claude Code, Cursor, Copilot, Codex, …) through setting up a Lottie splash and the native splash before it. Install it from your app's root (needs Dart 3.10 or later):
+
+```bash
+dart run skills@ get
+```
+
+Run it again after upgrading `splash_master_lottie` to update the skill.
+
 # Contributors
 
 The following individuals have played a key role in developing and maintaining the Splash Master package.

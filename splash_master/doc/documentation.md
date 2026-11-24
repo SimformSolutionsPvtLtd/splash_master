@@ -491,6 +491,18 @@ class _MySplashState extends State<MySplash> {
 
 #### For a complete list of changes and new features in each version, please refer to [CHANGELOG.md](https://github.com/SimformSolutionsPvtLtd/splash_master/blob/master/splash_master/CHANGELOG.md) on Github.
 
+# AI Agent Skills
+
+This package ships two [agent skills](https://dart.dev/tools/pub/package-skills) for coding agents (Claude Code, Cursor, Copilot, Codex, …): `splash-master-native-splash` (configure and generate the native splash) and `splash-master-migration` (migrate from 0.0.x to 1.x). Install them from your app's root (needs Dart 3.10 or later):
+
+```bash
+dart run skills@ get
+```
+
+Run it again after upgrading `splash_master` to update the skills.
+
+Upgrading from 0.0.x? Upgrade first (`flutter pub upgrade --major-versions splash_master`), run the command above, then ask your agent to migrate the project.
+
 # Contributors
 
 The following individuals have played a key role in developing and maintaining the Splash Master package.

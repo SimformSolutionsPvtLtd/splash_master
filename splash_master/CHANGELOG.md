@@ -1,3 +1,8 @@
+## [Unreleased]
+
+- Feature - Added AI coding-agent skills `splash-master-native-splash` (configure and generate the native splash) and `splash-master-migration` (migrate from 0.0.x to 1.x) in `skills/`. Install them in your app with [`dart run skills@ get`](https://dart.dev/tools/pub/package-skills).
+- Improvement - Removed the GitHub Copilot instructions, prompts and skill files from `.github/`; they are replaced by the package's agent skills.
+
 ## [1.0.0+1]
 
 - Documentation changes

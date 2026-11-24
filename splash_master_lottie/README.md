@@ -50,6 +50,16 @@ dart run splash_master create
 
 For full key reference, check our [splash_master documentation](https://simform-flutter-packages.web.app/splashMaster/basic-usage).
 
+## AI agent skills
+
+This package ships the `splash-master-lottie-splash` [agent skill](https://dart.dev/tools/pub/package-skills), which guides coding agents (Claude Code, Cursor, Copilot, Codex, …) through setting up a Lottie splash and the native splash before it. Install it from your app's root (needs Dart 3.10 or later):
+
+```bash
+dart run skills@ get
+```
+
+Run it again after upgrading `splash_master_lottie` to update the skill.
+
 ## Support
 
 For questions or issues, [create an issue](https://github.com/SimformSolutionsPvtLtd/splash_master/issues) on GitHub.
