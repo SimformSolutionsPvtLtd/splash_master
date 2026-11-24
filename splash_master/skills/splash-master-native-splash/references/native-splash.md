@@ -40,10 +40,6 @@ All keys, their platforms and fallbacks: `references/config-keys.md`.
   tall.
 - Gravity keys (`android_gravity`, `android_dark_gravity`,
   `android_background_image_gravity`) affect Android **below 12** only.
-- The CLI does **not** validate `android_dark_gravity`: an unsupported value
-  is written into the dark splash drawable without an error and the Android
-  build then fails. Check it against the allowed values in
-  `references/config-keys.md` before running the CLI.
 - Dark mode keys (`color_dark`, `image_dark`, `background_image_dark`) apply
   to both Android and iOS.
 - iOS needs the light asset whenever a dark one is set: `image_dark` requires
@@ -127,7 +123,7 @@ splash_master:
 | `Unsupported key(s) in splash_master: …` | Unknown or legacy key (e.g. `image_dark_android`) | Use the supported key names listed in the message |
 | `Unsupported key(s) in android_12_and_above: …` | Wrong nested key | Allowed: `image`, `color`, `image_dark`, `color_dark`, `branding_image`, `branding_image_dark` |
 | `Please check the android_12_and_above configuration…` | `android_12_and_above` is not a nested map | Indent its keys under it |
-| `Invalid android gravity.` | `android_gravity` or `android_background_image_gravity` is not in the allowed list (the message does not say which) | Check both against `references/config-keys.md` |
+| `Please check the android_gravity` / `Please check the android_dark_gravity` / `Please check the android_background_image_gravity` | Value not in the allowed list. Combined flags such as `bottom\|center_horizontal` are rejected | Use a single value from `references/config-keys.md` |
 | `Please check the ios_content_mode` / `Please check the ios_background_content_mode` | Value not in the allowed list | Use a value from `references/config-keys.md` |
 | `Asset not found. <path>` | A top-level image path does not exist | Fix the path relative to the app root |
 | `Image path not found` | `android_12_and_above.image` does not exist | Fix that path |
