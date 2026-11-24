@@ -215,9 +215,9 @@ SplashMasterVideo(
 
 | Value | Description |
 |---|---|
-| `VisibilityEnum.useFullScreen` | Fills the screen while maintaining aspect ratio with letterboxing (default) |
-| `VisibilityEnum.useAspectRatio` | Displays the video at its natural aspect ratio within available space |
-| `VisibilityEnum.none` | No special layout handling |
+| `VisibilityEnum.useFullScreen` | Stretches the video to the screen size (default) |
+| `VisibilityEnum.useAspectRatio` | Keeps the video's aspect ratio within the available space |
+| `VisibilityEnum.none` | No sizing wrapper; the video still fills the available space, like `useFullScreen` |
 
 ## Source Types
 
@@ -241,6 +241,16 @@ SplashMasterVideo(
 Call only `SplashMasterVideo.initialize()` in `main`. A custom `onSourceLoaded` callback replaces the built-in `resume()` call, so if you pass one, call `SplashMasterVideo.resume()` inside it. Don't call `resume()` in `main`: that releases the first frame before the animation is ready.
 
 Apps that use only the native image/color splash, or their own Flutter splash widget, don't need this package. Native-only apps delete any `SplashMaster.initialize()` and `SplashMaster.resume()` calls; apps with their own widget replace them with `WidgetsBinding.instance.deferFirstFrame()` and `allowFirstFrame()`. See the [splash_master migration guide](https://simform-flutter-packages.web.app/splashMaster/migration-guides).
+
+# AI Agent Skills
+
+This package ships the `splash-master-video-splash` [agent skill](https://dart.dev/tools/pub/package-skills), which guides coding agents (Claude Code, Cursor, Copilot, Codex, …) through setting up a video splash and the native splash before it. Install it from your app's root (needs Dart 3.10 or later):
+
+```bash
+dart run skills@ get
+```
+
+Run it again after upgrading `splash_master_video` to update the skill.
 
 # Contributors
 

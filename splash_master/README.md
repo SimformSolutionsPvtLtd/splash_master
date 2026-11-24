@@ -76,6 +76,18 @@ dart run splash_master create
 
 For full key reference, check our [documentation](https://simform-flutter-packages.web.app/splashMaster/basic-usage).
 
+## AI agent skills
+
+This package ships two [agent skills](https://dart.dev/tools/pub/package-skills) for coding agents (Claude Code, Cursor, Copilot, Codex, …): `splash-master-native-splash` (configure and generate the native splash) and `splash-master-migration` (migrate from 0.0.x to 1.x). Install them from your app's root (needs Dart 3.10 or later):
+
+```bash
+dart run skills@ get
+```
+
+Run it again after upgrading `splash_master` to update the skills.
+
+Upgrading from 0.0.x? Upgrade first (`flutter pub upgrade --major-versions splash_master`), run the command above, then ask your agent to migrate the project.
+
 ## Support
 
 For questions, issues, or feature requests, [create an issue](https://github.com/SimformSolutionsPvtLtd/splash_master/issues) on GitHub.

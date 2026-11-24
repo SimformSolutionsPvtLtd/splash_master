@@ -1,3 +1,9 @@
+## [Unreleased]
+
+- Feature - Added the AI coding-agent skill `splash-master-video-splash` in `skills/`. Install it in your app with [`dart run skills@ get`](https://dart.dev/tools/pub/package-skills).
+- Improvement - Removed the GitHub Copilot instructions, prompts and skill files from `.github/`; they are replaced by the package's agent skills.
+- Improvement - Corrected the `VisibilityEnum` descriptions in the documentation: `useFullScreen` stretches the video, and `none` also fills the available space.
+
 ## [1.0.0+1]
 
 - Documentation changes
