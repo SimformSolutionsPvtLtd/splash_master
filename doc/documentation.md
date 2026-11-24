@@ -415,17 +415,17 @@ This version standardizes dark-mode keys, enforces strict config validation, int
 
 ### Flutter Widget API Changes
 
-`SplashMaster.rive(...)`, `SplashMaster.video(...)`, and `SplashMaster.lottie(...)` have been removed from the `splash_master` package. Add the relevant sub-package and rename the widget:
+The `SplashMaster` widget and its static methods have been removed from the `splash_master` package. Animation widgets now live in dedicated sub-packages:
 
-| Before (0.0.3)              | After (1.0.0)            | New package              |
-|-----------------------------|--------------------------|--------------------------|
-| `SplashMaster.rive(...)`    | `SplashMasterRive(...)`        | `splash_master_rive`     |
-| `SplashMaster.video(...)`   | `SplashMasterVideo(...)`       | `splash_master_video`    |
-| `SplashMaster.lottie(...)`  | `SplashMasterLottie(...)`      | `splash_master_lottie`   |
-| `SplashMaster.initialize()` | `<Widget>.initialize()`  | same sub-package widget  |
-| `SplashMaster.resume()`     | `<Widget>.resume()`      | same sub-package widget  |
+| Before (0.0.3)              | After (1.0.0)                                                     | Package                |
+|-----------------------------|-------------------------------------------------------------------|------------------------|
+| `SplashMaster.rive(...)`    | `SplashMasterRive(...)`                                           | `splash_master_rive`   |
+| `SplashMaster.video(...)`   | `SplashMasterVideo(...)`                                          | `splash_master_video`  |
+| `SplashMaster.lottie(...)`  | `SplashMasterLottie(...)`                                         | `splash_master_lottie` |
+| `SplashMaster.initialize()` | `<Widget>.initialize()`; see [7)](#7-removed-splashmaster-lifecycle-methods) for other apps           | same as the widget     |
+| `SplashMaster.resume()`     | Remove; `<Widget>.resume()` only inside a custom `onSourceLoaded` | same as the widget     |
 
-Apps that use **only** the native image/color splash (CLI only, no Flutter animation widget) are **not affected** — continue using `splash_master` alone with no code changes.
+Apps without a Flutter animation widget don't need a sub-package. If they use **only** the native image/color splash, they must delete any `SplashMaster.initialize()` and `SplashMaster.resume()` calls. If they show their own Flutter splash widget, they replace the calls with `WidgetsBinding.instance.deferFirstFrame()` and `allowFirstFrame()`. See [7) Removed SplashMaster Lifecycle Methods](#7-removed-splashmaster-lifecycle-methods).
 
 > `RiveFileSource` is available in `splash_master_rive`. Import `package:splash_master_rive/splash_master_rive.dart` to access it.
 
@@ -438,6 +438,8 @@ Apps that use **only** the native image/color splash (CLI only, no Flutter anima
 | `android_dark_gravity` fallback | Could independently default to `fill` | Falls back to `android_gravity` when omitted |
 | Validation strictness | Legacy/unknown keys could still exist in configs | Unsupported keys are rejected with a validation error |
 | iOS content mode aliases | `aspectFit` and `aspectFill` were accepted aliases | Use `scaleAspectFit` and `scaleAspectFill` |
+| `SplashMaster` widget | `SplashMaster.rive()`, `.video()` and `.lottie()` in `splash_master` | Removed. Use `SplashMasterRive`, `SplashMasterVideo` or `SplashMasterLottie` from the sub-packages |
+| `SplashMaster.initialize()` / `SplashMaster.resume()` | Static methods on `SplashMaster`. The README called `initialize()` in `main` for every splash type, and `resume()` for the image splash | Removed. Animation widgets use `<Widget>.initialize()`; native image/color splash needs neither call; a custom splash widget calls `WidgetsBinding.instance.deferFirstFrame()` and `allowFirstFrame()` |
 
 ## 1) Dark Mode Key Renames
 
@@ -544,7 +546,154 @@ when `background_image_dark` is used on Android.
 1.0.0 validates config keys strictly. Remove legacy keys and keep only supported
 keys, including supported nested keys under `android_12_and_above`.
 
-#### For a complete list of changes and new features in each version, please refer to [CHANGELOG.md](https://github.com/SimformSolutionsPvtLtd/splash_master/blob/master/CHANGELOG.md) on Github.
+## 7) Removed SplashMaster Lifecycle Methods
+
+`SplashMaster.initialize()` and `SplashMaster.resume()` were removed together with the `SplashMaster` widget. Code that still calls them fails to compile with `Undefined name 'SplashMaster'`.
+
+Both methods were thin wrappers: `initialize()` called `WidgetsBinding.instance.deferFirstFrame()` to keep the native splash on screen, and `resume()` called `WidgetsBinding.instance.allowFirstFrame()` to release it.
+
+### Native image/color splash only
+
+The 0.0.3 README told image-splash apps to call both methods in `main`. Delete both calls. The native splash stays on screen until Flutter draws its first frame, so anything you `await` before `runApp` still runs while it is visible.
+
+#### Before (0.0.3)
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:splash_master/splash_master.dart';
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  SplashMaster.initialize();
+  // Setup your config before the resume.
+  SplashMaster.resume();
+  runApp(const MyApp());
+}
+```
+
+#### After (1.0.0)
+
+```dart
+import 'package:flutter/material.dart';
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  // Setup your config before runApp.
+  runApp(const MyApp());
+}
+```
+
+### Animation widgets (Rive, Video, Lottie)
+
+Replace `SplashMaster.initialize()` with the `initialize()` method of the widget you use: `SplashMasterRive.initialize()`, `SplashMasterVideo.initialize()` or `SplashMasterLottie.initialize()`.
+
+Call only `initialize()` in `main`. The widget calls its own `resume()` once the source has loaded. A custom `onSourceLoaded` callback replaces that call, so if you pass one, call `<Widget>.resume()` inside it. Don't call `resume()` in `main`: that releases the first frame before the animation is ready.
+
+`SplashMasterRive` and `SplashMasterVideo` also call `resume()` when the source fails to load. `SplashMasterLottie` doesn't: if the animation fails to load, the app stays on the native splash. Prefer an `AssetSource` that ships with the app, and test network sources offline.
+
+#### Before (0.0.3)
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:splash_master/splash_master.dart';
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  SplashMaster.initialize();
+  runApp(
+    MaterialApp(
+      home: SplashMaster.rive(
+        source: AssetSource('assets/animation.riv'),
+        nextScreen: const MyApp(),
+      ),
+    ),
+  );
+}
+```
+
+#### After (1.0.0)
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:splash_master_rive/splash_master_rive.dart';
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  SplashMasterRive.initialize();
+  runApp(
+    MaterialApp(
+      home: SplashMasterRive(
+        source: AssetSource('assets/animation.riv'),
+        nextScreen: const MyApp(),
+      ),
+    ),
+  );
+}
+```
+
+### Custom splash widget
+
+The 0.0.3 README also showed `SplashMaster.initialize()` with your own widget as `home`, leaving it to call `SplashMaster.resume()` once it was ready. 1.0.0 has no replacement in `splash_master`, and you don't need a sub-package: call the two Flutter methods they wrapped.
+
+Call `allowFirstFrame()` exactly once for each `deferFirstFrame()`. Until it runs, the native splash stays on screen, so call it when loading fails as well.
+
+#### Before (0.0.3)
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:splash_master/splash_master.dart';
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  SplashMaster.initialize();
+  runApp(const MaterialApp(home: MySplash()));
+}
+
+// Inside MySplash, once it is ready to show:
+// SplashMaster.resume();
+```
+
+#### After (1.0.0)
+
+```dart
+import 'package:flutter/material.dart';
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  // Replaces SplashMaster.initialize().
+  WidgetsBinding.instance.deferFirstFrame();
+  runApp(const MaterialApp(home: MySplash()));
+}
+
+class MySplash extends StatefulWidget {
+  const MySplash({super.key});
+
+  @override
+  State<MySplash> createState() => _MySplashState();
+}
+
+class _MySplashState extends State<MySplash> {
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    try {
+      // Load what your splash needs.
+    } finally {
+      // Replaces SplashMaster.resume().
+      WidgetsBinding.instance.allowFirstFrame();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => const ColoredBox(color: Colors.white);
+}
+```
+
+#### For a complete list of changes and new features in each version, please refer to [CHANGELOG.md](https://github.com/SimformSolutionsPvtLtd/splash_master/blob/master/splash_master/CHANGELOG.md) on Github.
 
 # Contributors
 

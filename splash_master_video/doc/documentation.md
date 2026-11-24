@@ -162,7 +162,7 @@ SplashMasterVideo(
 
 ```dart
 SplashMasterVideo(
-  source: NetworkSource('https://example.com/splash.mp4'),
+  source: NetworkFileSource('https://example.com/splash.mp4'),
   nextScreen: const MyApp(),
 )
 ```
@@ -225,7 +225,7 @@ SplashMasterVideo(
 |---|---|
 | `AssetSource(path)` | Flutter bundled asset |
 | `DeviceFileSource(path)` | Local device file path |
-| `NetworkSource(url)` | Remote video URL |
+| `NetworkFileSource(url)` | Remote video URL |
 | `BytesSource(bytes)` | In-memory `Uint8List` |
 
 # Migration Guide
@@ -236,9 +236,11 @@ SplashMasterVideo(
 |---|---|
 | `SplashMaster.video(...)` | `SplashMasterVideo(...)` |
 | `SplashMaster.initialize()` | `SplashMasterVideo.initialize()` |
-| `SplashMaster.resume()` | `SplashMasterVideo.resume()` |
+| `SplashMaster.resume()` | Remove the call; `SplashMasterVideo` resumes itself once the source loads |
 
-Apps that used only the native image/color splash with no animation widget are **not affected**.
+Call only `SplashMasterVideo.initialize()` in `main`. A custom `onSourceLoaded` callback replaces the built-in `resume()` call, so if you pass one, call `SplashMasterVideo.resume()` inside it. Don't call `resume()` in `main`: that releases the first frame before the animation is ready.
+
+Apps that use only the native image/color splash, or their own Flutter splash widget, don't need this package. Native-only apps delete any `SplashMaster.initialize()` and `SplashMaster.resume()` calls; apps with their own widget replace them with `WidgetsBinding.instance.deferFirstFrame()` and `allowFirstFrame()`. See the [splash_master migration guide](https://simform-flutter-packages.web.app/splashMaster/migration-guides).
 
 # Contributors
 

@@ -22,7 +22,9 @@ Splash Master is a Flutter package ecosystem for native and animated splash scre
 | `SplashMaster.video(...)` | `SplashMasterVideo(...)` | `splash_master_video` |
 | `SplashMaster.lottie(...)` | `SplashMasterLottie(...)` | `splash_master_lottie` |
 | `SplashMaster.initialize()` | `<Widget>.initialize()` | renderer package |
-| `SplashMaster.resume()` | `<Widget>.resume()` | renderer package |
+| `SplashMaster.resume()` | Remove; the widget resumes itself once the source loads | renderer package |
+
+Apps that use only the native image/color splash must delete any `SplashMaster.initialize()` and `SplashMaster.resume()` calls. Apps that show their own Flutter splash widget replace them with `WidgetsBinding.instance.deferFirstFrame()` and `allowFirstFrame()`. Neither needs a renderer package.
 
 For more details, check our [documentation](https://simform-flutter-packages.web.app/splashMaster).
 
