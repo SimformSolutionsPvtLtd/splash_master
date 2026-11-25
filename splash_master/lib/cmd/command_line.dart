@@ -124,14 +124,16 @@ Future<void> setupSplashScreen(YamlMap splashData) async {
     }
   }
 
-  /// Checking if provided android gravity is valid or not
-  if (splashData[YamlKeys.androidGravityKey] != null &&
-      !(AndroidGravity.values.any(
-        (element) =>
-            element ==
-            AndroidGravity.fromString(splashData[YamlKeys.androidGravityKey]),
-      ))) {
-    log('Please check the android_gravity');
+  if (!_validateAndroidGravityIfProvided(
+    splashData[YamlKeys.androidGravityKey],
+    keyName: YamlKeys.androidGravityKey,
+  )) {
+    return;
+  }
+  if (!_validateAndroidGravityIfProvided(
+    splashData[YamlKeys.androidDarkGravityKey],
+    keyName: YamlKeys.androidDarkGravityKey,
+  )) {
     return;
   }
 
@@ -206,14 +208,10 @@ Future<void> setupSplashScreen(YamlMap splashData) async {
     }
   }
 
-  if (splashData[YamlKeys.androidBackgroundGravity] != null &&
-      !(AndroidGravity.values.any(
-        (element) =>
-            element ==
-            AndroidGravity.fromString(
-                splashData[YamlKeys.androidBackgroundGravity]),
-      ))) {
-    log('Please check the android_background_image_gravity');
+  if (!_validateAndroidGravityIfProvided(
+    splashData[YamlKeys.androidBackgroundGravity],
+    keyName: YamlKeys.androidBackgroundGravity,
+  )) {
     return;
   }
 
@@ -384,6 +382,25 @@ IosContentMode? _tryParseIosContentMode(dynamic mode) {
   }
 
   return null;
+}
+
+/// Returns false and logs `Please check the <keyName>` when [gravity] is set
+/// but is not a single supported [AndroidGravity] value.
+bool _validateAndroidGravityIfProvided(
+  dynamic gravity, {
+  required String keyName,
+}) {
+  if (gravity == null) {
+    return true;
+  }
+
+  try {
+    AndroidGravity.fromString(gravity.toString());
+    return true;
+  } on SplashMasterException {
+    log('Please check the $keyName');
+    return false;
+  }
 }
 
 bool _validateImageExtensionIfProvided(
